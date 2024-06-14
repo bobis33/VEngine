@@ -1,0 +1,13 @@
+.doxygen/*
+.idea/*
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+cmake-build-debug/*
+build/*
+
+vengine

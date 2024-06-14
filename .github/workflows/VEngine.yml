@@ -1,0 +1,33 @@
+name: VENGINE
+run-name: ${{github.actor}} VENGINE
+on:
+  push:
+    branches:
+      - "**"
+
+env:
+  EXECUTABLE: "vengine"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vulkan dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglm-dev libglfw3-dev libassimp-dev
+
+      - name: Check compilation
+        run: |
+          mkdir ./build && cd ./build
+          cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+
+      - name: Check binary
+        run: |
+          if [[ ! -x "./${EXECUTABLE}" ]]; then
+          echo "Error: Binary ${EXECUTABLE} not found."
+          exit 1
+          fi
