@@ -1,17 +1,30 @@
 # VENGINE
+
+<img src="doc/vulkan_logo.png" alt="logo">
+
 [![VENGINE](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 
+ACTUALLY WORKING ON IT!
 
 ## Description
 
 This is a simple game engine that I am developing for fun. It is written in C++ and uses Vulkan for rendering.
+
+
+## Pre-requisites
+
+- CMake 3.27
+- C++20
+- Vulkan SDK
+- GLFW3
+- GLM
+
 
 ## Usage
 
 ### Build
 
 ```bash
-$> cd App/GUI
 $> ./build.sh build
 [...]
 ```
