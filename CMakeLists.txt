@@ -10,21 +10,23 @@ set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+# Vulkan
+find_package(Vulkan REQUIRED)
+include_directories(${Vulkan_INCLUDE_DIRS})
+
+# Clang tidy
 option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
+if (USE_CLANG_TIDY)
+    include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
+endif()
 
 include(${CMAKE_MODULE_PATH}/myVariables.cmake)
 
 # Build Doxygen documentation
 include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
-# Clang format
-if (USE_CLANG_TIDY)
-    include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
-endif()
-
-# Vulkan
-find_package(Vulkan REQUIRED)
-include_directories(${Vulkan_INCLUDE_DIRS})
+# Add shaders directory
+add_subdirectory(shaders)
 
 # Libraries
 add_subdirectory(lib)
@@ -37,10 +39,13 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/engine.cpp
         ${SRC_DIR}/window.cpp
         ${SRC_DIR}/device.cpp
+        ${SRC_DIR}/shader.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE my_lib glfw ${Vulkan_LIBRARIES})
+
+add_dependencies(${PROJECT_NAME} Shaders)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})

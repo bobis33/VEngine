@@ -18,11 +18,7 @@ namespace ven {
         public:
 
             Device(VkInstance instance, VkSurfaceKHR surface) : m_instance(instance), m_surface(surface) { pickPhysicalDevice(); createLogicalDevice(); }
-            ~Device() { vkDestroyDevice(m_device, nullptr); }
-
-            [[nodiscard]] VkDevice getDevice() const { return m_device; }
-            [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
-            [[nodiscard]] VkQueue getPresentQueue() const { return m_presentQueue; }
+            ~Device() { vkDestroyDevice(m_device, VK_NULL_HANDLE); }
 
         private:
             VkDevice m_device{VK_NULL_HANDLE};
@@ -30,8 +26,8 @@ namespace ven {
             VkQueue m_presentQueue{VK_NULL_HANDLE};
 
             VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
-            VkInstance m_instance{nullptr};
-            VkSurfaceKHR m_surface{nullptr};
+            VkInstance m_instance{VK_NULL_HANDLE};
+            VkSurfaceKHR m_surface{VK_NULL_HANDLE};
 
             void pickPhysicalDevice();
             void createLogicalDevice();
