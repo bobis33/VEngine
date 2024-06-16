@@ -1,5 +1,5 @@
-name: VENGINE
-run-name: ${{github.actor}} VENGINE
+name: VEngine
+run-name: ${{github.actor}} VEngine
 on:
   push:
     branches:

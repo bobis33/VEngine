@@ -2,9 +2,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "VEngine/Shader.hpp"
+#include "VEngine/Shaders.hpp"
 
-std::vector<char> ven::Shader::readFile(const std::string &filename)
+std::vector<char> ven::Shaders::readFile(const std::string &filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -22,7 +22,7 @@ std::vector<char> ven::Shader::readFile(const std::string &filename)
     return buffer;
 }
 
-VkShaderModule ven::Shader::createShaderModule(VkDevice device, const std::vector<char> &code)
+VkShaderModule ven::Shaders::createShadersModule(VkDevice device, const std::vector<char> &code)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -37,7 +37,7 @@ VkShaderModule ven::Shader::createShaderModule(VkDevice device, const std::vecto
     return shaderModule;
 }
 
-void ven::Shader::createGraphicsPipeline(const std::string &vertexFilePath, const std::string &fragmentFilePath)
+void ven::Shaders::createGraphicsPipeline(const std::string &vertexFilePath, const std::string &fragmentFilePath)
 {
     auto vertCode = readFile(vertexFilePath);
     auto fragCode = readFile(fragmentFilePath);

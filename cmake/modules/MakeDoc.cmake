@@ -15,8 +15,8 @@ if (DOXYGEN_FOUND)
             COMMAND ${CMAKE_MAKE_PROGRAM} > /dev/null
             && ${CMAKE_COMMAND} -E copy
             ${DOXYGEN_OUTPUT_DIRECTORY}/latex/refman.pdf
-            ${CMAKE_SOURCE_DIR}/VEngine.pdf
-            BYPRODUCTS ${CMAKE_SOURCE_DIR}/VEngine.pdf
+            ${CMAKE_SOURCE_DIR}/doc/VEngine.pdf
+            BYPRODUCTS ${CMAKE_SOURCE_DIR}/doc/VEngine.pdf
             VERBATIM
     )
 else ()

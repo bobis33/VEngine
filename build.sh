@@ -19,6 +19,12 @@ function clean() {
     else
         echo "VEngine binary does not exist."
     fi
+    if [ -d "shaders/bin" ]; then
+        rm -rf shaders/bin/*
+        echo "shaders/bin directory has been removed."
+    else
+        echo "shaders/bin directory does not exist."
+    fi
 }
 
 function build() {

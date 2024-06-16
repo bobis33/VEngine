@@ -12,6 +12,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
+if (Vulkan_FOUND)
+    include_directories(${Vulkan_INCLUDE_DIRS})
+else()
+    message(FATAL_ERROR "Vulkan not found")
+endif()
+
 include_directories(${Vulkan_INCLUDE_DIRS})
 
 # Clang tidy
@@ -39,7 +45,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/engine.cpp
         ${SRC_DIR}/window.cpp
         ${SRC_DIR}/device.cpp
-        ${SRC_DIR}/shader.cpp
+        ${SRC_DIR}/shaders.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})

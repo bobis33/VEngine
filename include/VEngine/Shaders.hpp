@@ -1,5 +1,5 @@
 /*
-** @file Shader.hpp
+** @file Shaders.hpp
 ** @brief This file contains the Shader class
 ** @namespace ven
 */
@@ -14,20 +14,20 @@
 
 namespace ven {
 
-    class Shader {
+    class Shaders {
 
         public:
 
-            Shader() = default;
-            ~Shader() = default;
+            Shaders() = default;
+            ~Shaders() = default;
 
-            static VkShaderModule createShaderModule(VkDevice device, const std::vector<char> &code);
+            static VkShaderModule createShadersModule(VkDevice device, const std::vector<char> &code);
             void createGraphicsPipeline(const std::string &vertexFilePath, const std::string &fragmentFilePath);
 
         private:
 
             static std::vector<char> readFile(const std::string &filename);
 
-    }; // class VenPipeline
+    }; // class Shaders
 
 } // namespace ven
