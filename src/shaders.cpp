@@ -5,7 +5,7 @@
 #include "VEngine/Shaders.hpp"
 #include "VEngine/Device.hpp"
 
-ven::Shaders::Shaders(lve::MyEngineDevice &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
+ven::Shaders::Shaders(ven::Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
     : lveDevice{device}
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
