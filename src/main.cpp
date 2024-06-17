@@ -8,7 +8,7 @@ using namespace ven;
 int main()
 {
     try {
-        Engine engine;
+        Engine engine{};
         engine.initVulkan();
         engine.mainLoop();
     } catch (const std::exception &e) {

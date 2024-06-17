@@ -5,7 +5,7 @@
 GLFWwindow* ven::Window::createWindow(const int width, const int height, const std::string &title)
 {
     GLFWwindow *window = nullptr;
-    if (glfwInit() == 0) {
+    if (glfwInit() == GLFW_FALSE) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
 
@@ -21,9 +21,9 @@ GLFWwindow* ven::Window::createWindow(const int width, const int height, const s
     return window;
 }
 
-void ven::Window::destroyWindow()
+void ven::Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface)
 {
-    glfwDestroyWindow(m_window);
-    glfwTerminate();
-    m_window = nullptr;
+    if (glfwCreateWindowSurface(instance, m_window, nullptr, surface) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create window surface");
+    }
 }

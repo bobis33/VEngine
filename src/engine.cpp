@@ -1,26 +1,11 @@
 #include <iostream>
-#include <memory>
 
 #include "VEngine/Engine.hpp"
 
 void ven::Engine::deleteResources()
 {
-    if (m_device)
-    {
-        m_device.reset();
-    }
-    if (m_surface != VK_NULL_HANDLE)
-    {
-        vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-        m_surface = VK_NULL_HANDLE;
-    }
-    if (m_instance != VK_NULL_HANDLE)
-    {
-        vkDestroyInstance(m_instance, nullptr);
-        m_instance = VK_NULL_HANDLE;
-    }
-
-    m_window.destroyWindow();
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
 }
 
 void ven::Engine::mainLoop()
@@ -41,7 +26,6 @@ void ven::Engine::initVulkan()
     {
         throw std::runtime_error("Failed to create Vulkan instance or surface");
     }
-    m_device = std::make_unique<Device>(m_instance, m_surface);
 }
 
 void ven::Engine::createInstance()

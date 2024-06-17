@@ -6,12 +6,14 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
 #include <memory>
+
+#include <vulkan/vulkan.h>
 
 #include "VEngine/Window.hpp"
 #include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
+#include "VEngine/Shaders.hpp"
 
 namespace ven {
 
@@ -29,7 +31,8 @@ namespace ven {
 
     private:
         Window m_window;
-        std::unique_ptr<Device> m_device{nullptr};
+        Device m_device{m_window};
+        Shaders m_shaders{m_device, "shaders/bin/fragment.spv", "shaders/bin/vertex.spv", Shaders::defaultPipelineConfigInfo(DEFAULT_WIDTH, DEFAULT_HEIGHT)};
         VkInstance m_instance{nullptr};
         VkSurfaceKHR m_surface{nullptr};
 
