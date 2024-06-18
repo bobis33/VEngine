@@ -9,7 +9,6 @@ int main()
 {
     try {
         Engine engine{};
-        engine.initVulkan();
         engine.mainLoop();
     } catch (const std::exception &e) {
         std::cerr << "std exception: " << e.what() << '\n';

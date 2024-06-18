@@ -46,6 +46,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/window.cpp
         ${SRC_DIR}/device.cpp
         ${SRC_DIR}/shaders.cpp
+        ${SRC_DIR}/swapChain.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})

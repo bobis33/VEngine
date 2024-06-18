@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
@@ -14,14 +15,19 @@
 #include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
+#include "VEngine/SwapChain.hpp"
 
 namespace ven {
 
     class Engine {
 
     public:
-        explicit Engine(int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT, const std::string &title = "VEngine") : m_window(width, height, title) {};
-        ~Engine() = default;
+
+        explicit Engine(int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT, const std::string &title = "VEngine");
+        ~Engine();
+
+        Engine(const Engine &) = delete;
+        Engine operator=(const Engine &) = delete;
 
         Window &getWindow() { return m_window; };
 
@@ -30,14 +36,25 @@ namespace ven {
         void deleteResources();
 
     private:
+
+        void createPipelineLayout();
+        void createPiepeline();
+        void createCommandBuffers();
+        void drawFrame();
+
         Window m_window;
         Device m_device{m_window};
-        Shaders m_shaders{m_device, "shaders/bin/fragment.spv", "shaders/bin/vertex.spv", Shaders::defaultPipelineConfigInfo(DEFAULT_WIDTH, DEFAULT_HEIGHT)};
+        SwapChain m_swapChain{m_device, m_window.getExtent()};
+        std::unique_ptr<Shaders> m_shaders;
+
+        VkPipelineLayout m_pipelineLayout{nullptr};
+        std::vector<VkCommandBuffer> m_commandBuffers;
+
         VkInstance m_instance{nullptr};
         VkSurfaceKHR m_surface{nullptr};
 
         void createInstance();
         void createSurface();
-    };
+    }; // class Engine
 
 } // namespace ven

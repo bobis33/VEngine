@@ -22,9 +22,15 @@ namespace ven {
             ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr;};
 
             static GLFWwindow* createWindow(int width, int height, const std::string &title);
+            void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
             [[nodiscard]] GLFWwindow* getGLFWindow() const { return m_window; };
-            void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+
+            VkExtent2D getExtent() const {
+                int width, height;
+                glfwGetFramebufferSize(m_window, &width, &height);
+                return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+            }
 
         private:
 

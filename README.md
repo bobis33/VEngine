@@ -77,7 +77,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-- [Vulkan](https://www.vulkan.org/)
-- [GLFW](https://www.glfw.org/)
-
 Thanks to [Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine).

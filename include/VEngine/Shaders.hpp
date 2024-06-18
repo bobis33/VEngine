@@ -21,7 +21,6 @@ namespace ven {
     struct PipelineConfigInfo {
         VkViewport viewport{};
         VkRect2D scissor{};
-        VkPipelineViewportStateCreateInfo viewportInfo{};
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
         VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
         VkPipelineMultisampleStateCreateInfo multisampleInfo{};
@@ -44,6 +43,8 @@ namespace ven {
             void operator=(const Shaders&) = delete;
 
             static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+
+            void bind(VkCommandBuffer commandBuffer);
 
         private:
 
