@@ -16,6 +16,7 @@
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
 #include "VEngine/SwapChain.hpp"
+#include "VEngine/Model.hpp"
 
 namespace ven {
 
@@ -37,6 +38,7 @@ namespace ven {
 
     private:
 
+        void loadModels();
         void createPipelineLayout();
         void createPiepeline();
         void createCommandBuffers();
@@ -46,6 +48,7 @@ namespace ven {
         Device m_device{m_window};
         SwapChain m_swapChain{m_device, m_window.getExtent()};
         std::unique_ptr<Shaders> m_shaders;
+        std::unique_ptr<Model> m_model;
 
         VkPipelineLayout m_pipelineLayout{nullptr};
         std::vector<VkCommandBuffer> m_commandBuffers;

@@ -4,9 +4,10 @@
 
 #include "VEngine/Engine.hpp"
 
-ven::Engine::Engine(int width, int height, const std::string &title)  : m_window(width, height, title)
+ven::Engine::Engine(int width, int height, const std::string &title) : m_window(width, height, title)
 {
     initVulkan();
+    loadModels();
     createPipelineLayout();
     createPiepeline();
     createCommandBuffers();
@@ -82,8 +83,8 @@ void ven::Engine::createCommandBuffers()
         vkCmdBeginRenderPass(m_commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         m_shaders->bind(m_commandBuffers[i]);
-        vkCmdDraw(m_commandBuffers[i], 3, 1, 0, 0);
-
+        m_model->bind(m_commandBuffers[i]);
+        m_model->draw(m_commandBuffers[i]);
         vkCmdEndRenderPass(m_commandBuffers[i]);
 
         if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS)
@@ -120,7 +121,7 @@ void ven::Engine::mainLoop()
     {
         glfwPollEvents();
         drawFrame();
-        //glfwSwapBuffers(m_window.getGLFWindow());
+        glfwSwapBuffers(m_window.getGLFWindow());
     }
     vkDeviceWaitIdle(m_device.device());
     deleteResources();
@@ -165,4 +166,15 @@ void ven::Engine::createSurface()
     {
         throw std::runtime_error("Failed to create window surface");
     }
+}
+
+void ven::Engine::loadModels()
+{
+    std::vector<Model::Vertex> vertices {
+        {{0.0F, -0.5F}, {1.0F, 0.0F, 0.0F}},
+        {{0.5F, 0.5F}, {0.0F, 1.0F, 0.0F}},
+        {{-0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}}
+    };
+
+    m_model = std::make_unique<Model>(m_device, vertices);
 }
