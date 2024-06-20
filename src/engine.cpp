@@ -6,16 +6,19 @@
 
 ven::Engine::Engine(int width, int height, const std::string &title) : m_window(width, height, title)
 {
-    initVulkan();
+    createInstance();
+    createSurface();
     loadModels();
     createPipelineLayout();
-    createPiepeline();
+    createPipeline();
     createCommandBuffers();
 }
 
 ven::Engine::~Engine()
 {
     vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr);
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    vkDestroyInstance(m_instance, nullptr);
 }
 
 void ven::Engine::createPipelineLayout()
@@ -30,10 +33,9 @@ void ven::Engine::createPipelineLayout()
     {
         throw std::runtime_error("Failed to create pipeline layout");
     }
-
 }
 
-void ven::Engine::createPiepeline()
+void ven::Engine::createPipeline()
 {
     PipelineConfigInfo pipelineConfig = Shaders::defaultPipelineConfigInfo(m_swapChain.width(), m_swapChain.height());
     pipelineConfig.renderPass = m_swapChain.getRenderPass();
@@ -44,7 +46,6 @@ void ven::Engine::createPiepeline()
 void ven::Engine::createCommandBuffers()
 {
     m_commandBuffers.resize(m_swapChain.imageCount());
-
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -56,7 +57,7 @@ void ven::Engine::createCommandBuffers()
         throw std::runtime_error("Failed to allocate command buffers");
     }
 
-    for (int i = 0; i < m_commandBuffers.size(); i++)
+    for (size_t i = 0; i < m_commandBuffers.size(); i++)
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -69,7 +70,7 @@ void ven::Engine::createCommandBuffers()
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_swapChain.getRenderPass();
-        renderPassInfo.framebuffer = m_swapChain.getFrameBuffer(i);
+        renderPassInfo.framebuffer = m_swapChain.getFrameBuffer(static_cast<int>(i));
 
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = m_swapChain.getSwapChainExtent();
@@ -98,21 +99,15 @@ void ven::Engine::drawFrame()
 {
     uint32_t imageIndex = 0;
     VkResult result = m_swapChain.acquireNextImage(&imageIndex);
+
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         throw std::runtime_error("Failed to acquire swap chain image");
     }
-
     if (m_swapChain.submitCommandBuffers(&m_commandBuffers[imageIndex], &imageIndex) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to submit command buffer");
     }
-}
-
-void ven::Engine::deleteResources()
-{
-    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    vkDestroyInstance(m_instance, nullptr);
 }
 
 void ven::Engine::mainLoop()
@@ -121,20 +116,8 @@ void ven::Engine::mainLoop()
     {
         glfwPollEvents();
         drawFrame();
-        glfwSwapBuffers(m_window.getGLFWindow());
     }
     vkDeviceWaitIdle(m_device.device());
-    deleteResources();
-}
-
-void ven::Engine::initVulkan()
-{
-    createInstance();
-    createSurface();
-    if (m_instance == nullptr || m_surface == nullptr)
-    {
-        throw std::runtime_error("Failed to create Vulkan instance or surface");
-    }
 }
 
 void ven::Engine::createInstance()

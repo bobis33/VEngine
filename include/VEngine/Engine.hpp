@@ -32,15 +32,13 @@ namespace ven {
 
         Window &getWindow() { return m_window; };
 
-        void initVulkan();
         void mainLoop();
-        void deleteResources();
 
     private:
 
         void loadModels();
         void createPipelineLayout();
-        void createPiepeline();
+        void createPipeline();
         void createCommandBuffers();
         void drawFrame();
 
