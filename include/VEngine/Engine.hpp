@@ -41,10 +41,13 @@ namespace ven {
         void createPipeline();
         void createCommandBuffers();
         void drawFrame();
+        void recreateSwapChain();
+        void recordCommandBuffer(int imageIndex);
+        void freeCommandBuffers();
 
         Window m_window;
         Device m_device{m_window};
-        SwapChain m_swapChain{m_device, m_window.getExtent()};
+        std::unique_ptr<SwapChain> m_swapChain;
         std::unique_ptr<Shaders> m_shaders;
         std::unique_ptr<Model> m_model;
 
