@@ -21,13 +21,13 @@ namespace ven {
             Window(int width, int height, const std::string &title) : m_window(createWindow(width, height, title)), m_width(width), m_height(height) {};
             ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr;};
 
-            GLFWwindow* createWindow(int width, int height, const std::string &title);
+            [[nodiscard]] GLFWwindow* createWindow(int width, int height, const std::string &title);
             void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
             [[nodiscard]] GLFWwindow* getGLFWindow() const { return m_window; };
 
             [[nodiscard]] VkExtent2D getExtent() const { return {static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)}; };
-            bool wasWindowResized() { return m_framebufferResized; }
+            [[nodiscard]] bool wasWindowResized() const { return m_framebufferResized; }
             void resetWindowResizedFlag() { m_framebufferResized = false; }
 
         private:

@@ -2,13 +2,18 @@
 #include <memory>
 #include <array>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
 #include "VEngine/Engine.hpp"
 
 ven::Engine::Engine(int width, int height, const std::string &title) : m_window(width, height, title)
 {
     createInstance();
     createSurface();
-    loadModels();
+    loadObjects();
     createPipelineLayout();
     recreateSwapChain();
     createCommandBuffers();
@@ -23,12 +28,17 @@ ven::Engine::~Engine()
 
 void ven::Engine::createPipelineLayout()
 {
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(SimplePushConstantData);
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pSetLayouts = nullptr;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(m_device.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create pipeline layout");
@@ -78,7 +88,7 @@ void ven::Engine::recordCommandBuffer(int imageIndex)
     renderPassInfo.renderArea.extent = m_swapChain->getSwapChainExtent();
 
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {{0.1F, 0.1F, 0.1F, 1.0F}};
+    clearValues[0].color = {{.1F, .1F, .1F, .1F}};
     clearValues[1].depthStencil = {1.0F, 0};
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
@@ -96,10 +106,8 @@ void ven::Engine::recordCommandBuffer(int imageIndex)
     vkCmdSetViewport(m_commandBuffers[imageIndex], 0, 1, &viewport);
     vkCmdSetScissor(m_commandBuffers[imageIndex], 0, 1, &scissor);
 
+    renderObjects(m_commandBuffers[imageIndex]);
 
-    m_shaders->bind(m_commandBuffers[imageIndex]);
-    m_model->bind(m_commandBuffers[imageIndex]);
-    m_model->draw(m_commandBuffers[imageIndex]);
     vkCmdEndRenderPass(m_commandBuffers[imageIndex]);
 
     if (vkEndCommandBuffer(m_commandBuffers[imageIndex]) != VK_SUCCESS)
@@ -132,6 +140,24 @@ void ven::Engine::recreateSwapChain()
         }
     }
     createPipeline();
+}
+
+void ven::Engine::renderObjects(VkCommandBuffer commandBuffer)
+{
+    m_shaders->bind(commandBuffer);
+    for (auto &object : m_objects)
+    {
+        object.transform2d.rotation = glm::mod(object.transform2d.rotation + 0.001F, glm::two_pi<float>());
+        SimplePushConstantData push{};
+        push.offset = object.transform2d.translation;
+        push.color = object.color;
+        push.transform = object.transform2d.mat2();
+
+        vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+        object.model->bind(commandBuffer);
+        object.model->draw(commandBuffer);
+
+    }
 }
 
 void ven::Engine::drawFrame()
@@ -205,7 +231,7 @@ void ven::Engine::createSurface()
     }
 }
 
-void ven::Engine::loadModels()
+void ven::Engine::loadObjects()
 {
     std::vector<Model::Vertex> vertices {
         {{0.0F, -0.5F}, {1.0F, 0.0F, 0.0F}},
@@ -213,5 +239,13 @@ void ven::Engine::loadModels()
         {{-0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}}
     };
 
-    m_model = std::make_unique<Model>(m_device, vertices);
+    auto model = std::make_shared<Model>(m_device, vertices);
+
+    auto triangle = ven::Object::createObject();
+    triangle.model = model;
+    triangle.color = {.1F, .8F, .1F};
+    triangle.transform2d.translation.x = .2F;
+    triangle.transform2d.scale = {2.F, .5F};
+    triangle.transform2d.rotation = .25f * glm::two_pi<float>();
+    m_objects.push_back(std::move(triangle));
 }
