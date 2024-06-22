@@ -31,6 +31,10 @@ include(${CMAKE_MODULE_PATH}/myVariables.cmake)
 # Build Doxygen documentation
 include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
+# Add External libraries
+add_subdirectory(external/glfw)
+include_directories(external/glfw/include)
+
 # Add shaders directory
 add_subdirectory(shaders)
 
