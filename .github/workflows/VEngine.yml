@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
       - name: Install Vulkan dependencies
         run: |
           sudo apt-get update
@@ -23,7 +26,7 @@ jobs:
       - name: Check compilation
         run: |
           mkdir ./build && cd ./build
-          cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_EXTERNAL_LIBRARIES=OFF
           cmake --build .
 
       - name: Check binary
