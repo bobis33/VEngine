@@ -14,21 +14,12 @@
 #include "VEngine/Window.hpp"
 #include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
-#include "VEngine/Shaders.hpp"
-#include "VEngine/SwapChain.hpp"
-#include "VEngine/Model.hpp"
 #include "VEngine/Object.hpp"
+#include "VEngine/Renderer.hpp"
 
 namespace ven {
 
     class Engine {
-
-        struct SimplePushConstantData {
-            glm::mat2 transform{1.F};
-            glm::vec2 offset;
-            alignas(16) glm::vec3 color;
-
-        };
 
     public:
 
@@ -45,22 +36,11 @@ namespace ven {
     private:
 
         void loadObjects();
-        void createPipelineLayout();
-        void createPipeline();
-        void createCommandBuffers();
-        void drawFrame();
-        void recreateSwapChain();
-        void recordCommandBuffer(int imageIndex);
-        void freeCommandBuffers();
-        void renderObjects(VkCommandBuffer commandBuffer);
 
         Window m_window;
         Device m_device{m_window};
-        std::unique_ptr<SwapChain> m_swapChain;
-        std::unique_ptr<Shaders> m_shaders;
+        Renderer m_renderer{m_window, m_device};
 
-        VkPipelineLayout m_pipelineLayout{nullptr};
-        std::vector<VkCommandBuffer> m_commandBuffers;
         std::vector<Object> m_objects;
 
         VkInstance m_instance{nullptr};

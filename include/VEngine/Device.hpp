@@ -35,7 +35,7 @@ namespace ven {
         const bool enableValidationLayers = true;
 #endif
 
-        explicit Device(ven::Window &window);
+        Device(ven::Window &window);
         ~Device();
 
         // Not copyable or movable
