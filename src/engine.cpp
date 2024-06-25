@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <array>
+#include <chrono>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -10,6 +11,7 @@
 #include "VEngine/Engine.hpp"
 #include "VEngine/RenderSystem.hpp"
 #include "VEngine/Camera.hpp"
+#include "VEngine/KeyboardController.hpp"
 
 std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offset) {
     std::vector<ven::Model::Vertex> vertices{
@@ -83,13 +85,26 @@ void ven::Engine::mainLoop()
 {
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass());
     Camera camera{};
-    //camera.setViewDirection(glm::vec3(0.F), glm::vec3(0.5F, 0.F, 1.F));
-    camera.setViewTarget(glm::vec3(-1.F, -2.F, 2.F), glm::vec3(0.F, 0.F, 2.5F));
+    camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
+
+    auto viewerObject = Object::createObject();
+    KeyboardController cameraController{};
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
     while (glfwWindowShouldClose(m_window.getGLFWindow()) == 0)
     {
         glfwPollEvents();
+
+        auto newTime = std::chrono::high_resolution_clock::now();
+        float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+        currentTime = newTime;
+
+        frameTime = glm::min(frameTime, 0.1F);
+
+        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject);
+        camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
+
         float aspect = m_renderer.getAspectRatio();
-        // camera.setOrthographicProjection(-aspect, aspect, -1.0F, 1.0F, -1.0F, 1.0F);
         camera.setPerspectiveProjection(glm::radians(50.0F), aspect, 0.1F, 10.F);
 
         if (auto *commandBuffer = m_renderer.beginFrame())

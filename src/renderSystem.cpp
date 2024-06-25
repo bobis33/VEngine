@@ -55,8 +55,6 @@ void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector
 
     for (auto &object : gameObjects)
     {
-        object.transform3D.rotation.y = glm::mod(object.transform3D.rotation.y + 0.01F, glm::two_pi<float>());
-        object.transform3D.rotation.x = glm::mod(object.transform3D.rotation.x + 0.01F, glm::two_pi<float>());
         SimplePushConstantData push{};
         push.color = object.color;
         push.transform = projectionView * object.transform3D.mat4();
