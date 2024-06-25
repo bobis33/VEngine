@@ -31,11 +31,11 @@ namespace ven {
         Renderer& operator=(const Renderer&) = delete;
 
         [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
+        [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }
         [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
         [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannoit get command buffer wwhen frame not in progress"); return m_commandBuffers[m_currentFrameIndex]; }
 
-        int getFrameIndex() { assert(isFrameInProgress() && "cannot get frame index when frame not in progress");
-            return m_currentFrameIndex; }
+        int getFrameIndex() { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
 
         VkCommandBuffer beginFrame();
         void endFrame();

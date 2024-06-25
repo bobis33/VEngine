@@ -8,7 +8,6 @@
 #include <glm/gtc/constants.hpp>
 
 #include "VEngine/RenderSystem.hpp"
-#include "VEngine/Engine.hpp"
 
 ven::RenderSystem::RenderSystem(Device& device, VkRenderPass renderPass) : m_device{device}
 {
@@ -49,16 +48,18 @@ void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
     m_shaders = std::make_unique<Shaders>(m_device, "shaders/bin/vertex.spv", "shaders/bin/fragment.spv", pipelineConfig);
 }
 
-void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &gameObjects)
+void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &gameObjects, const Camera &camera)
 {
     m_shaders->bind(commandBuffer);
+    auto projectionView = camera.getProjection() * camera.getView();
+
     for (auto &object : gameObjects)
     {
-        object.transform2d.rotation = glm::mod(object.transform2d.rotation + 0.001F, glm::two_pi<float>());
+        object.transform3D.rotation.y = glm::mod(object.transform3D.rotation.y + 0.01F, glm::two_pi<float>());
+        object.transform3D.rotation.x = glm::mod(object.transform3D.rotation.x + 0.01F, glm::two_pi<float>());
         SimplePushConstantData push{};
-        push.offset = object.transform2d.translation;
         push.color = object.color;
-        push.transform = object.transform2d.mat2();
+        push.transform = projectionView * object.transform3D.mat4();
 
         vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
         object.model->bind(commandBuffer);

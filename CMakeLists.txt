@@ -61,6 +61,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/model.cpp
         ${SRC_DIR}/renderer.cpp
         ${SRC_DIR}/renderSystem.cpp
+        ${SRC_DIR}/camera.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})

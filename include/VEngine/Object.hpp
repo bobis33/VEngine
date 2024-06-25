@@ -8,24 +8,52 @@
 
 #include <memory>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "VEngine/Model.hpp"
 
 namespace ven {
 
     using id_t = unsigned int;
 
+    struct Transform3DComponent {
+        glm::vec3 translation{};
+        glm::vec3 scale{1.F, 1.F, 1.F};
+        glm::vec3 rotation{};
 
-    struct Transform2dComponent {
-        glm::vec2 translation{};
-        glm::vec2 scale{1.F, 1.F};
-        float rotation{};
-
-        [[nodiscard]] glm::mat2 mat2() const {
-            const float s = glm::sin(rotation);
-            const float c = glm::cos(rotation);
-            glm::mat2 rotMat{{c, s}, {-s, c}};
-            glm::mat2 scaleMat{{scale.x, .0F}, {.0F, scale.y}};
-            return scaleMat * rotMat;
+        [[nodiscard]] glm::mat4 mat4() const {
+            const float c3 = glm::cos(rotation.z);
+            const float s3 = glm::sin(rotation.z);
+            const float c2 = glm::cos(rotation.x);
+            const float s2 = glm::sin(rotation.x);
+            const float c1 = glm::cos(rotation.y);
+            const float s1 = glm::sin(rotation.y);
+            return glm::mat4{
+                {
+                    scale.x * (c1 * c3 + s1 * s2 * s3),
+                    scale.x * (c2 * s3),
+                    scale.x * (c1 * s2 * s3 - c3 * s1),
+                    0.0F,
+                },
+                {
+                    scale.y * (c3 * s1 * s2 - c1 * s3),
+                    scale.y * (c2 * c3),
+                    scale.y * (c1 * c3 * s2 + s1 * s3),
+                    0.0F,
+                },
+                {
+                    scale.z * (c2 * s1),
+                    scale.z * (-s2),
+                    scale.z * (c1 * c2),
+                    0.0F,
+                },
+                {
+                    translation.x,
+                    translation.y,
+                    translation.z,
+                    1.0F
+                }
+            };
         }
     };
 
@@ -46,13 +74,12 @@ namespace ven {
 
             std::shared_ptr<ven::Model> model{};
             glm::vec3 color{};
-            Transform2dComponent transform2d{};
+            Transform3DComponent transform3D{};
 
     private:
-            Object(id_t objId) : m_objId(objId) {}
+            explicit Object(id_t objId) : m_objId(objId) {}
 
             id_t m_objId;
-
 
     }; // class Object
 

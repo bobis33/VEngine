@@ -123,7 +123,7 @@ void ven::Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
     renderPassInfo.renderArea.extent = m_swapChain->getSwapChainExtent();
 
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {{.1F, .1F, .1F, .1F}};
+    clearValues[0].color = {{0.01F, 0.01F, 0.01F, 1.0F}};
     clearValues[1].depthStencil = {1.0F, 0};
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
