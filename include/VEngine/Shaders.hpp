@@ -58,7 +58,7 @@ namespace ven {
 
             void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
-            Device& lveDevice;
+            Device& m_device;
             VkPipeline graphicsPipeline;
             VkShaderModule vertShaderModule;
             VkShaderModule fragShaderModule;

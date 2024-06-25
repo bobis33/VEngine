@@ -28,23 +28,23 @@ namespace ven {
             SwapChain(const SwapChain &) = delete;
             SwapChain& operator=(const SwapChain &) = delete;
 
-            VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[static_cast<unsigned long>(index)]; }
+            VkFramebuffer getFrameBuffer(unsigned long index) { return swapChainFramebuffers[index]; }
             VkRenderPass getRenderPass() { return renderPass; }
             VkImageView getImageView(int index) { return swapChainImageViews[static_cast<unsigned long>(index)]; }
             size_t imageCount() { return swapChainImages.size(); }
             VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-            VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-            [[nodiscard]] uint32_t width() const { return swapChainExtent.width; }
-            [[nodiscard]] uint32_t height() const { return swapChainExtent.height; }
+            VkExtent2D getSwapChainExtent() { return m_swapChainExtent; }
+            [[nodiscard]] uint32_t width() const { return m_swapChainExtent.width; }
+            [[nodiscard]] uint32_t height() const { return m_swapChainExtent.height; }
 
-            [[nodiscard]] float extentAspectRatio() const { return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height); }
+            [[nodiscard]] float extentAspectRatio() const { return static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height); }
             VkFormat findDepthFormat();
 
             VkResult acquireNextImage(uint32_t *imageIndex);
             VkResult submitCommandBuffers(const VkCommandBuffer *buffers, const uint32_t *imageIndex);
 
-            bool compareSwapFormats(const SwapChain &swapChain) const {
-                return swapChainImageFormat == swapChain.swapChainImageFormat && swapChainDepthFormat == swapChain.swapChainDepthFormat;
+            [[nodiscard]] bool compareSwapFormats(const SwapChain &swapChainp) const {
+                return swapChainImageFormat == swapChainp.swapChainImageFormat && swapChainDepthFormat == swapChainp.swapChainDepthFormat;
             }
 
         private:
@@ -57,14 +57,13 @@ namespace ven {
             void createFramebuffers();
             void createSyncObjects();
 
-            // Helper functions
             static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
             static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
             VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
             VkFormat swapChainImageFormat;
             VkFormat swapChainDepthFormat;
-            VkExtent2D swapChainExtent{};
+            VkExtent2D m_swapChainExtent{};
 
             std::vector<VkFramebuffer> swapChainFramebuffers;
             VkRenderPass renderPass{};
@@ -86,6 +85,7 @@ namespace ven {
             std::vector<VkFence> inFlightFences;
             std::vector<VkFence> imagesInFlight;
             size_t currentFrame = 0;
+
     }; // class SwapChain
 
 }  // namespace ven

@@ -32,7 +32,7 @@ namespace ven {
 
         private:
 
-            static void framebufferResizeCallback(GLFWwindow* windowp, int width, int height);
+            static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
             GLFWwindow* m_window{nullptr};
             int m_width;

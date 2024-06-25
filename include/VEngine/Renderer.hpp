@@ -24,23 +24,23 @@ namespace ven {
 
     public:
 
-        Renderer(Window& window, Device& device);
-        ~Renderer();
+        Renderer(Window &window, Device &device) : m_window{window}, m_device{device} { recreateSwapChain(); createCommandBuffers(); }
+        ~Renderer() { freeCommandBuffers(); }
 
-        Renderer(const Renderer&) = delete;
-        Renderer& operator=(const Renderer&) = delete;
+        Renderer(const Renderer &) = delete;
+        Renderer& operator=(const Renderer &) = delete;
 
         [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
         [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }
         [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
-        [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannoit get command buffer wwhen frame not in progress"); return m_commandBuffers[m_currentFrameIndex]; }
+        [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
 
-        int getFrameIndex() { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
+        [[nodiscard]] int getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
 
         VkCommandBuffer beginFrame();
         void endFrame();
         void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-        void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+        static void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
     private:
 
@@ -58,4 +58,5 @@ namespace ven {
         bool m_isFrameStarted{false};
 
     }; // class Renderer
+
 } // namespace ven

@@ -29,9 +29,9 @@ void ven::Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface
     }
 }
 
-void ven::Window::framebufferResizeCallback(GLFWwindow *windowp, int width, int height)
+void ven::Window::framebufferResizeCallback(GLFWwindow *window, int width, int height)
 {
-    auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(windowp));
+    auto *app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
     app->m_framebufferResized = true;
     app->m_width = width;
     app->m_height = height;

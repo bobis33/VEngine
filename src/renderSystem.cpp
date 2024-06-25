@@ -1,11 +1,9 @@
 #include <iostream>
 #include <memory>
-#include <array>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
 #include "VEngine/RenderSystem.hpp"
 
@@ -53,7 +51,7 @@ void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector
     m_shaders->bind(commandBuffer);
     auto projectionView = camera.getProjection() * camera.getView();
 
-    for (auto &object : gameObjects)
+    for (Object &object : gameObjects)
     {
         SimplePushConstantData push{};
         push.color = object.color;

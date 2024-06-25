@@ -3,7 +3,6 @@
 
 #include "VEngine/PluginLoader.hpp"
 
-
 /*
 void gui::PluginLoader::closePlugins()
 {

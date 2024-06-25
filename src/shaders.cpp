@@ -6,15 +6,15 @@
 #include "VEngine/Device.hpp"
 
 ven::Shaders::Shaders(ven::Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
-    : lveDevice{device}
+    : m_device{device}
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
 
 ven::Shaders::~Shaders() {
-    vkDestroyShaderModule(lveDevice.device(), vertShaderModule, nullptr);
-    vkDestroyShaderModule(lveDevice.device(), fragShaderModule, nullptr);
-    vkDestroyPipeline(lveDevice.device(), graphicsPipeline, nullptr);
+    vkDestroyShaderModule(m_device.device(), vertShaderModule, nullptr);
+    vkDestroyShaderModule(m_device.device(), fragShaderModule, nullptr);
+    vkDestroyPipeline(m_device.device(), graphicsPipeline, nullptr);
 }
 
 std::vector<char> ven::Shaders::readFile(const std::string &filename)
@@ -39,8 +39,8 @@ void ven::Shaders::createGraphicsPipeline(
         const std::string& vertFilepath,
         const std::string& fragFilepath,
         const PipelineConfigInfo& configInfo) {
-    auto vertCode = readFile(vertFilepath);
-    auto fragCode = readFile(fragFilepath);
+    std::vector<char> vertCode = readFile(vertFilepath);
+    std::vector<char> fragCode = readFile(fragFilepath);
 
     createShaderModule(vertCode, &vertShaderModule);
     createShaderModule(fragCode, &fragShaderModule);
@@ -101,7 +101,7 @@ void ven::Shaders::createGraphicsPipeline(
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(lveDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(m_device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline");
     }
 
@@ -115,7 +115,7 @@ void ven::Shaders::createShaderModule(const std::vector<char> &code, VkShaderMod
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    if (vkCreateShaderModule(lveDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+    if (vkCreateShaderModule(m_device.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
         throw std::runtime_error("failed to create shader module");
     }
 }

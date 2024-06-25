@@ -4,17 +4,6 @@
 
 #include "VEngine/Renderer.hpp"
 
-ven::Renderer::Renderer(Window &window, Device &device) : m_window{window}, m_device{device}
-{
-    recreateSwapChain();
-    createCommandBuffers();
-}
-
-ven::Renderer::~Renderer()
-{
-    freeCommandBuffers();
-}
-
 void ven::Renderer::createCommandBuffers()
 {
     m_commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -24,8 +13,7 @@ void ven::Renderer::createCommandBuffers()
     allocInfo.commandPool = m_device.getCommandPool();
     allocInfo.commandBufferCount = static_cast<uint32_t>(m_commandBuffers.size());
 
-    if (vkAllocateCommandBuffers(m_device.device(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
-    {
+    if (vkAllocateCommandBuffers(m_device.device(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("Failed to allocate command buffers");
     }
 }
@@ -49,7 +37,7 @@ void ven::Renderer::recreateSwapChain()
     } else {
         std::shared_ptr<SwapChain> oldSwapChain = std::move(m_swapChain);
         m_swapChain = std::make_unique<SwapChain>(m_device, extent, oldSwapChain);
-        if (!oldSwapChain->compareSwapFormats(*m_swapChain.get())) {
+        if (!oldSwapChain->compareSwapFormats(*m_swapChain)) {
             throw std::runtime_error("Swap chain image/depth format changed");
         }
     }
@@ -60,26 +48,23 @@ VkCommandBuffer ven::Renderer::beginFrame()
 {
     assert(!isFrameStarted && "Can't start new frame while previous one is still in progress");
 
-    auto result = m_swapChain->acquireNextImage(&m_currentImageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
+    VkResult result = m_swapChain->acquireNextImage(&m_currentImageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
         return nullptr;
     }
 
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-    {
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("Failed to acquire swap chain image");
     }
 
     m_isFrameStarted = true;
 
-    auto commandBuffer = getCurrentCommandBuffer();
+    VkCommandBuffer_T *commandBuffer = getCurrentCommandBuffer();
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
-    {
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
         throw std::runtime_error("Failed to begin recording command buffer");
     }
     return commandBuffer;
@@ -89,19 +74,16 @@ void ven::Renderer::endFrame()
 {
     assert(isFrameStarted && "Can't end frame that hasn't been started");
 
-    auto commandBuffer = getCurrentCommandBuffer();
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-    {
+    VkCommandBuffer_T *commandBuffer = getCurrentCommandBuffer();
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         throw std::runtime_error("Failed to record command buffer");
     }
-    auto result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized())
-    {
+    VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
         m_window.resetWindowResizedFlag();
         recreateSwapChain();
     }
-    else if (result != VK_SUCCESS)
-    {
+    else if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to submit command buffer");
     }
 

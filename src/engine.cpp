@@ -13,7 +13,8 @@
 #include "VEngine/Camera.hpp"
 #include "VEngine/KeyboardController.hpp"
 
-std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offset) {
+std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offset)
+{
     std::vector<ven::Model::Vertex> vertices{
 
             // left face (white)
@@ -65,7 +66,7 @@ std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offse
             {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
 
     };
-    for (auto& v : vertices) {
+    for (ven::Model::Vertex &v : vertices) {
         v.position += offset;
     }
     return std::make_unique<ven::Model>(device, vertices);
@@ -78,16 +79,13 @@ ven::Engine::Engine(int width, int height, const std::string &title) : m_window(
     loadObjects();
 }
 
-ven::Engine::~Engine() {}
-
-
 void ven::Engine::mainLoop()
 {
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass());
     Camera camera{};
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
 
-    auto viewerObject = Object::createObject();
+    Object viewerObject = Object::createObject();
     KeyboardController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -107,11 +105,11 @@ void ven::Engine::mainLoop()
         float aspect = m_renderer.getAspectRatio();
         camera.setPerspectiveProjection(glm::radians(50.0F), aspect, 0.1F, 10.F);
 
-        if (auto *commandBuffer = m_renderer.beginFrame())
+        if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
             m_renderer.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObjects(commandBuffer, m_objects, camera);
-            m_renderer.endSwapChainRenderPass(commandBuffer);
+            Renderer::endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
         }
     }
@@ -153,7 +151,7 @@ void ven::Engine::loadObjects()
 {
     std::shared_ptr<Model> model = createCubeModel(m_device, {.0F, .0F, .0F});
 
-    auto cube = Object::createObject();
+    Object cube = Object::createObject();
     cube.model = model;
     cube.transform3D.translation = {.0F, .0F, 2.5F};
     cube.transform3D.scale = {.5F, .5F, .5F};

@@ -24,7 +24,7 @@ namespace ven {
     public:
 
         explicit Engine(int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT, const std::string &title = "VEngine");
-        ~Engine();
+        ~Engine() = default;
 
         Engine(const Engine &) = delete;
         Engine operator=(const Engine &) = delete;
@@ -48,6 +48,7 @@ namespace ven {
 
         void createInstance();
         void createSurface();
+
     }; // class Engine
 
 } // namespace ven

@@ -30,7 +30,7 @@ void ven::SwapChain::init()
 
 ven::SwapChain::~SwapChain()
 {
-    for (auto *imageView : swapChainImageViews) {
+    for (VkImageView_T *imageView : swapChainImageViews) {
         vkDestroyImageView(device.device(), imageView, nullptr);
     }
     swapChainImageViews.clear();
@@ -46,7 +46,7 @@ ven::SwapChain::~SwapChain()
         vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
     }
 
-    for (auto *framebuffer : swapChainFramebuffers) {
+    for (VkFramebuffer_T *framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
     }
 
@@ -107,7 +107,7 @@ VkResult ven::SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, co
 
     presentInfo.pImageIndices = imageIndex;
 
-    auto result = vkQueuePresentKHR(device.presentQueue(), &presentInfo);
+    VkResult result = vkQueuePresentKHR(device.presentQueue(), &presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
@@ -172,7 +172,7 @@ void ven::SwapChain::createSwapChain()
     vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data());
 
     swapChainImageFormat = surfaceFormat.format;
-    swapChainExtent = extent;
+    m_swapChainExtent = extent;
 }
 
 void ven::SwapChain::createImageViews()
@@ -368,7 +368,7 @@ VkPresentModeKHR ven::SwapChain::chooseSwapPresentMode(const std::vector<VkPrese
 
    for (const auto &availablePresentMode : availablePresentModes) {
      if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-       std::cout << "Present mode: Immediate" << std::endl;
+       std::cout << "Present mode: Immediate" << '\n';
        return availablePresentMode;
      }
    }
@@ -392,7 +392,7 @@ VkExtent2D ven::SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capa
 VkFormat ven::SwapChain::findDepthFormat()
 {
     return device.findSupportedFormat(
-            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-            VK_IMAGE_TILING_OPTIMAL,
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }

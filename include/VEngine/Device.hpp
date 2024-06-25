@@ -35,10 +35,9 @@ namespace ven {
         const bool enableValidationLayers = true;
 #endif
 
-        Device(ven::Window &window);
+        explicit Device(ven::Window &window);
         ~Device();
 
-        // Not copyable or movable
         Device(const Device &) = delete;
         Device& operator=(const Device &) = delete;
         Device(Device &&) = delete;
@@ -75,7 +74,7 @@ namespace ven {
                 VkImage &image,
                 VkDeviceMemory &imageMemory);
 
-        VkPhysicalDeviceProperties properties;
+        VkPhysicalDeviceProperties m_properties;
 
     private:
         void createInstance();
@@ -87,18 +86,18 @@ namespace ven {
 
         // helper functions
         bool isDeviceSuitable(VkPhysicalDevice device);
-        std::vector<const char *> getRequiredExtensions();
+        [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
         bool checkValidationLayerSupport();
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-        void hasGflwRequiredInstanceExtensions();
+        static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+        void hasGlfwRequiredInstanceExtensions();
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        ven::Window &window;
+        ven::Window &m_window;
         VkCommandPool commandPool;
 
         VkDevice device_;
@@ -108,6 +107,7 @@ namespace ven {
 
         const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
         const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    };
 
-}  // namespace lve
+    }; // class Device
+
+}  // namespace ven
