@@ -1,6 +1,8 @@
+#include <cmath>
+
 #include "VEngine/KeyboardController.hpp"
 
-void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object& object)
+void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object& object) const
 {
     glm::vec3 rotate{0};
     if (glfwGetKey(window, m_keys.lookLeft) == GLFW_PRESS) { rotate.y -= 1.F; }
@@ -16,7 +18,7 @@ void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object
     object.transform3D.rotation.y = glm::mod(object.transform3D.rotation.y, glm::two_pi<float>());
 
     float yaw = object.transform3D.rotation.y;
-    const glm::vec3 forwardDir{sin(yaw), 0.F, cos(yaw)};
+    const glm::vec3 forwardDir{std::sin(yaw), 0.F, std::cos(yaw)};
     const glm::vec3 rightDir{forwardDir.z, 0.F, -forwardDir.x};
     const glm::vec3 upDir{0.F, -1.F, 0.F};
 

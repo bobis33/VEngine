@@ -43,7 +43,7 @@ void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
     ven::Shaders::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
-    m_shaders = std::make_unique<Shaders>(m_device, "shaders/bin/vertex.spv", "shaders/bin/fragment.spv", pipelineConfig);
+    m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "vertex.spv", std::string(SHADERS_BIN_PATH) + "fragment.spv", pipelineConfig);
 }
 
 void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &gameObjects, const Camera &camera)
@@ -60,6 +60,5 @@ void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector
         vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
         object.model->bind(commandBuffer);
         object.model->draw(commandBuffer);
-
     }
 }

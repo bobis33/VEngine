@@ -54,8 +54,8 @@ std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offse
             {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
     };
 
-    for (ven::Model::Vertex &v : modelBuilder.vertices) {
-        v.position += offset;
+    for (ven::Model::Vertex &vertex : modelBuilder.vertices) {
+        vertex.position += offset;
     }
 
     modelBuilder.indices = {
@@ -66,7 +66,18 @@ std::unique_ptr<ven::Model> createCubeModel(ven::Device& device, glm::vec3 offse
     return std::make_unique<ven::Model>(device, modelBuilder);
 }
 
-ven::Engine::Engine(int width, int height, const std::string &title) : m_window(width, height, title)
+void ven::Engine::loadObjects()
+{
+    std::shared_ptr<Model> model = createCubeModel(m_device, {.0F, .0F, .0F});
+
+    Object cube = Object::createObject();
+    cube.model = model;
+    cube.transform3D.translation = {.0F, .0F, 2.5F};
+    cube.transform3D.scale = {.5F, .5F, .5F};
+    m_objects.push_back(std::move(cube));
+}
+
+ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
 {
     createInstance();
     createSurface();
@@ -139,15 +150,4 @@ void ven::Engine::createSurface()
     {
         throw std::runtime_error("Failed to create window surface");
     }
-}
-
-void ven::Engine::loadObjects()
-{
-    std::shared_ptr<Model> model = createCubeModel(m_device, {.0F, .0F, .0F});
-
-    Object cube = Object::createObject();
-    cube.model = model;
-    cube.transform3D.translation = {.0F, .0F, 2.5F};
-    cube.transform3D.scale = {.5F, .5F, .5F};
-    m_objects.push_back(std::move(cube));
 }

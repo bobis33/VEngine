@@ -23,7 +23,7 @@ namespace ven {
 
     public:
 
-        explicit Engine(int width = DEFAULT_WIDTH, int height = DEFAULT_HEIGHT, const std::string &title = "VEngine");
+        explicit Engine(uint32_t = DEFAULT_WIDTH, uint32_t = DEFAULT_HEIGHT, const std::string &title = DEFAULT_TITLE.data());
         ~Engine() = default;
 
         Engine(const Engine &) = delete;

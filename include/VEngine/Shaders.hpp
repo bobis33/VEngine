@@ -40,28 +40,25 @@ namespace ven {
 
         public:
 
-            Shaders(Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
+            Shaders(Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo) : m_device{device} { createGraphicsPipeline(vertFilepath, fragFilepath, configInfo); };
             ~Shaders();
 
             Shaders(const Shaders&) = delete;
             Shaders& operator=(const Shaders&) = delete;
 
             static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
-
-            void bind(VkCommandBuffer commandBuffer);
+            void bind(VkCommandBuffer commandBuffer) { vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline); };
 
         private:
 
             static std::vector<char> readFile(const std::string &filename);
-
             void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
-
             void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
             Device& m_device;
-            VkPipeline graphicsPipeline;
-            VkShaderModule vertShaderModule;
-            VkShaderModule fragShaderModule;
+            VkPipeline m_graphicsPipeline;
+            VkShaderModule m_vertShaderModule;
+            VkShaderModule m_fragShaderModule;
 
     }; // class Shaders
 

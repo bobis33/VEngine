@@ -28,7 +28,7 @@ namespace ven {
                 int lookDown = GLFW_KEY_DOWN;
             };
 
-            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object);
+            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object) const;
 
             KeyMappings m_keys{};
             float m_moveSpeed{3.F};

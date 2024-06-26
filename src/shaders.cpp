@@ -5,16 +5,11 @@
 #include "VEngine/Shaders.hpp"
 #include "VEngine/Device.hpp"
 
-ven::Shaders::Shaders(ven::Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
-    : m_device{device}
+ven::Shaders::~Shaders()
 {
-    createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
-}
-
-ven::Shaders::~Shaders() {
-    vkDestroyShaderModule(m_device.device(), vertShaderModule, nullptr);
-    vkDestroyShaderModule(m_device.device(), fragShaderModule, nullptr);
-    vkDestroyPipeline(m_device.device(), graphicsPipeline, nullptr);
+    vkDestroyShaderModule(m_device.device(), m_vertShaderModule, nullptr);
+    vkDestroyShaderModule(m_device.device(), m_fragShaderModule, nullptr);
+    vkDestroyPipeline(m_device.device(), m_graphicsPipeline, nullptr);
 }
 
 std::vector<char> ven::Shaders::readFile(const std::string &filename)
@@ -35,20 +30,18 @@ std::vector<char> ven::Shaders::readFile(const std::string &filename)
     return buffer;
 }
 
-void ven::Shaders::createGraphicsPipeline(
-        const std::string& vertFilepath,
-        const std::string& fragFilepath,
-        const PipelineConfigInfo& configInfo) {
+void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
+{
     std::vector<char> vertCode = readFile(vertFilepath);
     std::vector<char> fragCode = readFile(fragFilepath);
 
-    createShaderModule(vertCode, &vertShaderModule);
-    createShaderModule(fragCode, &fragShaderModule);
+    createShaderModule(vertCode, &m_vertShaderModule);
+    createShaderModule(fragCode, &m_fragShaderModule);
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module = vertShaderModule;
+    shaderStages[0].module = m_vertShaderModule;
     shaderStages[0].pName = "main";
     shaderStages[0].flags = 0;
     shaderStages[0].pNext = nullptr;
@@ -56,7 +49,7 @@ void ven::Shaders::createGraphicsPipeline(
 
     shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module = fragShaderModule;
+    shaderStages[1].module = m_fragShaderModule;
     shaderStages[1].pName = "main";
     shaderStages[1].flags = 0;
     shaderStages[1].pNext = nullptr;
@@ -101,10 +94,9 @@ void ven::Shaders::createGraphicsPipeline(
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(m_device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(m_device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline");
     }
-
 }
 
 
@@ -120,8 +112,8 @@ void ven::Shaders::createShaderModule(const std::vector<char> &code, VkShaderMod
     }
 }
 
-void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo) {
-
+void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo)
+{
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
@@ -130,18 +122,18 @@ void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo
     configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
     configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
     configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
-    configInfo.rasterizationInfo.lineWidth = 1.0f;
+    configInfo.rasterizationInfo.lineWidth = 1.0F;
     configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
     configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
-    configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f;
-    configInfo.rasterizationInfo.depthBiasClamp = 0.0f;
-    configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0f;
+    configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0F;
+    configInfo.rasterizationInfo.depthBiasClamp = 0.0F;
+    configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0F;
 
     configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
     configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    configInfo.multisampleInfo.minSampleShading = 1.0f;
+    configInfo.multisampleInfo.minSampleShading = 1.0F;
     configInfo.multisampleInfo.pSampleMask = nullptr;
     configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE;
     configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;
@@ -160,18 +152,18 @@ void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo
     configInfo.colorBlendInfo.logicOp = VK_LOGIC_OP_COPY;
     configInfo.colorBlendInfo.attachmentCount = 1;
     configInfo.colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
-    configInfo.colorBlendInfo.blendConstants[0] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[1] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[2] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[3] = 0.0f;
+    configInfo.colorBlendInfo.blendConstants[0] = 0.0F;
+    configInfo.colorBlendInfo.blendConstants[1] = 0.0F;
+    configInfo.colorBlendInfo.blendConstants[2] = 0.0F;
+    configInfo.colorBlendInfo.blendConstants[3] = 0.0F;
 
     configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
     configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
     configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
     configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
-    configInfo.depthStencilInfo.minDepthBounds = 0.0f;
-    configInfo.depthStencilInfo.maxDepthBounds = 1.0f;
+    configInfo.depthStencilInfo.minDepthBounds = 0.0F;
+    configInfo.depthStencilInfo.maxDepthBounds = 1.0F;
     configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
     configInfo.depthStencilInfo.front = {};
     configInfo.depthStencilInfo.back = {};
@@ -182,11 +174,3 @@ void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
 }
-
-void ven::Shaders::bind(VkCommandBuffer commandBuffer)
-{
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-}
-
-
