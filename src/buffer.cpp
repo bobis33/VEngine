@@ -32,7 +32,7 @@ VkResult ven::Buffer::map(VkDeviceSize size, VkDeviceSize offset)
 
 void ven::Buffer::unmap()
 {
-    if (mapped) {
+    if (mapped != nullptr) {
         vkUnmapMemory(lveDevice.device(), memory);
         mapped = nullptr;
     }
@@ -45,7 +45,7 @@ void ven::Buffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offs
     if (size == VK_WHOLE_SIZE) {
         memcpy(mapped, data, bufferSize);
     } else {
-        char *memOffset = (char *)mapped;
+        char *memOffset = static_cast<char *>(mapped);
         memOffset += offset;
         memcpy(memOffset, data, size);
     }

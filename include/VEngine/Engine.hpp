@@ -16,6 +16,7 @@
 #include "VEngine/Device.hpp"
 #include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
+#include "VEngine/Descriptors.hpp"
 
 namespace ven {
 
@@ -41,6 +42,7 @@ namespace ven {
         Device m_device{m_window};
         Renderer m_renderer{m_window, m_device};
 
+        std::unique_ptr<DescriptorPool> m_globalPool;
         std::vector<Object> m_objects;
 
         VkInstance m_instance{nullptr};

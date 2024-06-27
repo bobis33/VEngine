@@ -21,7 +21,7 @@
 namespace ven {
 
     struct SimplePushConstantData {
-        glm::mat4 transform{1.F};
+        glm::mat4 modelMatrix{1.F};
         glm::mat4 normalMatrix{1.F};
     };
 
@@ -29,7 +29,7 @@ namespace ven {
 
     public:
 
-        explicit RenderSystem(Device& device, VkRenderPass renderPass);
+        explicit RenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~RenderSystem();
 
         RenderSystem(const RenderSystem&) = delete;
@@ -39,7 +39,7 @@ namespace ven {
 
     private:
 
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void createPipeline(VkRenderPass renderPass);
 
         Device &m_device;
