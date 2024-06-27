@@ -35,7 +35,7 @@ namespace ven {
         RenderSystem(const RenderSystem&) = delete;
         RenderSystem& operator=(const RenderSystem&) = delete;
 
-        void renderObjects(FrameInfo &frameInfo, std::vector<ven::Object>& objects);
+        void renderObjects(FrameInfo &frameInfo);
 
     private:
 

@@ -43,7 +43,7 @@ namespace ven {
         Renderer m_renderer{m_window, m_device};
 
         std::unique_ptr<DescriptorPool> m_globalPool;
-        std::vector<Object> m_objects;
+        Object::Map m_objects;
 
         VkInstance m_instance{nullptr};
         VkSurfaceKHR m_surface{nullptr};

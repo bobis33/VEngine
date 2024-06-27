@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.h>
 
 #include "VEngine/Camera.hpp"
+#include "VEngine/Object.hpp"
 
 namespace ven {
 
@@ -18,6 +19,7 @@ namespace ven {
         VkCommandBuffer commandBuffer;
         Camera &camera;
         VkDescriptorSet globalDescriptorSet;
+        Object::Map &objects;
     };
 
 } // namespace ven

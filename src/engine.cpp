@@ -30,21 +30,21 @@ void ven::Engine::loadObjects()
     flatVase.model = model;
     flatVase.transform3D.translation = {-.5F, .5F, 0.F};
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
-    m_objects.push_back(std::move(flatVase));
+    m_objects.emplace(flatVase.getId(), std::move(flatVase));
 
     model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
     smoothVase.model = model;
     smoothVase.transform3D.translation = {.5F, .5F, 0.F};
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
-    m_objects.push_back(std::move(smoothVase));
+    m_objects.emplace(smoothVase.getId(), std::move(smoothVase));
 
     model = Model::createModelFromFile(m_device, "models/quad.obj");
-    Object quad = Object::createObject();
-    quad.model = model;
-    quad.transform3D.translation = {0.F, .5F, 0.F};
-    smoothVase.transform3D.scale = {3.F, 1.F, 3.F};
-    m_objects.push_back(std::move(quad));
+    Object floor = Object::createObject();
+    floor.model = model;
+    floor.transform3D.translation = {0.F, .5F, 0.F};
+    floor.transform3D.scale = {3.F, 1.F, 3.F};
+    m_objects.emplace(floor.getId(), std::move(floor));
 }
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
@@ -64,7 +64,7 @@ void ven::Engine::mainLoop()
         uboBuffer->map();
     }
 
-    auto globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT).build();
+    auto globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++) {
@@ -100,7 +100,7 @@ void ven::Engine::mainLoop()
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
             int frameIndex = (m_renderer.getFrameIndex());
-            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex]};
+            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], m_objects};
 
             GlobalUbo ubo{};
             ubo.projectionView = camera.getProjection() * camera.getView();
@@ -108,7 +108,7 @@ void ven::Engine::mainLoop()
             uboBuffers[frameIndex]->flush();
 
             m_renderer.beginSwapChainRenderPass(commandBuffer);
-            renderSystem.renderObjects(frameInfo, m_objects);
+            renderSystem.renderObjects(frameInfo);
             Renderer::endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
         }

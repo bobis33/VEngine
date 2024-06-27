@@ -48,14 +48,16 @@ void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
     m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "vertex.spv", std::string(SHADERS_BIN_PATH) + "fragment.spv", pipelineConfig);
 }
 
-void ven::RenderSystem::renderObjects(FrameInfo &frameInfo, std::vector<Object> &gameObjects)
+void ven::RenderSystem::renderObjects(FrameInfo &frameInfo)
 {
     m_shaders->bind(frameInfo.commandBuffer);
 
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-    for (Object &object : gameObjects)
+    for (auto &kv : frameInfo.objects)
     {
+        Object &object = kv.second;
+        if (object.model == nullptr) continue;
         SimplePushConstantData push{};
         push.modelMatrix = object.transform3D.mat4();
         push.normalMatrix = object.transform3D.normalMatrix();

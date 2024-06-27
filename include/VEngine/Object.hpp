@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,6 +29,9 @@ namespace ven {
     class Object {
 
         public:
+
+         using Map = std::unordered_map<id_t, Object>;
+
 
             static Object createObject() { static id_t objId = 0; return Object(objId++); }
 
