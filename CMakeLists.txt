@@ -33,12 +33,12 @@ clangformat_setup()
 include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
 # Add External libraries
-include_directories(${Vulkan_INCLUDE_DIRS})
-
 if (BUILD_EXTERNAL_LIBRARIES)
-    add_subdirectory(external/glfw)
-    include_directories(external/glfw/include)
+    add_subdirectory(${EXTERNAL_DIR}/glfw)
 endif()
+add_subdirectory(${EXTERNAL_DIR}/tinyobjloader)
+
+include_directories(${Vulkan_INCLUDE_DIRS} ${EXTERNAL_DIR}/glfw/include ${EXTERNAL_DIR}/tinyobjloader)
 
 # Add shaders directory
 add_subdirectory(shaders)
@@ -64,7 +64,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE my_lib glfw ${Vulkan_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE my_lib glfw tinyobjloader ${Vulkan_LIBRARIES})
 
 add_dependencies(${PROJECT_NAME} Shaders)
 

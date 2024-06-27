@@ -1,7 +1,26 @@
 #include <cassert>
 #include <cstring>
+#include <unordered_map>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 #include "VEngine/Model.hpp"
+#include "VEngine/Utils.hpp"
+
+namespace std {
+    template<>
+    struct hash<ven::Model::Vertex> {
+        size_t operator()(ven::Model::Vertex const &vertex) const {
+            size_t seed = 0;
+            ven::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            return seed;
+        }
+    };
+}
 
 ven::Model::Model(ven::Device &device, const Model::Builder &builder) : m_device{device}
 {
@@ -90,6 +109,13 @@ void ven::Model::bind(VkCommandBuffer commandBuffer)
     }
 }
 
+std::unique_ptr<ven::Model> ven::Model::createModelFromFile(ven::Device &device, const std::string &filename)
+{
+    Builder builder{};
+    builder.loadModel(filename);
+    return std::make_unique<ven::Model>(device, builder);
+}
+
 std::vector<VkVertexInputBindingDescription> ven::Model::Vertex::getBindingDescriptions()
 {
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
@@ -112,4 +138,66 @@ std::vector<VkVertexInputAttributeDescription> ven::Model::Vertex::getAttributeD
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, color);
     return attributeDescriptions;
+}
+
+void ven::Model::Builder::loadModel(const std::string &filename)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
+
+    vertices.clear();
+    indices.clear();
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    for (const auto &shape : shapes) {
+        for (const auto &index : shape.mesh.indices) {
+            Vertex vertex{};
+            if (index.vertex_index >= 0) {
+                vertex.position = {
+                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 0],
+                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 1],
+                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 2]
+                };
+
+                auto colorindex = 3 * index.vertex_index + 2;
+                if (colorindex < attrib.colors.size()) {
+                    vertex.color = {
+                            attrib.colors[colorindex + 0],
+                            attrib.colors[colorindex + 1],
+                            attrib.colors[colorindex + 2]
+                    };
+                } else {
+                    vertex.color = {1.F, 1.F, 1.F};
+                }
+            }
+
+            if (index.normal_index >= 0) {
+                vertex.normal = {
+                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 0],
+                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 1],
+                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 2]
+                };
+            }
+
+            if (index.texcoord_index >= 0) {
+                vertex.uv = {
+                        attrib.texcoords[2 * static_cast<size_t>(index.texcoord_index) + 0],
+                        attrib.texcoords[2 * static_cast<size_t>(index.texcoord_index) + 1]
+                };
+            }
+
+            if (uniqueVertices.count(vertex) == 0) {
+                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(vertex);
+            }
+            indices.push_back(uniqueVertices[vertex]);
+        }
+    }
 }
