@@ -145,7 +145,8 @@ void ven::Model::Builder::loadModel(const std::string &filename)
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    std::string warn;
+    std::string err;
 
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
     {
@@ -166,7 +167,7 @@ void ven::Model::Builder::loadModel(const std::string &filename)
                         attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 2]
                 };
 
-                auto colorindex = 3 * index.vertex_index + 2;
+                unsigned long colorindex = static_cast<unsigned long>(3 * index.vertex_index + 2);
                 if (colorindex < attrib.colors.size()) {
                     vertex.color = {
                             attrib.colors[colorindex + 0],
@@ -193,7 +194,7 @@ void ven::Model::Builder::loadModel(const std::string &filename)
                 };
             }
 
-            if (uniqueVertices.count(vertex) == 0) {
+            if (!uniqueVertices.contains(vertex)) {
                 uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                 vertices.push_back(vertex);
             }

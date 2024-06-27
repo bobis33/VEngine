@@ -30,6 +30,7 @@ This project aims to provide a robust foundation for game and application develo
 - [GLM](https://github.com/g-truc/glm)
 - [glslang](https://github.com/KhronosGroup/glslang)
 - [assimp](https://www.assimp.org/)
+- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 
 
 ## Usage
