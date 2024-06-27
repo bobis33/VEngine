@@ -46,19 +46,19 @@ void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
     m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "vertex.spv", std::string(SHADERS_BIN_PATH) + "fragment.spv", pipelineConfig);
 }
 
-void ven::RenderSystem::renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &gameObjects, const Camera &camera)
+void ven::RenderSystem::renderObjects(FrameInfo &frameInfo, std::vector<Object> &gameObjects)
 {
-    m_shaders->bind(commandBuffer);
-    auto projectionView = camera.getProjection() * camera.getView();
+    m_shaders->bind(frameInfo.commandBuffer);
+    auto projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getView();
 
     for (Object &object : gameObjects)
     {
         SimplePushConstantData push{};
-        push.color = object.color;
-        push.transform = projectionView * object.transform3D.mat4();
-
-        vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-        object.model->bind(commandBuffer);
-        object.model->draw(commandBuffer);
+        auto modelMatrix = object.transform3D.mat4();
+        push.transform = projectionView * modelMatrix;
+        push.normalMatrix = object.transform3D.normalMatrix();
+        vkCmdPushConstants(frameInfo.commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+        object.model->bind(frameInfo.commandBuffer);
+        object.model->draw(frameInfo.commandBuffer);
     }
 }

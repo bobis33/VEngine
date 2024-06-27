@@ -61,6 +61,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/renderSystem.cpp
         ${SRC_DIR}/camera.cpp
         ${SRC_DIR}/keyboardController.cpp
+        ${SRC_DIR}/object.cpp
+        ${SRC_DIR}/buffer.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})

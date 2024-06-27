@@ -8,20 +8,35 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "VEngine/Engine.hpp"
-#include "VEngine/RenderSystem.hpp"
+#include "VEngine/Buffer.hpp"
 #include "VEngine/Camera.hpp"
+#include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
+#include "VEngine/RenderSystem.hpp"
+
+struct GlobalUbo
+{
+    glm::mat4 projectionView{1.F};
+    glm::vec3 lightDirection = glm::normalize(glm::vec3(1.F, -3.F, -1.F));
+};
 
 void ven::Engine::loadObjects()
 {
-    std::shared_ptr<Model> model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
+    std::shared_ptr<Model> model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
 
-    Object cube = Object::createObject();
-    cube.model = model;
-    cube.transform3D.translation = {.0F, .0F, 2.5F};
-    cube.transform3D.scale = {.5F, .5F, .5F};
-    m_objects.push_back(std::move(cube));
+    Object flatVase = Object::createObject();
+    flatVase.model = model;
+    flatVase.transform3D.translation = {-.5F, .5F, 2.5F};
+    flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
+    m_objects.push_back(std::move(flatVase));
+
+    model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
+    Object smoothVase = Object::createObject();
+    smoothVase.model = model;
+    smoothVase.transform3D.translation = {.5F, .5F, 2.5F};
+    smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
+    m_objects.push_back(std::move(smoothVase));
+
 }
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
@@ -33,6 +48,14 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 
 void ven::Engine::mainLoop()
 {
+    std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < uboBuffers.size(); i++)
+    {
+        uboBuffers[i] = std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        uboBuffers[i]->map();
+    }
+
+
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass());
     Camera camera{};
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
@@ -59,8 +82,16 @@ void ven::Engine::mainLoop()
 
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
+            int frameIndex = m_renderer.getFrameIndex();
+            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera};
+
+            GlobalUbo ubo{};
+            ubo.projectionView = camera.getProjection() * camera.getView();
+            uboBuffers[frameIndex]->writeToBuffer(&ubo);
+            uboBuffers[frameIndex]->flush();
+
             m_renderer.beginSwapChainRenderPass(commandBuffer);
-            renderSystem.renderObjects(commandBuffer, m_objects, camera);
+            renderSystem.renderObjects(frameInfo, m_objects);
             Renderer::endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
         }

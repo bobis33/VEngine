@@ -11,18 +11,18 @@
 
 #include <vulkan/vulkan.h>
 
+#include "VEngine/Camera.hpp"
 #include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
-#include "VEngine/Model.hpp"
 #include "VEngine/Object.hpp"
-#include "VEngine/Camera.hpp"
+#include "VEngine/FrameInfo.hpp"
 
 namespace ven {
 
     struct SimplePushConstantData {
         glm::mat4 transform{1.F};
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.F};
     };
 
     class RenderSystem {
@@ -35,7 +35,7 @@ namespace ven {
         RenderSystem(const RenderSystem&) = delete;
         RenderSystem& operator=(const RenderSystem&) = delete;
 
-        void renderObjects(VkCommandBuffer commandBuffer, std::vector<ven::Object>& objects, const Camera& camera);
+        void renderObjects(FrameInfo &frameInfo, std::vector<ven::Object>& objects);
 
     private:
 
