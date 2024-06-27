@@ -17,7 +17,9 @@
 struct GlobalUbo
 {
     glm::mat4 projectionView{1.F};
-    glm::vec3 lightDirection = glm::normalize(glm::vec3(1.F, -3.F, -1.F));
+    glm::vec4 ambientLightColor{1.F, 1.F, 1.F, .02F};
+    glm::vec3 lightPosition{-1.F};
+    alignas(16) glm::vec4 lightColor{1.F};
 };
 
 void ven::Engine::loadObjects()
@@ -26,17 +28,23 @@ void ven::Engine::loadObjects()
 
     Object flatVase = Object::createObject();
     flatVase.model = model;
-    flatVase.transform3D.translation = {-.5F, .5F, 2.5F};
+    flatVase.transform3D.translation = {-.5F, .5F, 0.F};
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.push_back(std::move(flatVase));
 
     model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
     smoothVase.model = model;
-    smoothVase.transform3D.translation = {.5F, .5F, 2.5F};
+    smoothVase.transform3D.translation = {.5F, .5F, 0.F};
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.push_back(std::move(smoothVase));
 
+    model = Model::createModelFromFile(m_device, "models/quad.obj");
+    Object quad = Object::createObject();
+    quad.model = model;
+    quad.transform3D.translation = {0.F, .5F, 0.F};
+    smoothVase.transform3D.scale = {3.F, 1.F, 3.F};
+    m_objects.push_back(std::move(quad));
 }
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
@@ -69,6 +77,7 @@ void ven::Engine::mainLoop()
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
 
     Object viewerObject = Object::createObject();
+    viewerObject.transform3D.translation.z = -2.5F;
     KeyboardController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -86,7 +95,7 @@ void ven::Engine::mainLoop()
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
 
         float aspect = m_renderer.getAspectRatio();
-        camera.setPerspectiveProjection(glm::radians(50.0F), aspect, 0.1F, 10.F);
+        camera.setPerspectiveProjection(glm::radians(50.0F), aspect, 0.1F, 100.F);
 
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
