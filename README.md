@@ -1,11 +1,10 @@
-<img src="assets/logo.png" alt="logo">
+![VENGINE_LOGO](Documentation/assets/logo.png)
 
-[![VENGINE](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
+[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **ACTUALLY WORKING ON IT!**
-
 
 - [Description](#description)
 - [Prerequisites](#prerequisites)
