@@ -18,19 +18,18 @@ else()
     message(FATAL_ERROR "Vulkan not found")
 endif()
 
-# Option pour contrôler la construction des submodules
 option(BUILD_EXTERNAL_LIBRARIES "Build external libraries (like GLFW)" ON)
-
-# Clang tidy
 option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
+
+include(${CMAKE_MODULE_PATH}/myVariables.cmake)
+
 if (USE_CLANG_TIDY)
     include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 endif()
 
+include(${CMAKE_MODULE_PATH}/ClangFormat.cmake)
+clangformat_setup()
 
-include(${CMAKE_MODULE_PATH}/myVariables.cmake)
-
-# Build Doxygen documentation
 include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
 # Add External libraries
@@ -41,7 +40,6 @@ if (BUILD_EXTERNAL_LIBRARIES)
     include_directories(external/glfw/include)
 endif()
 
-
 # Add shaders directory
 add_subdirectory(shaders)
 
@@ -49,7 +47,7 @@ add_subdirectory(shaders)
 add_subdirectory(lib)
 
 # Main executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/main.cpp

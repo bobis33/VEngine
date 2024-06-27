@@ -32,16 +32,15 @@ function build() {
     if [ ! -d "build" ]; then
         mkdir -p build
     fi
-    cd build || exit 1
     if [ "$debug" == "true" ]; then
-        cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DUSE_CLANG_TIDY=ON && cmake --build .
+        cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DUSE_CLANG_TIDY=ON && cmake --build build
     else
-        cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build .
+        cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build build
     fi
 }
 
 if [ $# -eq 0 ]; then
-    echo "Usage $0 build [debug] | clean"
+    echo "Usage $0 build [debug] | clean | format"
     exit 1
 fi
 
@@ -56,6 +55,9 @@ case $1 in
     clean)
         clean
         ;;
+    format)
+      cmake --build build --target clangformat
+      ;;
     *)
         echo "Usage $0 build [debug] | clean"
         exit 1
