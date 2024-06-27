@@ -1,4 +1,4 @@
-![VENGINE_LOGO](Documentation/assets/logo.png)
+![VENGINE_LOGO](documentation/assets/logo.png)
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
@@ -29,7 +29,7 @@ This project aims to provide a robust foundation for game and application develo
 - [GLFW](https://www.glfw.org/)
 - [GLM](https://github.com/g-truc/glm)
 - [glslang](https://github.com/KhronosGroup/glslang)
-- [assimp](https://www.assimp.org/)
+- [assimp](https://www.assimp.org/) (unused ATM)
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 
 
