@@ -12,11 +12,13 @@
 #include "VEngine/Camera.hpp"
 #include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
-#include "VEngine/RenderSystem.hpp"
+#include "VEngine/System/RenderSystem.hpp"
+#include "VEngine/System/PointLightSystem.hpp"
 
 struct GlobalUbo
 {
-    glm::mat4 projectionView{1.F};
+    glm::mat4 projection{1.F};
+    glm::mat4 view{1.F};
     glm::vec4 ambientLightColor{1.F, 1.F, 1.F, .02F};
     glm::vec3 lightPosition{-1.F};
     alignas(16) glm::vec4 lightColor{1.F};
@@ -73,6 +75,7 @@ void ven::Engine::mainLoop()
     }
 
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    PointLightSystem pointLightSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     Camera camera{};
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
 
@@ -103,12 +106,14 @@ void ven::Engine::mainLoop()
             FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], m_objects};
 
             GlobalUbo ubo{};
-            ubo.projectionView = camera.getProjection() * camera.getView();
+            ubo.projection = camera.getProjection();
+            ubo.view = camera.getView();
             uboBuffers[frameIndex]->writeToBuffer(&ubo);
             uboBuffers[frameIndex]->flush();
 
             m_renderer.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObjects(frameInfo);
+            pointLightSystem.render(frameInfo);
             Renderer::endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
         }

@@ -58,7 +58,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         ${SRC_DIR}/swapChain.cpp
         ${SRC_DIR}/model.cpp
         ${SRC_DIR}/renderer.cpp
-        ${SRC_DIR}/renderSystem.cpp
+        ${SRC_DIR}/system/renderSystem.cpp
+        ${SRC_DIR}/system/pointLightSystem.cpp
         ${SRC_DIR}/camera.cpp
         ${SRC_DIR}/keyboardController.cpp
         ${SRC_DIR}/object.cpp

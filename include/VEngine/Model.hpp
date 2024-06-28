@@ -67,7 +67,6 @@ namespace ven {
             std::unique_ptr<Buffer> m_indexBuffer;
             uint32_t m_indexCount;
 
-
     }; // class Model
 
 } // namespace ven

@@ -5,7 +5,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
-#include "VEngine/RenderSystem.hpp"
+#include "VEngine/System/RenderSystem.hpp"
 
 ven::RenderSystem::RenderSystem(Device& device, VkRenderPass renderPass,VkDescriptorSetLayout globalSetLayout) : m_device{device}
 {
@@ -45,7 +45,7 @@ void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
     ven::Shaders::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
-    m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "vertex.spv", std::string(SHADERS_BIN_PATH) + "fragment.spv", pipelineConfig);
+    m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "shader_vert.spv", std::string(SHADERS_BIN_PATH) + "shader_frag.spv", pipelineConfig);
 }
 
 void ven::RenderSystem::renderObjects(FrameInfo &frameInfo)
