@@ -90,7 +90,7 @@ namespace ven {
          * @param index Used in offset calculation
          *
          */
-        void writeToIndex(void* data, int index) { writeToBuffer(data, instanceSize, index * alignmentSize); }
+        void writeToIndex(void* data, VkDeviceSize index) { writeToBuffer(data, instanceSize, index * alignmentSize); }
 
         /**
          *  Flush the memory range at index * alignmentSize of the buffer to make it visible to the device
@@ -98,7 +98,7 @@ namespace ven {
          * @param index Used in offset calculation
          *
          */
-        VkResult flushIndex(int index) { return flush(alignmentSize, index * alignmentSize); }
+        VkResult flushIndex(VkDeviceSize index) { return flush(alignmentSize, index * alignmentSize); }
 
         /**
          * Create a buffer info descriptor
@@ -107,7 +107,7 @@ namespace ven {
          *
          * @return VkDescriptorBufferInfo for instance at index
          */
-        VkDescriptorBufferInfo descriptorInfoForIndex(int index) { return descriptorInfo(alignmentSize, index * alignmentSize); }
+        VkDescriptorBufferInfo descriptorInfoForIndex(VkDeviceSize index) { return descriptorInfo(alignmentSize, index * alignmentSize); }
 
         /**
          * Invalidate a memory range of the buffer to make it visible to the host
@@ -118,7 +118,7 @@ namespace ven {
          *
          * @return VkResult of the invalidate call
          */
-        VkResult invalidateIndex(int index) { return invalidate(alignmentSize, index * alignmentSize); }
+        VkResult invalidateIndex(VkDeviceSize index) { return invalidate(alignmentSize, index * alignmentSize); }
 
         VkBuffer getBuffer() const { return buffer; }
         void* getMappedMemory() const { return mapped; }

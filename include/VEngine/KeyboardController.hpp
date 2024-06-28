@@ -34,8 +34,6 @@ namespace ven {
             float m_moveSpeed{3.F};
             float m_lookSpeed{1.5F};
 
-        private:
-
     }; // class KeyboardController
 
 } // namespace ven

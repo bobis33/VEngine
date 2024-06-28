@@ -1,10 +1,3 @@
-#include <iostream>
-#include <memory>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-
 #include "VEngine/System/RenderSystem.hpp"
 
 ven::RenderSystem::RenderSystem(Device& device, VkRenderPass renderPass,VkDescriptorSetLayout globalSetLayout) : m_device{device}

@@ -1,9 +1,7 @@
 #include <stdexcept>
 #include <fstream>
-#include <iostream>
 
 #include "VEngine/Shaders.hpp"
-#include "VEngine/Device.hpp"
 
 ven::Shaders::~Shaders()
 {

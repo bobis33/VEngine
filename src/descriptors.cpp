@@ -1,5 +1,4 @@
 #include <cassert>
-#include <stdexcept>
 
 #include "VEngine/Descriptors.hpp"
 
@@ -178,5 +177,5 @@ void ven::DescriptorWriter::overwrite(VkDescriptorSet &set)
     for (auto &write : m_writes) {
         write.dstSet = set;
     }
-    vkUpdateDescriptorSets(m_pool.m_device.device(), m_writes.size(), m_writes.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_pool.m_device.device(), static_cast<unsigned int>(m_writes.size()), m_writes.data(), 0, nullptr);
 }

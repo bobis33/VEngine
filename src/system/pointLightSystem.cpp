@@ -61,7 +61,7 @@ void ven::PointLightSystem::render(FrameInfo &frameInfo)
 
     for (auto &kv : frameInfo.objects)
     {
-        auto &object = kv.second;
+        Object &object = kv.second;
         if (object.pointLight == nullptr) continue;
         PointLightPushConstants push{};
         push.position = glm::vec4(object.transform3D.translation, 1.F);
@@ -79,7 +79,7 @@ void ven::PointLightSystem::update(ven::FrameInfo &frameInfo, ven::GlobalUbo &ub
     int lightIndex = 0;
     for (auto &kv : frameInfo.objects)
     {
-        auto &object = kv.second;
+        Object &object = kv.second;
         if (object.pointLight == nullptr) continue;
         assert(lightIndex < MAX_LIGHTS && "Too many lights");
         object.transform3D.translation = glm::vec3(rotateLight * glm::vec4(object.transform3D.translation, 1.F));

@@ -10,11 +10,11 @@ VkDeviceSize ven::Buffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize m
     return instanceSize;
 }
 
-ven::Buffer::Buffer(ven::Device &device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment) : lveDevice{device}, instanceSize{instanceSize}, instanceCount{instanceCount}, usageFlags{usageFlags}, memoryPropertyFlags{memoryPropertyFlags}
+ven::Buffer::Buffer(ven::Device &device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlagsp, VkMemoryPropertyFlags memoryPropertyFlagsp, VkDeviceSize minOffsetAlignment) : lveDevice{device}, instanceSize{instanceSize}, instanceCount{instanceCount}, usageFlags{usageFlags}, memoryPropertyFlags{memoryPropertyFlags}
 {
     alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
     bufferSize = alignmentSize * instanceCount;
-    device.createBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);
+    device.createBuffer(bufferSize, usageFlagsp, memoryPropertyFlagsp, buffer, memory);
 }
 
 ven::Buffer::~Buffer()
