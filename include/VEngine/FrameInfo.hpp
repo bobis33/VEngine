@@ -13,6 +13,22 @@
 
 namespace ven {
 
+static constexpr const std::size_t MAX_LIGHTS = 10;
+
+struct PointLight {
+    glm::vec4 position{};
+    glm::vec4 color{};
+};
+
+    struct GlobalUbo
+    {
+        glm::mat4 projection{1.F};
+        glm::mat4 view{1.F};
+        glm::vec4 ambientLightColor{1.F, 1.F, 1.F, .02F};
+        PointLight pointLights[MAX_LIGHTS];
+        int numLights;
+    };
+
     struct FrameInfo {
         int frameIndex;
         float frameTime;

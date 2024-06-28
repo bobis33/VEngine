@@ -15,15 +15,6 @@
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
 
-struct GlobalUbo
-{
-    glm::mat4 projection{1.F};
-    glm::mat4 view{1.F};
-    glm::vec4 ambientLightColor{1.F, 1.F, 1.F, .02F};
-    glm::vec3 lightPosition{-1.F};
-    alignas(16) glm::vec4 lightColor{1.F};
-};
-
 void ven::Engine::loadObjects()
 {
     std::shared_ptr<Model> model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
@@ -47,6 +38,24 @@ void ven::Engine::loadObjects()
     floor.transform3D.translation = {0.F, .5F, 0.F};
     floor.transform3D.scale = {3.F, 1.F, 3.F};
     m_objects.emplace(floor.getId(), std::move(floor));
+
+    std::vector<glm::vec3> lightColors{
+            {1.f, .1f, .1f},
+            {.1f, .1f, 1.f},
+            {.1f, 1.f, .1f},
+            {1.f, 1.f, .1f},
+            {.1f, 1.f, 1.f},
+            {1.f, 1.f, 1.f}  //
+    };
+
+    for (int i = 0; i < lightColors.size(); i++)
+    {
+        auto pointLight = Object::makePointLight(0.2F);
+        pointLight.color = lightColors[i];
+        auto rotateLight = glm::rotate(glm::mat4(1.F), (i * glm::two_pi<float>()) / lightColors.size(), {0.F, -1.F, 0.F});
+        pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
+        m_objects.emplace(pointLight.getId(), std::move(pointLight));
+    }
 }
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
@@ -108,6 +117,7 @@ void ven::Engine::mainLoop()
             GlobalUbo ubo{};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
+            pointLightSystem.update(frameInfo, ubo);
             uboBuffers[frameIndex]->writeToBuffer(&ubo);
             uboBuffers[frameIndex]->flush();
 

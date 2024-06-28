@@ -26,6 +26,10 @@ namespace ven {
         [[nodiscard]] glm::mat3 normalMatrix();
     };
 
+    struct PointLightComponent {
+        float lightIntensity = 1.0F;
+    };
+
     class Object {
 
         public:
@@ -37,6 +41,8 @@ namespace ven {
 
             ~Object() = default;
 
+            static Object makePointLight(float intensity = 10.F, float radius = 0.1F, glm::vec3 color = glm::vec3(1.F));
+
             Object(const Object&) = delete;
             Object& operator=(const Object&) = delete;
             Object(Object&&) = default;
@@ -47,6 +53,8 @@ namespace ven {
             std::shared_ptr<ven::Model> model{};
             glm::vec3 color{};
             Transform3DComponent transform3D{};
+
+            std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
     private:
             explicit Object(id_t objId) : m_objId(objId) {}
