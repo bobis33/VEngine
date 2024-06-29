@@ -12,9 +12,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-if (Vulkan_FOUND)
-    include_directories(${Vulkan_INCLUDE_DIRS})
-else()
+if (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Vulkan not found")
 endif()
 
@@ -38,7 +36,7 @@ if (BUILD_EXTERNAL_LIBRARIES)
 endif()
 add_subdirectory(${EXTERNAL_DIR}/tinyobjloader)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${EXTERNAL_DIR}/glfw/include ${EXTERNAL_DIR}/tinyobjloader)
+include_directories(${Vulkan_INCLUDE_DIRS} ${EXTERNAL_DIR}/glfw/include ${EXTERNAL_DIR}/tinyobjloader ${EXTERNAL_DIR}/stb)
 
 # Add shaders directory
 add_subdirectory(shaders)
