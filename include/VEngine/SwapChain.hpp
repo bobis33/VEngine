@@ -7,7 +7,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <vulkan/vulkan.h>
 #include <memory>
 
@@ -21,8 +20,8 @@ namespace ven {
 
             static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-            SwapChain(Device &deviceRef, VkExtent2D windowExtent);
-            SwapChain(Device &deviceRef, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
+            SwapChain(Device &deviceRef, VkExtent2D windowExtentRef) : device{deviceRef}, windowExtent{windowExtentRef} { init(); }
+            SwapChain(Device &deviceRef, VkExtent2D windowExtentRef, std::shared_ptr<SwapChain> previous) : device{deviceRef}, windowExtent{windowExtentRef}, oldSwapChain{std::move(previous)} { init(); oldSwapChain = nullptr; }
             ~SwapChain();
 
             SwapChain(const SwapChain &) = delete;

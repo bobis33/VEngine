@@ -1,32 +1,8 @@
-#include <array>
-#include <cstring>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 
 #include "VEngine/SwapChain.hpp"
-
-ven::SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent) : device{deviceRef}, windowExtent{extent}
-{
-    init();
-}
-
-ven::SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
-    : device{deviceRef}, windowExtent{extent}, oldSwapChain{std::move(previous)}
-{
-    init();
-    oldSwapChain = nullptr;
-}
-
-void ven::SwapChain::init()
-{
-    createSwapChain();
-    createImageViews();
-    createRenderPass();
-    createDepthResources();
-    createFramebuffers();
-    createSyncObjects();
-}
 
 ven::SwapChain::~SwapChain()
 {
@@ -52,12 +28,22 @@ ven::SwapChain::~SwapChain()
 
     vkDestroyRenderPass(device.device(), renderPass, nullptr);
 
-  // cleanup synchronization objects
+    // cleanup synchronization objects
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device.device(), renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(device.device(), imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(device.device(), inFlightFences[i], nullptr);
     }
+}
+
+void ven::SwapChain::init()
+{
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createDepthResources();
+    createFramebuffers();
+    createSyncObjects();
 }
 
 VkResult ven::SwapChain::acquireNextImage(uint32_t *imageIndex)
@@ -92,7 +78,7 @@ VkResult ven::SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, co
 
     vkResetFences(device.device(), 1, &inFlightFences[currentFrame]);
     if (vkQueueSubmit(device.graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        throw std::runtime_error("failed to submit draw command m_buffer!");
     }
 
     VkPresentInfoKHR presentInfo = {};

@@ -7,7 +7,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <cassert>
 
 #include <vulkan/vulkan.h>
@@ -33,7 +32,7 @@ namespace ven {
         [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
         [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }
         [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
-        [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
+        [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command m_buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
 
         [[nodiscard]] int getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
 

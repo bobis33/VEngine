@@ -12,9 +12,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-if (Vulkan_FOUND)
-    include_directories(${Vulkan_INCLUDE_DIRS})
-else()
+if (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Vulkan not found")
 endif()
 
@@ -22,15 +20,14 @@ option(BUILD_EXTERNAL_LIBRARIES "Build external libraries (like GLFW)" ON)
 option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
 
 include(${CMAKE_MODULE_PATH}/myVariables.cmake)
+include(${CMAKE_MODULE_PATH}/ClangFormat.cmake)
+include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
 if (USE_CLANG_TIDY)
     include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 endif()
 
-include(${CMAKE_MODULE_PATH}/ClangFormat.cmake)
 clangformat_setup()
-
-include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
 
 # Add External libraries
 if (BUILD_EXTERNAL_LIBRARIES)
@@ -38,37 +35,31 @@ if (BUILD_EXTERNAL_LIBRARIES)
 endif()
 add_subdirectory(${EXTERNAL_DIR}/tinyobjloader)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${EXTERNAL_DIR}/glfw/include ${EXTERNAL_DIR}/tinyobjloader)
-
 # Add shaders directory
 add_subdirectory(shaders)
 
-# Libraries
+# Add internal libraries
 add_subdirectory(lib)
 
-# Main executable
-add_executable(${PROJECT_NAME})
+file(GLOB_RECURSE SRCS ${SRC_DIR}/*.cpp)
 
-target_sources(${PROJECT_NAME} PRIVATE
-        ${SRC_DIR}/main.cpp
-        ${SRC_DIR}/engine.cpp
-        ${SRC_DIR}/window.cpp
-        ${SRC_DIR}/device.cpp
-        ${SRC_DIR}/shaders.cpp
-        ${SRC_DIR}/swapChain.cpp
-        ${SRC_DIR}/model.cpp
-        ${SRC_DIR}/renderer.cpp
-        ${SRC_DIR}/system/renderSystem.cpp
-        ${SRC_DIR}/system/pointLightSystem.cpp
-        ${SRC_DIR}/camera.cpp
-        ${SRC_DIR}/keyboardController.cpp
-        ${SRC_DIR}/object.cpp
-        ${SRC_DIR}/buffer.cpp
-        ${SRC_DIR}/descriptors.cpp
+# Main executable
+add_executable(${PROJECT_NAME} ${SRCS})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${INCLUDE_DIR}
+        ${Vulkan_INCLUDE_DIRS}
+        ${EXTERNAL_DIR}/glfw/include
+        ${EXTERNAL_DIR}/tinyobjloader
+        ${EXTERNAL_DIR}/stb
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE my_lib glfw tinyobjloader ${Vulkan_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        my_lib
+        ${Vulkan_LIBRARIES}
+        glfw
+        tinyobjloader
+)
 
 add_dependencies(${PROJECT_NAME} Shaders)
 

@@ -1,7 +1,3 @@
-#include <iostream>
-#include <memory>
-#include <array>
-
 #include "VEngine/Renderer.hpp"
 
 void ven::Renderer::createCommandBuffers()
@@ -65,7 +61,7 @@ VkCommandBuffer ven::Renderer::beginFrame()
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to begin recording command buffer");
+        throw std::runtime_error("Failed to begin recording command m_buffer");
     }
     return commandBuffer;
 }
@@ -76,7 +72,7 @@ void ven::Renderer::endFrame()
 
     VkCommandBuffer_T *commandBuffer = getCurrentCommandBuffer();
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to record command buffer");
+        throw std::runtime_error("Failed to record command m_buffer");
     }
     VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
@@ -84,7 +80,7 @@ void ven::Renderer::endFrame()
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to submit command buffer");
+        throw std::runtime_error("Failed to submit command m_buffer");
     }
 
     m_isFrameStarted = false;
@@ -94,7 +90,7 @@ void ven::Renderer::endFrame()
 void ven::Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
     assert(isFrameStarted && "Can't begin render pass when frame not in progress");
-    assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
+    assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command m_buffer from a different frame");
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -127,7 +123,7 @@ void ven::Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 void ven::Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
 {
     assert(isFrameStarted && "Can't end render pass when frame not in progress");
-    assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
+    assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command m_buffer from a different frame");
 
     vkCmdEndRenderPass(commandBuffer);
 }

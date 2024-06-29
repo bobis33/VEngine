@@ -76,10 +76,13 @@ namespace ven {
 
         VkPhysicalDeviceProperties m_properties;
 
+        VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
+        VkQueue getGraphicsQueue() { return graphicsQueue_; }
+
     private:
         void createInstance();
         void setupDebugMessenger();
-        void createSurface();
+        void createSurface() { m_window.createWindowSurface(instance, &surface_); };
         void pickPhysicalDevice();
         void createLogicalDevice();
         void createCommandPool();

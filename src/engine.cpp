@@ -1,6 +1,3 @@
-#include <iostream>
-#include <memory>
-#include <array>
 #include <chrono>
 
 #define GLM_FORCE_RADIANS
@@ -8,8 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "VEngine/Buffer.hpp"
-#include "VEngine/Camera.hpp"
 #include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
 #include "VEngine/System/RenderSystem.hpp"
@@ -48,11 +43,11 @@ void ven::Engine::loadObjects()
             {1.f, 1.f, 1.f}  //
     };
 
-    for (int i = 0; i < lightColors.size(); i++)
+    for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        auto pointLight = Object::makePointLight(0.2F);
+        Object pointLight = Object::makePointLight(0.2F);
         pointLight.color = lightColors[i];
-        auto rotateLight = glm::rotate(glm::mat4(1.F), (i * glm::two_pi<float>()) / lightColors.size(), {0.F, -1.F, 0.F});
+        auto rotateLight = glm::rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
         pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
         m_objects.emplace(pointLight.getId(), std::move(pointLight));
     }
@@ -78,8 +73,8 @@ void ven::Engine::mainLoop()
     auto globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < globalDescriptorSets.size(); i++) {
-        auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
+        VkDescriptorBufferInfo bufferInfo = uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
 
@@ -112,14 +107,14 @@ void ven::Engine::mainLoop()
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
             int frameIndex = (m_renderer.getFrameIndex());
-            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], m_objects};
+            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects};
 
             GlobalUbo ubo{};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             pointLightSystem.update(frameInfo, ubo);
-            uboBuffers[frameIndex]->writeToBuffer(&ubo);
-            uboBuffers[frameIndex]->flush();
+            uboBuffers[static_cast<unsigned long>(frameIndex)]->writeToBuffer(&ubo);
+            uboBuffers[static_cast<unsigned long>(frameIndex)]->flush();
 
             m_renderer.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObjects(frameInfo);
@@ -160,4 +155,9 @@ void ven::Engine::createSurface()
     {
         throw std::runtime_error("Failed to create window surface");
     }
+}
+
+void ven::Engine::initImGui()
+{
+
 }
