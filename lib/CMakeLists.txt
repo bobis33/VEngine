@@ -1,2 +1,2 @@
-## add_subdirectory(shared)
-add_subdirectory(static)
+add_subdirectory(external)
+add_subdirectory(local)

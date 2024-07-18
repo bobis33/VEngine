@@ -22,23 +22,16 @@ option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
 include(${CMAKE_MODULE_PATH}/myVariables.cmake)
 include(${CMAKE_MODULE_PATH}/ClangFormat.cmake)
 include(${CMAKE_MODULE_PATH}/MakeDoc.cmake)
-
 if (USE_CLANG_TIDY)
     include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 endif()
 
 clangformat_setup()
 
-# Add External libraries
-if (BUILD_EXTERNAL_LIBRARIES)
-    add_subdirectory(${EXTERNAL_DIR}/glfw)
-endif()
-add_subdirectory(${EXTERNAL_DIR}/tinyobjloader)
-
 # Add shaders directory
 add_subdirectory(shaders)
 
-# Add internal libraries
+# Add libraries directory
 add_subdirectory(lib)
 
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.cpp)

@@ -12,11 +12,11 @@ set(SRC_DIR
 
 SET(INCLUDE_DIR
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/lib/static/myLib/include
+        ${CMAKE_SOURCE_DIR}/lib/local/static/myLib/include
 )
 
 SET(EXTERNAL_DIR
-        ${CMAKE_SOURCE_DIR}/external
+        ${CMAKE_SOURCE_DIR}/lib/external
 )
 
 set(WARNING_FLAGS
