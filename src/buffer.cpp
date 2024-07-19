@@ -3,14 +3,14 @@
 
 #include "VEngine/Buffer.hpp"
 
-VkDeviceSize ven::Buffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment) {
+VkDeviceSize ven::Buffer::getAlignment(const VkDeviceSize instanceSize, const VkDeviceSize minOffsetAlignment) {
     if (minOffsetAlignment > 0) {
         return (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1);
     }
     return instanceSize;
 }
 
-ven::Buffer::Buffer(ven::Device &device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment) : m_device{device}, m_instanceSize{instanceSize}, m_instanceCount{instanceCount}, m_alignmentSize(getAlignment(instanceSize, minOffsetAlignment)), m_usageFlags{usageFlags}, m_memoryPropertyFlags{memoryPropertyFlags}
+ven::Buffer::Buffer(Device &device, const VkDeviceSize instanceSize, const uint32_t instanceCount, const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize minOffsetAlignment) : m_device{device}, m_instanceSize{instanceSize}, m_instanceCount{instanceCount}, m_alignmentSize(getAlignment(instanceSize, minOffsetAlignment)), m_usageFlags{usageFlags}, m_memoryPropertyFlags{memoryPropertyFlags}
 {
     m_bufferSize = m_alignmentSize * m_instanceCount;
     device.createBuffer(m_bufferSize, m_usageFlags, m_memoryPropertyFlags, m_buffer, m_memory);
@@ -23,7 +23,7 @@ ven::Buffer::~Buffer()
     vkFreeMemory(m_device.device(), m_memory, nullptr);
 }
 
-VkResult ven::Buffer::map(VkDeviceSize size, VkDeviceSize offset)
+VkResult ven::Buffer::map(const VkDeviceSize size, const VkDeviceSize offset)
 {
     assert(m_buffer && m_memory && "Called map on m_buffer before create");
     return vkMapMemory(m_device.device(), m_memory, offset, size, 0, &m_mapped);
@@ -37,7 +37,7 @@ void ven::Buffer::unmap()
     }
 }
 
-void ven::Buffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset)
+void ven::Buffer::writeToBuffer(const void *data, const VkDeviceSize size, const VkDeviceSize offset) const
 {
     assert(m_mapped && "Cannot copy to unmapped m_buffer");
 
@@ -50,7 +50,7 @@ void ven::Buffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offs
     }
 }
 
-VkResult ven::Buffer::flush(VkDeviceSize size, VkDeviceSize offset)
+VkResult ven::Buffer::flush(const VkDeviceSize size, const VkDeviceSize offset) const
 {
     VkMappedMemoryRange mappedRange = {};
     mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
@@ -60,7 +60,7 @@ VkResult ven::Buffer::flush(VkDeviceSize size, VkDeviceSize offset)
     return vkFlushMappedMemoryRanges(m_device.device(), 1, &mappedRange);
 }
 
-VkResult ven::Buffer::invalidate(VkDeviceSize size, VkDeviceSize offset)
+VkResult ven::Buffer::invalidate(const VkDeviceSize size, const VkDeviceSize offset) const
 {
     VkMappedMemoryRange mappedRange = {};
     mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;

@@ -7,13 +7,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
-#include "VEngine/Camera.hpp"
-#include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
-#include "VEngine/Object.hpp"
 #include "VEngine/FrameInfo.hpp"
 
 namespace ven {
@@ -23,13 +19,13 @@ namespace ven {
     public:
 
         explicit PointLightSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~PointLightSystem();
+        ~PointLightSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
         PointLightSystem(const PointLightSystem&) = delete;
         PointLightSystem& operator=(const PointLightSystem&) = delete;
 
-        void update(FrameInfo &frameInfo, GlobalUbo &ubo);
-        void render(FrameInfo &frameInfo);
+        static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
+        void render(const FrameInfo &frameInfo) const;
 
     private:
 

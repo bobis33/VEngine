@@ -45,7 +45,7 @@ namespace ven {
          * @param offset (Optional) Byte offset from beginning of m_mapped region
          *
          */
-        void writeToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        void writeToBuffer(const void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
         /**
          * Flush a m_memory range of the m_buffer to make it visible to the device
@@ -58,7 +58,7 @@ namespace ven {
          *
          * @return VkResult of the flush call
          */
-        VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
         /**
          * Create a m_buffer info descriptor
@@ -68,7 +68,7 @@ namespace ven {
          *
          * @return VkDescriptorBufferInfo of specified offset and range
          */
-        VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) { return VkDescriptorBufferInfo{m_buffer, offset, size, }; }
+        [[nodiscard]] VkDescriptorBufferInfo descriptorInfo(const VkDeviceSize size = VK_WHOLE_SIZE, const VkDeviceSize offset = 0) const { return VkDescriptorBufferInfo{m_buffer, offset, size, }; }
 
         /**
          * Invalidate a m_memory range of the m_buffer to make it visible to the host
@@ -81,7 +81,7 @@ namespace ven {
          *
          * @return VkResult of the invalidate call
          */
-        VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        [[nodiscard]] VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
         /**
          * Copies "m_instanceSize" bytes of data to the m_mapped m_buffer at an offset of index * m_alignmentSize
@@ -90,7 +90,7 @@ namespace ven {
          * @param index Used in offset calculation
          *
          */
-        void writeToIndex(void* data, VkDeviceSize index) { writeToBuffer(data, m_instanceSize, index * m_alignmentSize); }
+        void writeToIndex(const void* data, const VkDeviceSize index) const { writeToBuffer(data, m_instanceSize, index * m_alignmentSize); }
 
         /**
          *  Flush the m_memory range at index * m_alignmentSize of the m_buffer to make it visible to the device
@@ -98,7 +98,7 @@ namespace ven {
          * @param index Used in offset calculation
          *
          */
-        VkResult flushIndex(VkDeviceSize index) { return flush(m_alignmentSize, index * m_alignmentSize); }
+        [[nodiscard]] VkResult flushIndex(const VkDeviceSize index) const { return flush(m_alignmentSize, index * m_alignmentSize); }
 
         /**
          * Create a m_buffer info descriptor
@@ -107,7 +107,7 @@ namespace ven {
          *
          * @return VkDescriptorBufferInfo for instance at index
          */
-        VkDescriptorBufferInfo descriptorInfoForIndex(VkDeviceSize index) { return descriptorInfo(m_alignmentSize, index * m_alignmentSize); }
+        [[nodiscard]] VkDescriptorBufferInfo descriptorInfoForIndex(const VkDeviceSize index) const { return descriptorInfo(m_alignmentSize, index * m_alignmentSize); }
 
         /**
          * Invalidate a m_memory range of the m_buffer to make it visible to the host
@@ -118,16 +118,16 @@ namespace ven {
          *
          * @return VkResult of the invalidate call
          */
-        VkResult invalidateIndex(VkDeviceSize index) { return invalidate(m_alignmentSize, index * m_alignmentSize); }
+        [[nodiscard]] VkResult invalidateIndex(const VkDeviceSize index) const { return invalidate(m_alignmentSize, index * m_alignmentSize); }
 
-        VkBuffer getBuffer() const { return m_buffer; }
-        void* getMappedMemory() const { return m_mapped; }
-        uint32_t getInstanceCount() const { return m_instanceCount; }
-        VkDeviceSize getInstanceSize() const { return m_instanceSize; }
-        VkDeviceSize getAlignmentSize() const { return m_instanceSize; }
-        VkBufferUsageFlags getUsageFlags() const { return m_usageFlags; }
-        VkMemoryPropertyFlags getMemoryPropertyFlags() const { return m_memoryPropertyFlags; }
-        VkDeviceSize getBufferSize() const { return m_bufferSize; }
+        [[nodiscard]] VkBuffer getBuffer() const { return m_buffer; }
+        [[nodiscard]] void* getMappedMemory() const { return m_mapped; }
+        [[nodiscard]] uint32_t getInstanceCount() const { return m_instanceCount; }
+        [[nodiscard]] VkDeviceSize getInstanceSize() const { return m_instanceSize; }
+        [[nodiscard]] VkDeviceSize getAlignmentSize() const { return m_instanceSize; }
+        [[nodiscard]] VkBufferUsageFlags getUsageFlags() const { return m_usageFlags; }
+        [[nodiscard]] VkMemoryPropertyFlags getMemoryPropertyFlags() const { return m_memoryPropertyFlags; }
+        [[nodiscard]] VkDeviceSize getBufferSize() const { return m_bufferSize; }
 
     private:
         /**

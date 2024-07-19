@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "VEngine/System/PointLightSystem.hpp"
+#include "VEngine/Constant.hpp"
+
 
 struct PointLightPushConstants {
     glm::vec4 position{};
@@ -10,25 +12,20 @@ struct PointLightPushConstants {
     float radius;
 };
 
-ven::PointLightSystem::PointLightSystem(Device& device, VkRenderPass renderPass,VkDescriptorSetLayout globalSetLayout) : m_device{device}
+ven::PointLightSystem::PointLightSystem(Device& device, const VkRenderPass renderPass,const VkDescriptorSetLayout globalSetLayout) : m_device{device}
 {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
 
-ven::PointLightSystem::~PointLightSystem()
-{
-    vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr);
-}
-
-void ven::PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+void ven::PointLightSystem::createPipelineLayout(const VkDescriptorSetLayout globalSetLayout)
 {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(PointLightPushConstants);
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
+    const std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -42,10 +39,10 @@ void ven::PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSet
     }
 }
 
-void ven::PointLightSystem::createPipeline(VkRenderPass renderPass)
+void ven::PointLightSystem::createPipeline(const VkRenderPass renderPass)
 {
     PipelineConfigInfo pipelineConfig{};
-    ven::Shaders::defaultPipelineConfigInfo(pipelineConfig);
+    Shaders::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.attributeDescriptions.clear();
     pipelineConfig.bindingDescriptions.clear();
     pipelineConfig.renderPass = renderPass;
@@ -53,7 +50,7 @@ void ven::PointLightSystem::createPipeline(VkRenderPass renderPass)
     m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "point_light_vert.spv", std::string(SHADERS_BIN_PATH) + "point_light_frag.spv", pipelineConfig);
 }
 
-void ven::PointLightSystem::render(FrameInfo &frameInfo)
+void ven::PointLightSystem::render(const FrameInfo &frameInfo) const
 {
     m_shaders->bind(frameInfo.commandBuffer);
 
@@ -73,9 +70,9 @@ void ven::PointLightSystem::render(FrameInfo &frameInfo)
 
 }
 
-void ven::PointLightSystem::update(ven::FrameInfo &frameInfo, ven::GlobalUbo &ubo)
+void ven::PointLightSystem::update(const FrameInfo &frameInfo, GlobalUbo &ubo)
 {
-    auto rotateLight = glm::rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
+    const auto rotateLight = glm::rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
     unsigned long lightIndex = 0;
     for (auto &kv : frameInfo.objects)
     {

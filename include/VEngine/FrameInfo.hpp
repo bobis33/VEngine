@@ -13,7 +13,7 @@
 
 namespace ven {
 
-static constexpr const std::size_t MAX_LIGHTS = 10;
+static constexpr std::size_t MAX_LIGHTS = 10;
 
     struct PointLight
     {
@@ -25,6 +25,7 @@ static constexpr const std::size_t MAX_LIGHTS = 10;
     {
         glm::mat4 projection{1.F};
         glm::mat4 view{1.F};
+        glm::mat4 inverseView{1.F};
         glm::vec4 ambientLightColor{1.F, 1.F, 1.F, .02F};
         std::array<PointLight, MAX_LIGHTS> pointLights;
         int numLights;

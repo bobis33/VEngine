@@ -7,7 +7,6 @@
 #pragma once
 
 #include <string>
-#include <cassert>
 
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
@@ -22,8 +21,8 @@ namespace ven {
         PipelineConfigInfo(const PipelineConfigInfo&) = delete;
         PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
         VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
         VkPipelineMultisampleStateCreateInfo multisampleInfo{};
@@ -48,18 +47,18 @@ namespace ven {
             Shaders& operator=(const Shaders&) = delete;
 
             static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
-            void bind(VkCommandBuffer commandBuffer) { vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline); };
+            void bind(const VkCommandBuffer commandBuffer) const { vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline); }
 
         private:
 
             static std::vector<char> readFile(const std::string &filename);
             void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
-            void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
+            void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) const;
 
             Device& m_device;
-            VkPipeline m_graphicsPipeline;
-            VkShaderModule m_vertShaderModule;
-            VkShaderModule m_fragShaderModule;
+            VkPipeline m_graphicsPipeline{nullptr};
+            VkShaderModule m_vertShaderModule{nullptr};
+            VkShaderModule m_fragShaderModule{nullptr};
 
     }; // class Shaders
 

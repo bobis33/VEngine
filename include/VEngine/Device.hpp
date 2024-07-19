@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <string>
 #include <vector>
 
 #include "VEngine/Window.hpp"
@@ -35,7 +34,7 @@ namespace ven {
         const bool enableValidationLayers = true;
 #endif
 
-        explicit Device(ven::Window &window);
+        explicit Device(Window &window);
         ~Device();
 
         Device(const Device &) = delete;
@@ -43,41 +42,30 @@ namespace ven {
         Device(Device &&) = delete;
         Device &operator=(Device &&) = delete;
 
-        VkCommandPool getCommandPool() { return commandPool; }
-        VkDevice device() { return device_; }
-        VkSurfaceKHR surface() { return surface_; }
-        VkQueue graphicsQueue() { return graphicsQueue_; }
-        VkQueue presentQueue() { return presentQueue_; }
+        [[nodiscard]] VkCommandPool getCommandPool() const { return commandPool; }
+        [[nodiscard]] VkDevice device() const { return device_; }
+        [[nodiscard]] VkSurfaceKHR surface() const { return surface_; }
+        [[nodiscard]] VkQueue graphicsQueue() const { return graphicsQueue_; }
+        [[nodiscard]] VkQueue presentQueue() const { return presentQueue_; }
 
-        SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
-        VkFormat findSupportedFormat(
-                const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
+        [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
+        [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(physicalDevice); }
+        [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
         // Buffer Helper Functions
-        void createBuffer(
-                VkDeviceSize size,
-                VkBufferUsageFlags usage,
-                VkMemoryPropertyFlags properties,
-                VkBuffer &buffer,
-                VkDeviceMemory &bufferMemory);
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-        void copyBufferToImage(
-                VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
+        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
+        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
 
-        void createImageWithInfo(
-                const VkImageCreateInfo &imageInfo,
-                VkMemoryPropertyFlags properties,
-                VkImage &image,
-                VkDeviceMemory &imageMemory);
+        void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
 
         VkPhysicalDeviceProperties m_properties;
 
-        VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
-        VkQueue getGraphicsQueue() { return graphicsQueue_; }
+        [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+        [[nodiscard]] VkQueue getGraphicsQueue() const { return graphicsQueue_; }
 
     private:
         void createInstance();
@@ -88,19 +76,19 @@ namespace ven {
         void createCommandPool();
 
         // helper functions
-        bool isDeviceSuitable(VkPhysicalDevice device);
+        bool isDeviceSuitable(VkPhysicalDevice device) const;
         [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
-        bool checkValidationLayerSupport();
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+        bool checkValidationLayerSupport() const;
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
         static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-        void hasGlfwRequiredInstanceExtensions();
-        bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+        void hasGlfwRequiredInstanceExtensions() const;
+        bool checkDeviceExtensionSupport(VkPhysicalDevice device) const;
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        ven::Window &m_window;
+        Window &m_window;
         VkCommandPool commandPool;
 
         VkDevice device_;

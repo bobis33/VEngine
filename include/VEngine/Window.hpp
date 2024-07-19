@@ -22,7 +22,7 @@ namespace ven {
             ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr;};
 
             [[nodiscard]] GLFWwindow* createWindow(uint32_t width, uint32_t height, const std::string &title);
-            void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+            void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) const;
 
             [[nodiscard]] GLFWwindow* getGLFWindow() const { return m_window; };
 

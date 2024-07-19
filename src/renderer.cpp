@@ -44,7 +44,7 @@ VkCommandBuffer ven::Renderer::beginFrame()
 {
     assert(!isFrameStarted && "Can't start new frame while previous one is still in progress");
 
-    VkResult result = m_swapChain->acquireNextImage(&m_currentImageIndex);
+    const VkResult result = m_swapChain->acquireNextImage(&m_currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
         return nullptr;
@@ -87,7 +87,7 @@ void ven::Renderer::endFrame()
     m_currentFrameIndex = (m_currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
-void ven::Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
+void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer) const
 {
     assert(isFrameStarted && "Can't begin render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command m_buffer from a different frame");
@@ -115,12 +115,12 @@ void ven::Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
     viewport.height = static_cast<float>(m_swapChain->getSwapChainExtent().height);
     viewport.minDepth = 0.0F;
     viewport.maxDepth = 1.0F;
-    VkRect2D scissor{{0, 0}, m_swapChain->getSwapChainExtent()};
+    const VkRect2D scissor{{0, 0}, m_swapChain->getSwapChainExtent()};
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
-void ven::Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
+void ven::Renderer::endSwapChainRenderPass(const VkCommandBuffer commandBuffer)
 {
     assert(isFrameStarted && "Can't end render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command m_buffer from a different frame");

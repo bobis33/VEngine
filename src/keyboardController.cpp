@@ -10,8 +10,8 @@ void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object
     if (glfwGetKey(window, m_keys.lookUp) == GLFW_PRESS) { rotate.x += 1.F; }
     if (glfwGetKey(window, m_keys.lookDown) == GLFW_PRESS) { rotate.x -= 1.F; }
 
-    if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-        object.transform3D.rotation += m_lookSpeed * dt * glm::normalize(rotate);
+    if (dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
+        object.transform3D.rotation += m_lookSpeed * dt * normalize(rotate);
     }
 
     object.transform3D.rotation.x = glm::clamp(object.transform3D.rotation.x, -1.5F, 1.5F);
@@ -20,7 +20,7 @@ void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object
     float yaw = object.transform3D.rotation.y;
     const glm::vec3 forwardDir{std::sin(yaw), 0.F, std::cos(yaw)};
     const glm::vec3 rightDir{forwardDir.z, 0.F, -forwardDir.x};
-    const glm::vec3 upDir{0.F, -1.F, 0.F};
+    constexpr  glm::vec3 upDir{0.F, -1.F, 0.F};
 
     glm::vec3 moveDir{0.F};
     if (glfwGetKey(window, m_keys.moveForward) == GLFW_PRESS) {moveDir += forwardDir;}
@@ -30,7 +30,7 @@ void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object
     if (glfwGetKey(window, m_keys.moveUp) == GLFW_PRESS) {moveDir += upDir;}
     if (glfwGetKey(window, m_keys.moveDown) == GLFW_PRESS) {moveDir -= upDir;}
 
-    if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
-        object.transform3D.translation += m_moveSpeed * dt * glm::normalize(moveDir);
+    if (dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
+        object.transform3D.translation += m_moveSpeed * dt * normalize(moveDir);
     }
 }

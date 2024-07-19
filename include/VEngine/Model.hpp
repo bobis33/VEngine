@@ -8,10 +8,6 @@
 
 #include <memory>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-
 #include "VEngine/Device.hpp"
 #include "VEngine/Buffer.hpp"
 
@@ -36,13 +32,13 @@ namespace ven {
             };
 
             struct Builder {
-                std::vector<Vertex> vertices{};
-                std::vector<uint32_t> indices{};
+                std::vector<Vertex> vertices;
+                std::vector<uint32_t> indices;
 
                 void loadModel(const std::string &filename);
             };
 
-            Model(Device &device, const Model::Builder &builder);
+            Model(Device &device, const Builder &builder);
             ~Model();
 
             Model(const Model&) = delete;
@@ -50,7 +46,7 @@ namespace ven {
 
             static std::unique_ptr<Model> createModelFromFile(Device &device, const std::string &filename);
 
-            void bind(VkCommandBuffer commandBuffer);
+            void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;
 
         private:

@@ -1,24 +1,21 @@
 #include "VEngine/System/RenderSystem.hpp"
+#include "VEngine/Constant.hpp"
 
-ven::RenderSystem::RenderSystem(Device& device, VkRenderPass renderPass,VkDescriptorSetLayout globalSetLayout) : m_device{device}
+
+ven::RenderSystem::RenderSystem(Device& device, const VkRenderPass renderPass,const VkDescriptorSetLayout globalSetLayout) : m_device{device}
 {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
 
-ven::RenderSystem::~RenderSystem()
-{
-    vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr);
-}
-
-void ven::RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+void ven::RenderSystem::createPipelineLayout(const VkDescriptorSetLayout globalSetLayout)
 {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
+    const std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -32,16 +29,16 @@ void ven::RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayo
     }
 }
 
-void ven::RenderSystem::createPipeline(VkRenderPass renderPass)
+void ven::RenderSystem::createPipeline(const VkRenderPass renderPass)
 {
     PipelineConfigInfo pipelineConfig{};
-    ven::Shaders::defaultPipelineConfigInfo(pipelineConfig);
+    Shaders::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
     m_shaders = std::make_unique<Shaders>(m_device, std::string(SHADERS_BIN_PATH) + "shader_vert.spv", std::string(SHADERS_BIN_PATH) + "shader_frag.spv", pipelineConfig);
 }
 
-void ven::RenderSystem::renderObjects(FrameInfo &frameInfo)
+void ven::RenderSystem::renderObjects(const FrameInfo &frameInfo) const
 {
     m_shaders->bind(frameInfo.commandBuffer);
 

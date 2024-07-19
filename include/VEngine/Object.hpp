@@ -23,7 +23,7 @@ namespace ven {
         glm::vec3 rotation{};
 
         [[nodiscard]] glm::mat4 mat4() const;
-        [[nodiscard]] glm::mat3 normalMatrix();
+        [[nodiscard]] glm::mat3 normalMatrix() const;
     };
 
     struct PointLightComponent {
@@ -50,14 +50,14 @@ namespace ven {
 
             [[nodiscard]] id_t getId() const { return m_objId; }
 
-            std::shared_ptr<ven::Model> model{};
+            std::shared_ptr<Model> model{};
             glm::vec3 color{};
             Transform3DComponent transform3D{};
 
             std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
     private:
-            explicit Object(id_t objId) : m_objId(objId) {}
+            explicit Object(const id_t objId) : m_objId(objId) {}
 
             id_t m_objId;
 

@@ -12,10 +12,8 @@
 #include <vulkan/vulkan.h>
 
 #include "VEngine/Window.hpp"
-#include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/SwapChain.hpp"
-#include "VEngine/Model.hpp"
 
 namespace ven {
 
@@ -38,7 +36,7 @@ namespace ven {
 
         VkCommandBuffer beginFrame();
         void endFrame();
-        void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
+        void beginSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
         static void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
     private:

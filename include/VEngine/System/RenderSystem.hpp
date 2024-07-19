@@ -7,16 +7,13 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include <vulkan/vulkan.h>
 
-#include "VEngine/Camera.hpp"
-#include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
-#include "VEngine/Object.hpp"
 #include "VEngine/FrameInfo.hpp"
+
 
 namespace ven {
 
@@ -30,12 +27,12 @@ namespace ven {
     public:
 
         explicit RenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~RenderSystem();
+        ~RenderSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
         RenderSystem(const RenderSystem&) = delete;
         RenderSystem& operator=(const RenderSystem&) = delete;
 
-        void renderObjects(FrameInfo &frameInfo);
+        void renderObjects(const FrameInfo &frameInfo) const;
 
     private:
 

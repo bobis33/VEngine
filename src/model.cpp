@@ -22,25 +22,25 @@ namespace std {
     };
 }
 
-ven::Model::Model(ven::Device &device, const Model::Builder &builder) : m_device{device}
+ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0)
 {
     createVertexBuffer(builder.vertices);
     createIndexBuffer(builder.indices);
 }
 
-ven::Model::~Model() {}
+ven::Model::~Model() = default;
 
 void ven::Model::createVertexBuffer(const std::vector<Vertex> &vertices)
 {
     m_vertexCount = static_cast<uint32_t>(vertices.size());
     assert(m_vertexCount >= 3 && "Vertex count must be at least 3");
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * m_vertexCount;
+    const VkDeviceSize bufferSize = sizeof(vertices[0]) * m_vertexCount;
     uint32_t vertexSize = sizeof(vertices[0]);
 
     Buffer stagingBuffer{m_device, vertexSize, m_vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
-    stagingBuffer.writeToBuffer((void *)vertices.data());
+    stagingBuffer.writeToBuffer(vertices.data());
 
     m_vertexBuffer = std::make_unique<Buffer>(m_device, vertexSize, m_vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -56,20 +56,20 @@ void ven::Model::createIndexBuffer(const std::vector<uint32_t> &indices)
         return;
     }
 
-    VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
+    const VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
     uint32_t indexSize = sizeof(indices[0]);
 
     Buffer stagingBuffer{m_device, indexSize, m_indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
-    stagingBuffer.writeToBuffer((void *)indices.data());
+    stagingBuffer.writeToBuffer(indices.data());
 
     m_indexBuffer = std::make_unique<Buffer>(m_device, indexSize, m_indexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
 }
 
-void ven::Model::draw(VkCommandBuffer commandBuffer) const
+void ven::Model::draw(const VkCommandBuffer commandBuffer) const
 {
     if (m_hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, m_indexCount, 1, 0, 0, 0);
@@ -78,10 +78,10 @@ void ven::Model::draw(VkCommandBuffer commandBuffer) const
     }
 }
 
-void ven::Model::bind(VkCommandBuffer commandBuffer)
+void ven::Model::bind(const VkCommandBuffer commandBuffer) const
 {
-    VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
-    VkDeviceSize offsets[] = {0};
+    const VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
+    constexpr VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
     if (m_hasIndexBuffer) {
@@ -89,11 +89,11 @@ void ven::Model::bind(VkCommandBuffer commandBuffer)
     }
 }
 
-std::unique_ptr<ven::Model> ven::Model::createModelFromFile(ven::Device &device, const std::string &filename)
+std::unique_ptr<ven::Model> ven::Model::createModelFromFile(Device &device, const std::string &filename)
 {
     Builder builder{};
     builder.loadModel(filename);
-    return std::make_unique<ven::Model>(device, builder);
+    return std::make_unique<Model>(device, builder);
 }
 
 std::vector<VkVertexInputBindingDescription> ven::Model::Vertex::getBindingDescriptions()
@@ -125,7 +125,7 @@ void ven::Model::Builder::loadModel(const std::string &filename)
     std::string warn;
     std::string err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
+    if (!LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
     {
         throw std::runtime_error(warn + err);
     }

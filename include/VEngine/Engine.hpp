@@ -46,8 +46,7 @@ namespace ven {
         VkSurfaceKHR m_surface{nullptr};
 
         void createInstance();
-        void createSurface();
-        void initImGui();
+        void createSurface() { if (glfwCreateWindowSurface(m_instance, m_window.getGLFWindow(), nullptr, &m_surface) != VK_SUCCESS) { throw std::runtime_error("Failed to create window surface"); } }
 
     }; // class Engine
 

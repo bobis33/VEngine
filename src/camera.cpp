@@ -3,7 +3,7 @@
 
 #include "VEngine/Camera.hpp"
 
-void ven::Camera::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far)
+void ven::Camera::setOrthographicProjection(const float left, const float right, const float top, const float bottom, const float near, const float far)
 {
     m_projectionMatrix = glm::mat4{1.0F};
     m_projectionMatrix[0][0] = 2.F / (right - left);
@@ -14,7 +14,7 @@ void ven::Camera::setOrthographicProjection(float left, float right, float top, 
     m_projectionMatrix[3][2] = -near / (far - near);
 }
 
-void ven::Camera::setPerspectiveProjection(float fovy, float aspect, float near, float far)
+void ven::Camera::setPerspectiveProjection(const float fovy, const float aspect, const float near, const float far)
 {
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0F);
     const float tanHalfFovy = std::tan(fovy / 2.F);
@@ -26,11 +26,11 @@ void ven::Camera::setPerspectiveProjection(float fovy, float aspect, float near,
     m_projectionMatrix[3][2] = -(far * near) / (far - near);
 }
 
-void ven::Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
+void ven::Camera::setViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up)
 {
-    const glm::vec3 w{glm::normalize(direction)};
-    const glm::vec3 u{glm::normalize(glm::cross(w, up))};
-    const glm::vec3 v{glm::cross(w, u)};
+    const glm::vec3 w{normalize(direction)};
+    const glm::vec3 u{normalize(cross(w, up))};
+    const glm::vec3 v{cross(w, u)};
 
     m_viewMatrix = glm::mat4{1.F};
     m_viewMatrix[0][0] = u.x;
@@ -42,18 +42,26 @@ void ven::Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm:
     m_viewMatrix[0][2] = w.x;
     m_viewMatrix[1][2] = w.y;
     m_viewMatrix[2][2] = w.z;
-    m_viewMatrix[3][0] = -glm::dot(u, position);
-    m_viewMatrix[3][1] = -glm::dot(v, position);
-    m_viewMatrix[3][2] = -glm::dot(w, position);
+    m_viewMatrix[3][0] = -dot(u, position);
+    m_viewMatrix[3][1] = -dot(v, position);
+    m_viewMatrix[3][2] = -dot(w, position);
+
+    m_inverseViewMatrix = glm::mat4{1.F};
+    m_inverseViewMatrix[0][0] = u.x;
+    m_inverseViewMatrix[0][1] = u.y;
+    m_inverseViewMatrix[0][2] = u.z;
+    m_inverseViewMatrix[1][0] = v.x;
+    m_inverseViewMatrix[1][1] = v.y;
+    m_inverseViewMatrix[1][2] = v.z;
+    m_inverseViewMatrix[2][0] = w.x;
+    m_inverseViewMatrix[2][1] = w.y;
+    m_inverseViewMatrix[2][2] = w.z;
+    m_inverseViewMatrix[3][0] = position.x;
+    m_inverseViewMatrix[3][1] = position.y;
+    m_inverseViewMatrix[3][2] = position.z;
 }
 
-void ven::Camera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
-{
-    setViewDirection(position, target - position, up);
-
-}
-
-void ven::Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
+void ven::Camera::setViewYXZ(const glm::vec3 position, const glm::vec3 rotation)
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);
@@ -74,7 +82,21 @@ void ven::Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
     m_viewMatrix[0][2] = w.x;
     m_viewMatrix[1][2] = w.y;
     m_viewMatrix[2][2] = w.z;
-    m_viewMatrix[3][0] = -glm::dot(u, position);
-    m_viewMatrix[3][1] = -glm::dot(v, position);
-    m_viewMatrix[3][2] = -glm::dot(w, position);
+    m_viewMatrix[3][0] = -dot(u, position);
+    m_viewMatrix[3][1] = -dot(v, position);
+    m_viewMatrix[3][2] = -dot(w, position);
+
+    m_inverseViewMatrix = glm::mat4{1.F};
+    m_inverseViewMatrix[0][0] = u.x;
+    m_inverseViewMatrix[0][1] = u.y;
+    m_inverseViewMatrix[0][2] = u.z;
+    m_inverseViewMatrix[1][0] = v.x;
+    m_inverseViewMatrix[1][1] = v.y;
+    m_inverseViewMatrix[1][2] = v.z;
+    m_inverseViewMatrix[2][0] = w.x;
+    m_inverseViewMatrix[2][1] = w.y;
+    m_inverseViewMatrix[2][2] = w.z;
+    m_inverseViewMatrix[3][0] = position.x;
+    m_inverseViewMatrix[3][1] = position.y;
+    m_inverseViewMatrix[3][2] = position.z;
 }

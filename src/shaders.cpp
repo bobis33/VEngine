@@ -18,7 +18,7 @@ std::vector<char> ven::Shaders::readFile(const std::string &filename)
         throw std::runtime_error("failed to open file!");
     }
 
-    std::streamsize fileSize = file.tellg();
+    const std::streamsize fileSize = file.tellg();
     std::vector<char> buffer(static_cast<unsigned long>(fileSize));
 
     file.seekg(0);
@@ -30,8 +30,8 @@ std::vector<char> ven::Shaders::readFile(const std::string &filename)
 
 void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
 {
-    std::vector<char> vertCode = readFile(vertFilepath);
-    std::vector<char> fragCode = readFile(fragFilepath);
+    const std::vector<char> vertCode = readFile(vertFilepath);
+    const std::vector<char> fragCode = readFile(fragFilepath);
 
     createShaderModule(vertCode, &m_vertShaderModule);
     createShaderModule(fragCode, &m_fragShaderModule);
@@ -53,8 +53,8 @@ void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const
     shaderStages[1].pNext = nullptr;
     shaderStages[1].pSpecializationInfo = nullptr;
 
-    auto& bindingDescriptions = configInfo.bindingDescriptions;
-    auto& attributeDescriptions = configInfo.attributeDescriptions;
+    const auto& bindingDescriptions = configInfo.bindingDescriptions;
+    const auto& attributeDescriptions = configInfo.attributeDescriptions;
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -97,8 +97,7 @@ void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const
     }
 }
 
-
-void ven::Shaders::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule)
+void ven::Shaders::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) const
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -110,7 +109,7 @@ void ven::Shaders::createShaderModule(const std::vector<char> &code, VkShaderMod
     }
 }
 
-void ven::Shaders::defaultPipelineConfigInfo(ven::PipelineConfigInfo& configInfo)
+void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 {
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;

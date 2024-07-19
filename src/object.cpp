@@ -35,7 +35,7 @@ glm::mat4 ven::Transform3DComponent::mat4() const {
     };
 }
 
-glm::mat3 ven::Transform3DComponent::normalMatrix()
+glm::mat3 ven::Transform3DComponent::normalMatrix() const
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);
@@ -64,7 +64,7 @@ glm::mat3 ven::Transform3DComponent::normalMatrix()
     };
 }
 
-ven::Object ven::Object::makePointLight(float intensity, float radius, glm::vec3 color)
+ven::Object ven::Object::makePointLight(const float intensity, const float radius, const glm::vec3 color)
 {
     Object obj = Object::createObject();
     obj.color = color;
