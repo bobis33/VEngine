@@ -4,7 +4,6 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**ACTUALLY WORKING ON IT!**
 
 - [Description](#description)
 - [Prerequisites](#prerequisites)
@@ -16,6 +15,9 @@
 
 ## Description
 
+**ACTUALLY WORKING ON IT!**
+
+
 Welcome to **VEngine**, a graphics engine developed with Vulkan.
 This project aims to provide a robust foundation for game and application developers, focusing on the performance and flexibility offered by Vulkan.
 
@@ -23,14 +25,10 @@ This project aims to provide a robust foundation for game and application develo
 ## Prerequisites
 
 - [CMake 3.27](https://cmake.org/)
-- [GNU G++](https://gcc.gnu.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
 - [Vulkan](https://www.vulkan.org/)
-- [GLFW](https://www.glfw.org/)
 - [GLM](https://github.com/g-truc/glm)
-- [glslang](https://github.com/KhronosGroup/glslang)
 - [assimp](https://www.assimp.org/) (unused ATM)
-- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 
 
 ## Usage
@@ -41,11 +39,8 @@ This project aims to provide a robust foundation for game and application develo
 $> ./build.sh build
 [...]
 ```
-> if it doesn't work, try the following command:
-```bash
-$> ./build.sh clean && ./build.sh build
-[...]
-```
+> This script also handle several other commands: `clean`, `format` and `doc`.
+
 
 ### Run
 
