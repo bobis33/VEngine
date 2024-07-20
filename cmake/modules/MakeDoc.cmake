@@ -4,11 +4,13 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_GENERATE_LATEX YES)
     set(DOXYGEN_QUIET YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/.doxygen)
+
     doxygen_add_docs(doc
-            lib/static/myLib/include
-            include
-            ALL
+            COMMENT "Generating API documentation for VEngine"
+            ${CMAKE_SOURCE_DIR}/lib/local/static/myLib/include
+            ${CMAKE_SOURCE_DIR}/include
     )
+
     add_custom_command(TARGET doc
             POST_BUILD
             WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}/latex
@@ -20,5 +22,5 @@ if (DOXYGEN_FOUND)
             VERBATIM
     )
 else ()
-    message(WARNING "Doxygen is necessary for docs")
+    message(FATAL_ERROR "Doxygen is necessary for docs")
 endif ()
