@@ -18,16 +18,13 @@ jobs:
       - name: Initialize submodules
         run: git submodule update --init --recursive
 
-      - name: Install Vulkan dependencies
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools
+          sudo apt update -y
+          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools doxygen doxygen-latex
 
       - name: Check compilation
-        run: |
-          mkdir ./build && cd ./build
-          cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-          cmake --build .
+        run: ./build.sh build
 
       - name: Check binary
         run: |
