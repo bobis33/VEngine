@@ -7,9 +7,6 @@ project(vengine
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-if (NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Vulkan not found")
-endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 

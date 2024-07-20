@@ -1,5 +1,5 @@
-name: VEngine
-run-name: ${{github.actor}} VEngine
+name: Check compilation
+run-name: ${{github.actor}} Check compilation
 on:
   push:
     branches:
@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Initialize submodules
         run: git submodule update --init --recursive
@@ -21,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update -y
-          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools doxygen doxygen-latex
+          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools
 
       - name: Check compilation
         run: ./build.sh build
@@ -29,6 +31,6 @@ jobs:
       - name: Check binary
         run: |
           if [[ ! -x "./${EXECUTABLE}" ]]; then
-          echo "Error: Binary ${EXECUTABLE} not found."
-          exit 1
+            echo "Error: Binary ${EXECUTABLE} not found."
+            exit 1
           fi

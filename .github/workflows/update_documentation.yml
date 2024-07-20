@@ -1,0 +1,36 @@
+name: Update documentation
+run-name: ${{github.actor}} Update documentation
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt update -y
+          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools doxygen doxygen-latex
+
+      - name: Update documentation
+        run: ./build.sh doc
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_user_name: "[bot] doc generator"
+          commit_message: "[DOCS]: Update documentation"
+          commit_options: "--no-verify"
+          file_pattern: "documentation/VEngine.pdf"

@@ -14,13 +14,12 @@ if (DOXYGEN_FOUND)
     add_custom_command(TARGET doc
             POST_BUILD
             WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}/latex
-            COMMAND ${CMAKE_MAKE_PROGRAM} > /dev/null
-            && ${CMAKE_COMMAND} -E copy
+            COMMAND ${CMAKE_MAKE_PROGRAM} > /dev/null && ${CMAKE_COMMAND} -E copy
             ${DOXYGEN_OUTPUT_DIRECTORY}/latex/refman.pdf
             ${CMAKE_SOURCE_DIR}/documentation/VEngine.pdf
             BYPRODUCTS ${CMAKE_SOURCE_DIR}/documentation/VEngine.pdf
             VERBATIM
     )
 else ()
-    message(FATAL_ERROR "Doxygen is necessary for docs")
+    message(WARNING "Doxygen not found")
 endif ()
