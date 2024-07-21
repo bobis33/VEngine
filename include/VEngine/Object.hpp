@@ -1,8 +1,8 @@
-/*
-** @file Object.hpp
-** @brief This file contains the Object class
-** @namespace ven
-*/
+///
+/// @file Object.hpp
+/// @brief This file contains the Object class
+/// @namespace ven
+///
 
 #pragma once
 

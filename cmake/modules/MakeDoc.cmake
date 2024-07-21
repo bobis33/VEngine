@@ -2,9 +2,11 @@ find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
     set(DOXYGEN_GENERATE_LATEX YES)
-    set(DOXYGEN_GENERATE_HTML YES)
-    set(DOXYGEN_QUIET YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/.doxygen)
+
+    set(doxyfile_in ${CMAKE_SOURCE_DIR}/docs/doxygen/Doxyfile.in)
+    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
     doxygen_add_docs(doc
             COMMENT "Generating API documentation for VEngine"
@@ -23,11 +25,10 @@ if (DOXYGEN_FOUND)
     )
     add_custom_command(TARGET doc
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${DOXYGEN_OUTPUT_DIRECTORY}/html
-            ${CMAKE_SOURCE_DIR}/documentation/html
-            VERBATIM
-    )
+            COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+            WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}
+            COMMENT "Generating HTML documentation with Doxygen"
+            VERBATIM)
 else ()
     message(WARNING "Doxygen not found")
 endif ()

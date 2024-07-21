@@ -1,8 +1,8 @@
-/*
-** @file PointLightSystem.hpp
-** @brief This file contains the PointLightSystem class
-** @namespace ven
-*/
+///
+/// @file PointLightSystem.hpp
+/// @brief This file contains the PointLightSystem class
+/// @namespace ven
+///
 
 #pragma once
 
@@ -14,28 +14,33 @@
 
 namespace ven {
 
+    ///
+    /// @class PointLightSystem
+    /// @brief Class for point light system
+    /// @namespace ven
+    ///
     class PointLightSystem {
 
-    public:
+        public:
 
-        explicit PointLightSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~PointLightSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
+            explicit PointLightSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+            ~PointLightSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
-        PointLightSystem(const PointLightSystem&) = delete;
-        PointLightSystem& operator=(const PointLightSystem&) = delete;
+            PointLightSystem(const PointLightSystem&) = delete;
+            PointLightSystem& operator=(const PointLightSystem&) = delete;
 
-        static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
-        void render(const FrameInfo &frameInfo) const;
+            static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
+            void render(const FrameInfo &frameInfo) const;
 
-    private:
+        private:
 
-        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-        void createPipeline(VkRenderPass renderPass);
+            void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+            void createPipeline(VkRenderPass renderPass);
 
-        Device &m_device;
+            Device &m_device;
 
-        std::unique_ptr<Shaders> m_shaders;
-        VkPipelineLayout m_pipelineLayout{nullptr};
+            std::unique_ptr<Shaders> m_shaders;
+            VkPipelineLayout m_pipelineLayout{nullptr};
 
     }; // class PointLightSystem
 

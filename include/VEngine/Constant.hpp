@@ -1,8 +1,8 @@
-/*
-** @file Constant.hpp
-** @brief This file contains the constant values used in the project
-** @namespace ven
-*/
+///
+/// @file Constant.hpp
+/// @brief This file contains the constant values used in the project
+/// @namespace ven
+///
 
 #pragma once
 

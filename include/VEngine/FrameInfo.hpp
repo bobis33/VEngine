@@ -1,8 +1,8 @@
-/*
-** @file FrameInfo.hpp
-** @brief This file contains the FrameInfo class
-** @namespace ven
-*/
+///
+/// @file FrameInfo.hpp
+/// @brief This file contains the FrameInfo class
+/// @namespace ven
+///
 
 #pragma once
 

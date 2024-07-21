@@ -2,27 +2,17 @@
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
-
-- [Description](#description)
-- [Prerequisites](#prerequisites)
-- [Usage](#usage)
-- [Commit Norms](#commit-norms)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-
-
-## Description
+# Description
 
 **ACTUALLY WORKING ON IT!**
-
 
 Welcome to **VEngine**, a graphics engine developed with Vulkan.
 This project aims to provide a robust foundation for game and application developers, focusing on the performance and flexibility offered by Vulkan.
 
 
-## Prerequisites
+# Prerequisites
 
 - [CMake 3.27](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
@@ -31,9 +21,9 @@ This project aims to provide a robust foundation for game and application develo
 - [assimp](https://www.assimp.org/) (unused ATM)
 
 
-## Usage
+# Usage
 
-### Build
+## Build
 
 ```bash
 $> ./build.sh build
@@ -42,7 +32,7 @@ $> ./build.sh build
 > This script also handle several other commands: `clean`, `format` and `doc`.
 
 
-### Run
+## Run
 
 ```bash
 $> ./vengine
@@ -50,21 +40,13 @@ $> ./vengine
 ```
 
 
-### Documentation
+## Documentation
 
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-
-```bash
-$> ./build.sh doc
-[...]
-```
-
-To visualize the documentation, open the `documentation/html/index.html` file in your browser.
+You can vizualize it on [GitHub Pages](https://bobis33.github.io/VEngine/).
 
 
-Finally, open your browser and go to `http://localhost:8000`.
-
-## Commit Norms
+# Commit Norms
 
 | Commit Type | Description                                                                                                               |
 |:------------|:--------------------------------------------------------------------------------------------------------------------------|
@@ -79,11 +61,11 @@ Finally, open your browser and go to `http://localhost:8000`.
 | test        | Addition or modification of tests                                                                                         |
 
 
-## License
+# License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/bobis33/VEngine/blob/main/LICENSE) file for details.
 
 
-## Acknowledgements
+# Acknowledgements
 
 Thanks to [Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine).

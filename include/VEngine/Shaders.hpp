@@ -1,8 +1,8 @@
-/*
-** @file Shaders.hpp
-** @brief This file contains the Shader class
-** @namespace ven
-*/
+///
+/// @file Shaders.hpp
+/// @brief This file contains the Shader class
+/// @namespace ven
+///
 
 #pragma once
 

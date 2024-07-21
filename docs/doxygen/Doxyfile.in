@@ -1,0 +1,90 @@
+HTML_EXTRA_STYLESHEET = @CMAKE_CURRENT_SOURCE_DIR@/docs/doxygen/customdoxygen.css \
+                        @CMAKE_CURRENT_SOURCE_DIR@/docs/doxygen/doxygen-awesome-sidebar-only.css
+
+HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/docs/doxygen/header.html
+
+IMAGE_PATH = "@CMAKE_CURRENT_SOURCE_DIR@/docs/assets/"
+
+HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/docs/assets/favicon.ico
+
+QUIET                  = NO
+GENERATE_HTML          = YES
+
+PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
+PROJECT_NUMBER         = @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
+PROJECT_BRIEF          = "@CMAKE_PROJECT_DESCRIPTION@"
+STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR_LINUX@ \
+                         @PROJECT_SOURCE_DIR_LINUX@
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/src/ \
+                         @CMAKE_CURRENT_SOURCE_DIR@/include/ \
+                         @CMAKE_CURRENT_SOURCE_DIR@/lib/local/ \
+                         @CMAKE_CURRENT_SOURCE_DIR@/README.md
+FILE_PATTERNS          = *.hpp \
+                         *.cpp \
+                         *.md
+EXCLUDE_PATTERNS       = lib/external/*
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
+
+# We want to create nice UML graphs
+PLANTUML_JAR_PATH      = "@PLANT_UML_PATH_LINUX@"
+DOT_PATH               = "@DOT_PATH_LINUX@"
+
+OUTPUT_LANGUAGE        = English
+
+# Color style
+HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_SAT    = 40
+HTML_COLORSTYLE_GAMMA  = 80
+
+
+REFERENCED_BY_RELATION = YES
+
+REFERENCES_RELATION    = YES
+
+# This is nice to have - callgraphs of functions
+HAVE_DOT               = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+GENERATE_LEGEND        = YES
+INCLUDED_BY_GRAPH      = YES
+INCLUDE_GRAPH          = YES
+DOT_IMAGE_FORMAT       = png:cairo:cairo
+
+TEMPLATE_RELATIONS     = NO
+
+UML_LOOK               = YES
+UML_LIMIT_NUM_FIELDS   = 16
+
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_DYNAMIC_MENUS     = YES
+GENERATE_DOCSET        = YES
+
+
+# we want all we can get
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = YES
+
+GENERATE_LATEX         = YES
+USE_PDFLATEX           = YES
+
+MARKDOWN_SUPPORT       = YES
+
+# this makes first sentence from comment block a brief description.
+# It is VERY useful
+JAVADOC_AUTOBRIEF      = YES
+
+BUILTIN_STL_SUPPORT    = YES
+
+SOURCE_BROWSER         = YES
+STRIP_CODE_COMMENTS    = NO
+
+# Side panel
+GENERATE_TREEVIEW      = YES
+AUTOLINK_SUPPORT = YES
+
+DISABLE_INDEX          = NO

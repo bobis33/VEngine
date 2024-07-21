@@ -1,8 +1,8 @@
-/*
-** @file Camera.hpp
-** @brief This file contains the KeyboardController class
-** @namespace ven
-*/
+///
+/// @file Camera.hpp
+/// @brief This file contains the KeyboardController class
+/// @namespace ven
+///
 
 #pragma once
 

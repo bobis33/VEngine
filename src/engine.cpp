@@ -10,7 +10,7 @@
 #include "VEngine/KeyboardController.hpp"
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
-#include "VEngine/FrameCouter.hpp"
+#include "VEngine/FrameCounter.hpp"
 
 
 void ven::Engine::loadObjects()

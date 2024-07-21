@@ -1,8 +1,8 @@
-/*
-** @file Window.hpp
-** @brief This file contains the Window class
-** @namespace ven
-*/
+///
+/// @file Window.hpp
+/// @brief This file contains the Window class
+/// @namespace ven
+///
 
 #pragma once
 
