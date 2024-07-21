@@ -1,4 +1,4 @@
-![VENGINE_LOGO](documentation/assets/logo.png)
+![VENGINE_LOGO](docs/assets/logo.png)
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
@@ -49,6 +49,20 @@ $> ./vengine
 [...]
 ```
 
+
+### Documentation
+
+The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
+
+```bash
+$> ./build.sh doc
+[...]
+```
+
+To visualize the documentation, open the `documentation/html/index.html` file in your browser.
+
+
+Finally, open your browser and go to `http://localhost:8000`.
 
 ## Commit Norms
 
