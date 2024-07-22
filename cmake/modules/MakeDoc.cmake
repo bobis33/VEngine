@@ -4,9 +4,9 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_GENERATE_LATEX YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/.doxygen)
 
-    set(doxyfile_in ${CMAKE_SOURCE_DIR}/docs/doxygen/Doxyfile.in)
-    set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+    set(doxyfile_in ${CMAKE_SOURCE_DIR}/docs/doxygen/Doxyfile)
+    set(doxyfile_out ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${doxyfile_in} ${doxyfile_out} @ONLY)
 
     doxygen_add_docs(doc
             COMMENT "Generating API documentation for VEngine"
@@ -25,7 +25,7 @@ if (DOXYGEN_FOUND)
     )
     add_custom_command(TARGET doc
             POST_BUILD
-            COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+            COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_out}
             WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}
             COMMENT "Generating HTML documentation with Doxygen"
             VERBATIM)

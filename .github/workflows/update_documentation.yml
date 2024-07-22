@@ -8,12 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-
+    timeout-minutes: 20
     concurrency:
       group: "pages"
       cancel-in-progress: false
@@ -26,41 +21,54 @@ jobs:
       - name: Initialize submodules
         run: git submodule update --init --recursive
 
-      - name: Install dependencies
+      - name: Install project dependencies
         run: |
           sudo apt update -y
-          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools doxygen doxygen-latex
+          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools
 
-      - name: Update docs
+      - name: Install doxygen
+        run: |
+          sudo apt install -y qt6-base-dev texlive-latex-base texlive-latex-recommended texlive-latex-extra
+          wget https://www.doxygen.nl/files/doxygen-1.11.0.src.tar.gz
+          tar xf doxygen-1.11.0.src.tar.gz
+          mkdir doxygen-1.11.0/build && cd doxygen-1.11.0/build
+          cmake -G "Unix Makefiles" .. -Dbuild_wizard=YES
+          make
+          sudo make install
+
+      - name: Generate documentation
         run: ./build.sh doc
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Commit and push pdf documentation
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_user_name: "[bot] doc generator"
           commit_message: "[DOCS]: Update docs"
           commit_options: "--no-verify"
           file_pattern: "docs/VEngine.pdf"
 
-      - name: Setup Pages
+      - name: Setup for Github pages
         uses: actions/configure-pages@v5
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./.doxygen/html
           destination: ./_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     permissions:
       contents: write
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
