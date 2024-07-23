@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.27)
 
 project(vengine
+        DESCRIPTION "3D graphics engine made with Vulkan"
         LANGUAGES CXX
         VERSION 0.1.0
 )
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-if (NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Vulkan not found")
-endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 

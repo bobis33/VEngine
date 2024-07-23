@@ -1,8 +1,8 @@
-/*
-** @file SwapChain.hpp
-** @brief This file contains the Shader class
-** @namespace ven
-*/
+///
+/// @file SwapChain.hpp
+/// @brief This file contains the Shader class
+/// @namespace ven
+///
 
 #pragma once
 

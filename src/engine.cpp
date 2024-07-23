@@ -10,7 +10,7 @@
 #include "VEngine/KeyboardController.hpp"
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
-#include "VEngine/FrameCouter.hpp"
+#include "VEngine/FrameCounter.hpp"
 
 
 void ven::Engine::loadObjects()
@@ -66,15 +66,16 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 
 void ven::Engine::mainLoop()
 {
+    GlobalUbo ubo{};
     Camera camera{};
     FrameCounter frameCounter{};
     KeyboardController cameraController{};
-    Object viewerObject = Object::createObject();
-    std::chrono::time_point<std::chrono::system_clock> newTime;
-    std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> deltaTime{};
     float frameTime = NAN;
     int frameIndex = 0;
+    Object viewerObject = Object::createObject();
+    std::chrono::time_point<std::chrono::system_clock> newTime;
+    std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     std::unique_ptr<DescriptorSetLayout> globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
     std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -112,7 +113,6 @@ void ven::Engine::mainLoop()
             frameIndex = (m_renderer.getFrameIndex());
             FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects};
 
-            GlobalUbo ubo{};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();

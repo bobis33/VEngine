@@ -1,8 +1,8 @@
-/*
-** @file Engine.hpp
-** @brief This file contains the Engine class
-** @namespace ven
-*/
+///
+/// @file Engine.hpp
+/// @brief This file contains the Engine class
+/// @namespace ven
+///
 
 #pragma once
 

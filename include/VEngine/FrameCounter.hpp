@@ -1,8 +1,8 @@
-/*
-** @file FrameCounter.hpp
-** @brief This file contains the FrameCounter class
-** @namespace ven
-*/
+///
+/// @file FrameCounter.hpp
+/// @brief This file contains the FrameCounter class
+/// @namespace ven
+///
 
 #pragma once
 

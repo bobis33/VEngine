@@ -1,8 +1,8 @@
-/*
-** @file Camera.hpp
-** @brief This file contains the Camera class
-** @namespace ven
-*/
+///
+/// @file Camera.hpp
+/// @brief This file contains the Camera class
+/// @namespace ven
+///
 
 #pragma once
 
@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 
 namespace ven {
+
+///
 
     class Camera {
 

@@ -1,8 +1,8 @@
-/*
-** @file Renderer.hpp
-** @brief This file contains the Renderer class
-** @namespace ven
-*/
+///
+/// @file Renderer.hpp
+/// @brief This file contains the Renderer class
+/// @namespace ven
+///
 
 #pragma once
 

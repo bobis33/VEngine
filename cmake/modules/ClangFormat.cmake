@@ -1,9 +1,6 @@
 function(prefix_clangformat_setup prefix)
     if(NOT CLANGFORMAT_EXECUTABLE)
-        find_program(CLANGFORMAT_EXECUTABLE NAMES "clang-format")
-        if(NOT CLANGFORMAT_EXECUTABLE)
-            message(FATAL_ERROR "ClangFormat: clang-format not found! Aborting")
-        endif()
+        find_program(CLANGFORMAT_EXECUTABLE NAMES "clang-format" REQUIRED)
     endif()
 
     set(clangformat_sources)

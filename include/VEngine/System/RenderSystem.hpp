@@ -1,8 +1,8 @@
-/*
-** @file RenderSystem.hpp
-** @brief This file contains the RenderSystem class
-** @namespace ven
-*/
+///
+/// @file RenderSystem.hpp
+/// @brief This file contains the RenderSystem class
+/// @namespace ven
+///
 
 #pragma once
 
@@ -14,7 +14,6 @@
 #include "VEngine/Shaders.hpp"
 #include "VEngine/FrameInfo.hpp"
 
-
 namespace ven {
 
     struct SimplePushConstantData {
@@ -22,6 +21,10 @@ namespace ven {
         glm::mat4 normalMatrix{1.F};
     };
 
+    ///
+    /// @class RenderSystem
+    /// @brief Class for render system
+    /// @namespace ven
     class RenderSystem {
 
     public:

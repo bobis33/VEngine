@@ -72,7 +72,7 @@ void ven::PointLightSystem::render(const FrameInfo &frameInfo) const
 
 void ven::PointLightSystem::update(const FrameInfo &frameInfo, GlobalUbo &ubo)
 {
-    const auto rotateLight = glm::rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
+    const auto rotateLight = rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
     unsigned long lightIndex = 0;
     for (auto &kv : frameInfo.objects)
     {

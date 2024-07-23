@@ -1,8 +1,8 @@
-/*
-** @file Device.hpp
-** @brief This file contains the Device class
-** @namespace ven
-*/
+///
+/// @file Device.hpp
+/// @brief This file contains the Device class
+/// @namespace ven
+///
 
 #pragma once
 
@@ -27,77 +27,80 @@ namespace ven {
     };
 
     class Device {
-    public:
-#ifdef NDEBUG
-        const bool enableValidationLayers = false;
-#else
-        const bool enableValidationLayers = true;
-#endif
 
-        explicit Device(Window &window);
-        ~Device();
+        public:
 
-        Device(const Device &) = delete;
-        Device& operator=(const Device &) = delete;
-        Device(Device &&) = delete;
-        Device &operator=(Device &&) = delete;
+            #ifdef NDEBUG
+                const bool enableValidationLayers = false;
+            #else
+                const bool enableValidationLayers = true;
+            #endif
 
-        [[nodiscard]] VkCommandPool getCommandPool() const { return commandPool; }
-        [[nodiscard]] VkDevice device() const { return device_; }
-        [[nodiscard]] VkSurfaceKHR surface() const { return surface_; }
-        [[nodiscard]] VkQueue graphicsQueue() const { return graphicsQueue_; }
-        [[nodiscard]] VkQueue presentQueue() const { return presentQueue_; }
+            explicit Device(Window &window);
+            ~Device();
+
+            Device(const Device &) = delete;
+            Device& operator=(const Device &) = delete;
+            Device(Device &&) = delete;
+            Device &operator=(Device &&) = delete;
+
+            [[nodiscard]] VkCommandPool getCommandPool() const { return commandPool; }
+            [[nodiscard]] VkDevice device() const { return device_; }
+            [[nodiscard]] VkSurfaceKHR surface() const { return surface_; }
+            [[nodiscard]] VkQueue graphicsQueue() const { return graphicsQueue_; }
+            [[nodiscard]] VkQueue presentQueue() const { return presentQueue_; }
 
         [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
         [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
         [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(physicalDevice); }
         [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
-        // Buffer Helper Functions
-        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
-        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
-        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
+            // Buffer Helper Functions
+            void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
+            [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+            void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+            void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
+            void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
 
-        void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
+            void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
 
-        VkPhysicalDeviceProperties m_properties;
+            VkPhysicalDeviceProperties m_properties;
 
-        [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
-        [[nodiscard]] VkQueue getGraphicsQueue() const { return graphicsQueue_; }
+            [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
+            [[nodiscard]] VkQueue getGraphicsQueue() const { return graphicsQueue_; }
 
-    private:
-        void createInstance();
-        void setupDebugMessenger();
-        void createSurface() { m_window.createWindowSurface(instance, &surface_); };
-        void pickPhysicalDevice();
-        void createLogicalDevice();
-        void createCommandPool();
+        private:
 
-        // helper functions
-        bool isDeviceSuitable(VkPhysicalDevice device) const;
-        [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
-        bool checkValidationLayerSupport() const;
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
-        static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-        void hasGlfwRequiredInstanceExtensions() const;
-        bool checkDeviceExtensionSupport(VkPhysicalDevice device) const;
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
+            void createInstance();
+            void setupDebugMessenger();
+            void createSurface() { m_window.createWindowSurface(instance, &surface_); };
+            void pickPhysicalDevice();
+            void createLogicalDevice();
+            void createCommandPool();
 
-        VkInstance instance;
-        VkDebugUtilsMessengerEXT debugMessenger;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        Window &m_window;
-        VkCommandPool commandPool;
+            // helper functions
+            bool isDeviceSuitable(VkPhysicalDevice device) const;
+            [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
+            [[nodiscard]] bool checkValidationLayerSupport() const;
+            QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
+            static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+            void hasGlfwRequiredInstanceExtensions() const;
+            bool checkDeviceExtensionSupport(VkPhysicalDevice device) const;
+            SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
 
-        VkDevice device_;
-        VkSurfaceKHR surface_;
-        VkQueue graphicsQueue_;
-        VkQueue presentQueue_;
+            VkInstance instance;
+            VkDebugUtilsMessengerEXT debugMessenger;
+            VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+            Window &m_window;
+            VkCommandPool commandPool;
 
-        const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-        const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+            VkDevice device_;
+            VkSurfaceKHR surface_;
+            VkQueue graphicsQueue_;
+            VkQueue presentQueue_;
+
+            const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+            const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     }; // class Device
 

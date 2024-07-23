@@ -8,7 +8,7 @@ function clean() {
         echo "build directory does not exist."
     fi
     if [ -d ".doxygen" ]; then
-        rm -rf .doxygen/*
+        rm -rf .doxygen/html/* .doxygen/latex/*
         echo ".doxygen directory has been removed."
     else
         echo ".doxygen directory does not exist."
@@ -59,7 +59,7 @@ case $1 in
       cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build build --target clangformat
         ;;
     doc)
-      cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build build --target doc
+      cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release && cmake --build build --target doxygen
         ;;
     *)
         echo "Usage $0 build [debug] | clean"

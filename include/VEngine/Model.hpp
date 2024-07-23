@@ -1,8 +1,8 @@
-/*
-** @file Model.hpp
-** @brief This file contains the Model class
-** @namespace ven
-*/
+///
+/// @file Model.hpp
+/// @brief This file contains the Model class
+/// @namespace ven
+///
 
 #pragma once
 
