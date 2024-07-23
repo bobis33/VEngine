@@ -26,7 +26,7 @@ namespace ven {
             SwapChain(const SwapChain &) = delete;
             SwapChain& operator=(const SwapChain &) = delete;
 
-            [[nodiscard]] VkFramebuffer getFrameBuffer(const unsigned long index) const { return swapChainFramebuffers[index]; }
+            [[nodiscard]] VkFramebuffer getFrameBuffer(const unsigned long index) const { return swapChainFrameBuffers[index]; }
             [[nodiscard]] VkRenderPass getRenderPass() const { return renderPass; }
             [[nodiscard]] VkImageView getImageView(const int index) const { return swapChainImageViews[static_cast<unsigned long>(index)]; }
             [[nodiscard]] size_t imageCount() const { return swapChainImages.size(); }
@@ -36,7 +36,7 @@ namespace ven {
             [[nodiscard]] uint32_t height() const { return m_swapChainExtent.height; }
 
             [[nodiscard]] float extentAspectRatio() const { return static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height); }
-            VkFormat findDepthFormat() const;
+            [[nodiscard]] VkFormat findDepthFormat() const;
 
             VkResult acquireNextImage(uint32_t *imageIndex) const;
             VkResult submitCommandBuffers(const VkCommandBuffer *buffers, const uint32_t *imageIndex);
@@ -52,22 +52,22 @@ namespace ven {
             void createImageViews();
             void createDepthResources();
             void createRenderPass();
-            void createFramebuffers();
+            void createFrameBuffers();
             void createSyncObjects();
 
             static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
             static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
-            VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
+            [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
 
             VkFormat swapChainImageFormat{};
             VkFormat swapChainDepthFormat{};
             VkExtent2D m_swapChainExtent{};
 
-            std::vector<VkFramebuffer> swapChainFramebuffers;
+            std::vector<VkFramebuffer> swapChainFrameBuffers;
             VkRenderPass renderPass{};
 
             std::vector<VkImage> depthImages;
-            std::vector<VkDeviceMemory> depthImageMemorys;
+            std::vector<VkDeviceMemory> depthImageMemory;
             std::vector<VkImageView> depthImageViews;
             std::vector<VkImage> swapChainImages;
             std::vector<VkImageView> swapChainImageViews;

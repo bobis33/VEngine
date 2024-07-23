@@ -10,3 +10,6 @@
 [submodule "lib/external/doxygen-awesome-css"]
 	path = lib/external/doxygen-awesome-css
 	url = https://github.com/jothepro/doxygen-awesome-css.git
+[submodule "lib/external/imgui"]
+	path = lib/external/imgui
+	url = git@github.com:ocornut/imgui.git

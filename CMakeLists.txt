@@ -23,15 +23,11 @@ find_package(Vulkan)
 
 if (VULKAN_FOUND)
 
-    # Add shaders directory
     add_subdirectory(shaders)
-
-    # Add libraries directory
     add_subdirectory(lib)
 
     file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
-    # Main executable
     add_executable(${PROJECT_NAME} ${SOURCES})
 
     target_include_directories(${PROJECT_NAME} PRIVATE
@@ -40,6 +36,8 @@ if (VULKAN_FOUND)
             ${EXTERNAL_DIR}/glfw/include
             ${EXTERNAL_DIR}/tinyobjloader
             ${EXTERNAL_DIR}/stb
+            ${EXTERNAL_DIR}/imgui
+            ${EXTERNAL_DIR}/imgui/backends
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -47,6 +45,7 @@ if (VULKAN_FOUND)
             ${Vulkan_LIBRARIES}
             glfw
             tinyobjloader
+            imgui
     )
 
     add_dependencies(${PROJECT_NAME} Shaders)

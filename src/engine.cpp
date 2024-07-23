@@ -1,8 +1,6 @@
 #include <chrono>
 #include <cmath>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -10,7 +8,6 @@
 #include "VEngine/KeyboardController.hpp"
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
-#include "VEngine/FrameCounter.hpp"
 
 
 void ven::Engine::loadObjects()
@@ -37,7 +34,7 @@ void ven::Engine::loadObjects()
     floor.transform3D.scale = {3.F, 1.F, 3.F};
     m_objects.emplace(floor.getId(), std::move(floor));
 
-    std::vector<glm::vec3> lightColors{
+    const std::vector<glm::vec3> lightColors{
             {1.F, .1F, .1F},
             {.1F, .1F, 1.F},
             {.1F, 1.F, .1F},
@@ -60,6 +57,7 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 {
     createInstance();
     createSurface();
+    initImGui();
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
@@ -68,7 +66,6 @@ void ven::Engine::mainLoop()
 {
     GlobalUbo ubo{};
     Camera camera{};
-    FrameCounter frameCounter{};
     KeyboardController cameraController{};
     std::chrono::duration<float> deltaTime{};
     float frameTime = NAN;
@@ -82,7 +79,11 @@ void ven::Engine::mainLoop()
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     PointLightSystem pointLightSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
 
-    for (auto & uboBuffer : uboBuffers)
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    for (auto& uboBuffer : uboBuffers)
     {
         uboBuffer = std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uboBuffer->map();
@@ -102,7 +103,6 @@ void ven::Engine::mainLoop()
         deltaTime = newTime - currentTime;
         currentTime = newTime;
         frameTime = deltaTime.count();
-        frameCounter.update(frameTime);
 
         cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject);
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
@@ -110,8 +110,16 @@ void ven::Engine::mainLoop()
 
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
-            frameIndex = (m_renderer.getFrameIndex());
-            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects};
+
+            frameIndex = m_renderer.getFrameIndex();
+            FrameInfo frameInfo{
+                    .frameIndex=frameIndex,
+                    .frameTime=frameTime,
+                    .commandBuffer=commandBuffer,
+                    .camera=camera,
+                    .globalDescriptorSet=globalDescriptorSets[static_cast<unsigned long>(frameIndex)],
+                    .objects=m_objects
+            };
 
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
@@ -120,10 +128,14 @@ void ven::Engine::mainLoop()
             uboBuffers[static_cast<unsigned long>(frameIndex)]->writeToBuffer(&ubo);
             uboBuffers[static_cast<unsigned long>(frameIndex)]->flush();
 
-            m_renderer.beginSwapChainRenderPass(commandBuffer);
+            m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
-            Renderer::endSwapChainRenderPass(commandBuffer);
+
+            imGuiRender(io, viewerObject);
+            // imGuiRenderDemo();
+
+            m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
         }
     }
