@@ -3,7 +3,7 @@ run-name: ${{github.actor}} Update docs
 on:
   push:
     branches:
-      - "**"
+      - main
 
 jobs:
   build:
