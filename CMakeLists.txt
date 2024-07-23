@@ -6,9 +6,6 @@ project(vengine
         VERSION 0.1.0
 )
 
-# Vulkan
-find_package(Vulkan REQUIRED)
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 option(BUILD_EXTERNAL_LIBRARIES "Build external libraries (like GLFW)" ON)
@@ -22,33 +19,41 @@ if (USE_CLANG_TIDY)
     include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 endif()
 
-# Add shaders directory
-add_subdirectory(shaders)
+find_package(Vulkan)
 
-# Add libraries directory
-add_subdirectory(lib)
+if (VULKAN_FOUND)
 
-file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
+    # Add shaders directory
+    add_subdirectory(shaders)
 
-# Main executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+    # Add libraries directory
+    add_subdirectory(lib)
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-        ${INCLUDE_DIR}
-        ${Vulkan_INCLUDE_DIRS}
-        ${EXTERNAL_DIR}/glfw/include
-        ${EXTERNAL_DIR}/tinyobjloader
-        ${EXTERNAL_DIR}/stb
-)
+    file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        my_lib
-        ${Vulkan_LIBRARIES}
-        glfw
-        tinyobjloader
-)
+    # Main executable
+    add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_dependencies(${PROJECT_NAME} Shaders)
+    target_include_directories(${PROJECT_NAME} PRIVATE
+            ${INCLUDE_DIR}
+            ${Vulkan_INCLUDE_DIRS}
+            ${EXTERNAL_DIR}/glfw/include
+            ${EXTERNAL_DIR}/tinyobjloader
+            ${EXTERNAL_DIR}/stb
+    )
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            my_lib
+            ${Vulkan_LIBRARIES}
+            glfw
+            tinyobjloader
+    )
+
+    add_dependencies(${PROJECT_NAME} Shaders)
+
+    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+    target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+
+else()
+    message(WARNING "Vulkan not found")
+endif ()

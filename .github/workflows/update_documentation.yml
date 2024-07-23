@@ -21,14 +21,13 @@ jobs:
       - name: Initialize submodules
         run: git submodule update --init --recursive
 
-      - name: Install project dependencies
+      - name: Install dependencies
         run: |
           sudo apt update -y
-          sudo apt install -y libxkbcommon-dev libxinerama-dev libxcursor-dev libxi-dev libglm-dev libglfw3-dev glslang-tools
+          sudo apt install -y libgl1-mesa-dev qt6-base-dev texlive-latex-base texlive-latex-recommended texlive-latex-extra graphviz
 
       - name: Install doxygen
         run: |
-          sudo apt install -y qt6-base-dev texlive-latex-base texlive-latex-recommended texlive-latex-extra graphviz
           wget https://www.doxygen.nl/files/doxygen-1.11.0.src.tar.gz
           tar xf doxygen-1.11.0.src.tar.gz
           mkdir doxygen-1.11.0/build && cd doxygen-1.11.0/build
