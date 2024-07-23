@@ -92,6 +92,8 @@ namespace ven {
 
             void resetPool() const { vkResetDescriptorPool(m_device.device(), m_descriptorPool, 0); }
 
+            [[nodiscard]] VkDescriptorPool getDescriptorPool() const { return m_descriptorPool; }
+
         private:
 
             Device &m_device;
