@@ -1,4 +1,4 @@
-![VENGINE_LOGO](docs/assets/logo.png)
+![VENGINE_LOGO](assets/logo.png)
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/VEngine.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)

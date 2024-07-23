@@ -1,4 +1,5 @@
-.doxygen/*
+.doxygen/html/*
+.doxygen/latex/*
 .idea/*
 
 # CMake

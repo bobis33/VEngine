@@ -45,7 +45,7 @@ jobs:
           commit_user_name: "[bot] doc generator"
           commit_message: "[DOCS]: Update docs"
           commit_options: "--no-verify"
-          file_pattern: "docs/VEngine.pdf"
+          file_pattern: "./VEngine.pdf"
 
       - name: Setup for Github pages
         uses: actions/configure-pages@v5
