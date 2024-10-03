@@ -41,10 +41,27 @@ $> ./vengine
 ```
 
 
+## Key Bindings
+
+| Key           | Description                                                                 |
+|:--------------|:----------------------------------------------------------------------------|
+| `z`           | Move forward                                                                |
+| `S`           | Move backward                                                               |
+| `q`           | Move left                                                                   |
+| `D`           | Move right                                                                  |
+| `CTRL`        | Move down                                                                   |
+| `SPACE`       | Move up                                                                     |
+| `arrow up`    | Look up                                                                     |
+| `arrow down`  | Look down                                                                   |
+| `arrow left`  | Look left                                                                   |
+| `arrow right` | Look right                                                                  |
+| `F1`          | Show debug windows                                                          |
+
+
 ## Documentation
 
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-You can vizualize it on [GitHub Pages](https://bobis33.github.io/VEngine/).
+You can visualize it on [GitHub Pages](https://bobis33.github.io/VEngine/).
 
 
 # Commit Norms

@@ -9,12 +9,15 @@
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
 
+#include "VEngine/ImGuiWindowManager.hpp"
+
 
 void ven::Engine::loadObjects()
 {
     std::shared_ptr model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
 
     Object flatVase = Object::createObject();
+    flatVase.name = "flat vase";
     flatVase.model = model;
     flatVase.transform3D.translation = {-.5F, .5F, 0.F};
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
@@ -22,6 +25,7 @@ void ven::Engine::loadObjects()
 
     model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
+    smoothVase.name = "smooth vase";
     smoothVase.model = model;
     smoothVase.transform3D.translation = {.5F, .5F, 0.F};
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
@@ -29,6 +33,7 @@ void ven::Engine::loadObjects()
 
     model = Model::createModelFromFile(m_device, "models/quad.obj");
     Object floor = Object::createObject();
+    floor.name = "floor";
     floor.model = model;
     floor.transform3D.translation = {0.F, .5F, 0.F};
     floor.transform3D.scale = {3.F, 1.F, 3.F};
@@ -46,6 +51,7 @@ void ven::Engine::loadObjects()
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
         Object pointLight = Object::makePointLight(0.2F);
+        pointLight.name = "point light " + std::to_string(i);
         pointLight.color = lightColors[i];
         auto rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
         pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
@@ -57,7 +63,7 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 {
     createInstance();
     createSurface();
-    initImGui();
+    ImGuiWindowManager::initImGui(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
@@ -66,8 +72,10 @@ void ven::Engine::mainLoop()
 {
     GlobalUbo ubo{};
     Camera camera{};
+    ImGuiWindowManager imGuiWindowManager{};
     KeyboardController cameraController{};
     std::chrono::duration<float> deltaTime{};
+    bool showDebugWindow = true;
     float frameTime = NAN;
     int frameIndex = 0;
     Object viewerObject = Object::createObject();
@@ -104,7 +112,7 @@ void ven::Engine::mainLoop()
         currentTime = newTime;
         frameTime = deltaTime.count();
 
-        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject);
+        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, &showDebugWindow);
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
         camera.setPerspectiveProjection(glm::radians(50.0F), m_renderer.getAspectRatio(), 0.1F, 100.F);
 
@@ -132,8 +140,10 @@ void ven::Engine::mainLoop()
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
 
-            imGuiRender(io, viewerObject);
-            // imGuiRenderDemo();
+            if (showDebugWindow) {
+                imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, m_device.getPhysicalDevice());
+                // ImGuiWindowManager().imGuiRenderDemo(&m_renderer);
+            }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();

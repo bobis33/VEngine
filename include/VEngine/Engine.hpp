@@ -36,10 +36,6 @@ namespace ven {
 
         void loadObjects();
 
-        void initImGui();
-        void imGuiRender(ImGuiIO& io, Object& camera);
-        void imGuiRenderDemo();
-
         Window m_window;
         Device m_device{m_window};
         Renderer m_renderer{m_window, m_device};

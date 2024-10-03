@@ -1,12 +1,6 @@
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
-#include <imgui.h>
-#include <imgui_internal.h>
+#include "VEngine/ImGuiWindowManager.hpp"
 
-#include "VEngine/Engine.hpp"
-
-
-void ven::Engine::initImGui()
+void ven::ImGuiWindowManager::initImGui(GLFWwindow* window, VkInstance instance, Device* device, VkRenderPass renderPass)
 {
     VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
@@ -30,33 +24,33 @@ void ven::Engine::initImGui()
     pool_info.pPoolSizes = pool_sizes;
 
     VkDescriptorPool imguiPool;
-    if (vkCreateDescriptorPool(m_device.device(), &pool_info, nullptr, &imguiPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(device->device(), &pool_info, nullptr, &imguiPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create ImGui descriptor pool");
     }
 
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForVulkan(m_window.getGLFWindow(), true);
+    ImGui_ImplGlfw_InitForVulkan(window, true);
 
     ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = m_instance;
-    init_info.PhysicalDevice = m_device.getPhysicalDevice();
-    init_info.Device = m_device.device();
-    init_info.Queue = m_device.graphicsQueue();
+    init_info.Instance = instance;
+    init_info.PhysicalDevice = device->getPhysicalDevice();
+    init_info.Device = device->device();
+    init_info.Queue = device->graphicsQueue();
     init_info.DescriptorPool = imguiPool;
     init_info.MinImageCount = 3;
     init_info.ImageCount = 3;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-    ImGui_ImplVulkan_Init(&init_info, m_renderer.getSwapChainRenderPass());
+    ImGui_ImplVulkan_Init(&init_info, renderPass);
 }
 
-void ven::Engine::imGuiRender(ImGuiIO& io, Object& camera)
+void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& camera, VkPhysicalDevice physicalDevice)
 {
     float framerate = io.Framerate;
     VkPhysicalDeviceProperties deviceProperties;
-    vkGetPhysicalDeviceProperties(m_device.getPhysicalDevice(), &deviceProperties);
+    vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -97,11 +91,11 @@ void ven::Engine::imGuiRender(ImGuiIO& io, Object& camera)
     }
 
     if (ImGui::CollapsingHeader("Render Settings")) {
-        std::array<float, 4> clearColor = m_renderer.getClearColor();
+        std::array<float, 4> clearColor = renderer->getClearColor();
         if (ImGui::ColorEdit4("Clear Color", clearColor.data())) {
-            m_renderer.setClearColor(clearColor);
+            renderer->setClearColor(clearColor);
         }
-        ImGui::Text("Aspect Ratio: %.2f", m_renderer.getAspectRatio());
+        ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
     }
 
     if (ImGui::CollapsingHeader("Device Properties")) {
@@ -123,17 +117,35 @@ void ven::Engine::imGuiRender(ImGuiIO& io, Object& camera)
         ImGui::Text("Max Uniform Buffer Range: %d", deviceProperties.limits.maxUniformBufferRange);
         ImGui::Text("Max Storage Buffer Range: %d", deviceProperties.limits.maxStorageBufferRange);
     }
+
+    ImGui::SetNextWindowPos(ImVec2(0, 65));
+    ImGui::Begin("Objects");
+    for (auto& [id, object] : objects) {
+        if (ImGui::CollapsingHeader(object.name.c_str())) {
+            ImGui::Text("Position: %.2f, %.2f, %.2f", object.transform3D.translation.x, object.transform3D.translation.y, object.transform3D.translation.z);
+            ImGui::Text("Rotation: %.2f, %.2f, %.2f", object.transform3D.rotation.x, object.transform3D.rotation.y, object.transform3D.rotation.z);
+            ImGui::Text("Scale: %.2f, %.2f, %.2f", object.transform3D.scale.x, object.transform3D.scale.y, object.transform3D.scale.z);
+            ImGui::Text("Color: %.2f, %.2f, %.2f", object.color.x, object.color.y, object.color.z);
+            ImGui::SameLine();
+            ImGui::ColorButton("Color Button", ImVec4(object.color.x, object.color.y, object.color.z, 1.0f), ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20));
+            if (object.pointLight != nullptr) {
+                ImGui::Text("Intensity: %.2f", object.pointLight->lightIntensity);
+            }
+            ImGui::Text("ID: %d", object.getId());
+            ImGui::Text("Address: %p", &object);
+        }
+    }
     ImGui::End();
     ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_renderer.getCurrentCommandBuffer());
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }
 
-void ven::Engine::imGuiRenderDemo()
+void ven::ImGuiWindowManager::imGuiRenderDemo(Renderer* renderer)
 {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
     ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_renderer.getCurrentCommandBuffer());
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }

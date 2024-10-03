@@ -53,6 +53,7 @@ namespace ven {
             std::shared_ptr<Model> model{};
             glm::vec3 color{};
             Transform3DComponent transform3D{};
+            std::string name{""};
 
             std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
