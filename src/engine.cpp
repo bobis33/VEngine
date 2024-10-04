@@ -12,6 +12,34 @@
 #include "VEngine/ImGuiWindowManager.hpp"
 
 
+ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
+{
+    createInstance();
+    createSurface();
+    ImGuiWindowManager::initImGui(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
+    m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
+    loadObjects();
+}
+
+void ven::Engine::createInstance()
+{
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions = nullptr;
+    VkInstanceCreateInfo createInfo{};
+    VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
+
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    createInfo.enabledExtensionCount = glfwExtensionCount;
+    createInfo.ppEnabledExtensionNames = glfwExtensions;
+
+    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create Vulkan instance");
+    }
+}
+
 void ven::Engine::loadObjects()
 {
     std::shared_ptr model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
@@ -59,15 +87,6 @@ void ven::Engine::loadObjects()
     }
 }
 
-ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
-{
-    createInstance();
-    createSurface();
-    ImGuiWindowManager::initImGui(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
-    m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
-    loadObjects();
-}
-
 void ven::Engine::mainLoop()
 {
     GlobalUbo ubo{};
@@ -75,6 +94,7 @@ void ven::Engine::mainLoop()
     ImGuiWindowManager imGuiWindowManager{};
     KeyboardController cameraController{};
     std::chrono::duration<float> deltaTime{};
+    VkCommandBuffer_T *commandBuffer = nullptr;
     bool showDebugWindow = true;
     float frameTime = NAN;
     int frameIndex = 0;
@@ -86,10 +106,10 @@ void ven::Engine::mainLoop()
     std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     PointLightSystem pointLightSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    VkDescriptorBufferInfo bufferInfo{};
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
 
     for (auto& uboBuffer : uboBuffers)
     {
@@ -97,7 +117,7 @@ void ven::Engine::mainLoop()
         uboBuffer->map();
     }
     for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
-        VkDescriptorBufferInfo bufferInfo = uboBuffers[i]->descriptorInfo();
+        bufferInfo = uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
@@ -111,24 +131,15 @@ void ven::Engine::mainLoop()
         deltaTime = newTime - currentTime;
         currentTime = newTime;
         frameTime = deltaTime.count();
+        commandBuffer = m_renderer.beginFrame();
 
         cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, &showDebugWindow);
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
         camera.setPerspectiveProjection(camera.getFov(), m_renderer.getAspectRatio(), 0.1F, 100.F);
 
-        if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
-        {
-
+        if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            FrameInfo frameInfo{
-                    .frameIndex=frameIndex,
-                    .frameTime=frameTime,
-                    .commandBuffer=commandBuffer,
-                    .camera=camera,
-                    .globalDescriptorSet=globalDescriptorSets[static_cast<unsigned long>(frameIndex)],
-                    .objects=m_objects
-            };
-
+            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
@@ -140,37 +151,12 @@ void ven::Engine::mainLoop()
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
 
-            if (showDebugWindow) {
-                imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, camera, m_device.getPhysicalDevice());
-                // ImGuiWindowManager().imGuiRenderDemo(&m_renderer);
-            }
+            if (showDebugWindow) imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice());
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
+            commandBuffer = nullptr;
         }
     }
     vkDeviceWaitIdle(m_device.device());
-}
-
-void ven::Engine::createInstance()
-{
-    VkApplicationInfo appInfo{};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "VEngine App";
-    appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-    appInfo.pEngineName = "VEngine";
-    appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-
-    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create Vulkan instance");
-    }
 }

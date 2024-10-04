@@ -6,14 +6,17 @@
 
 #pragma once
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
 namespace ven {
 
-///
+    static constexpr float DEFAULT_FOV = glm::radians(50.0F);
 
+    ///
+    /// @class Camera
+    /// @brief Class for camera
+    /// @namespace ven
+    ///
     class Camera {
 
         public:
@@ -32,7 +35,7 @@ namespace ven {
 
         private:
 
-            float m_fov = glm::radians(50.0f);
+            float m_fov{DEFAULT_FOV};
             glm::mat4 m_projectionMatrix{1.F};
             glm::mat4 m_viewMatrix{1.F};
             glm::mat4 m_inverseViewMatrix{1.F};

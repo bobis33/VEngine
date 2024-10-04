@@ -4,6 +4,11 @@
 
 void ven::ImGuiWindowManager::initImGui(GLFWwindow* window, VkInstance instance, Device* device, VkRenderPass renderPass)
 {
+    VkDescriptorPool pool;
+
+    ImGui::CreateContext();
+    // ImGui::StyleColorsDark();
+
     VkDescriptorPoolSize pool_sizes[] = {
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -18,41 +23,39 @@ void ven::ImGuiWindowManager::initImGui(GLFWwindow* window, VkInstance instance,
             { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
     };
 
-    VkDescriptorPoolCreateInfo pool_info = {};
-    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    pool_info.maxSets = 1000;
-    pool_info.poolSizeCount = std::size(pool_sizes);
-    pool_info.pPoolSizes = pool_sizes;
+    VkDescriptorPoolCreateInfo pool_info = {
+            VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+            nullptr,
+            VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+            1000,
+            std::size(pool_sizes),
+            pool_sizes
+    };
 
-    VkDescriptorPool imguiPool;
-    if (vkCreateDescriptorPool(device->device(), &pool_info, nullptr, &imguiPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(device->device(), &pool_info, nullptr, &pool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create ImGui descriptor pool");
     }
-
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
+    ImGui_ImplVulkan_InitInfo init_info = {
+            .Instance = instance,
+            .PhysicalDevice = device->getPhysicalDevice(),
+            .Device = device->device(),
+            .Queue = device->graphicsQueue(),
+            .DescriptorPool = pool,
+            .MinImageCount = 3,
+            .ImageCount = 3,
+            .MSAASamples = VK_SAMPLE_COUNT_1_BIT
+    };
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
-
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance = instance;
-    init_info.PhysicalDevice = device->getPhysicalDevice();
-    init_info.Device = device->device();
-    init_info.Queue = device->graphicsQueue();
-    init_info.DescriptorPool = imguiPool;
-    init_info.MinImageCount = 3;
-    init_info.ImageCount = 3;
-    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-
     ImGui_ImplVulkan_Init(&init_info, renderPass);
 }
 
-void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, VkPhysicalDevice physicalDevice)
+void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice)
 {
     float framerate = io.Framerate;
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+    float fov = camera.getFov();
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -70,10 +73,32 @@ void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map
     if (ImGui::CollapsingHeader("Camera")) {
         ImGui::DragFloat3("Camera Position", glm::value_ptr(cameraObj.transform3D.translation), 0.1F);
         ImGui::DragFloat3("Camera Rotation", glm::value_ptr(cameraObj.transform3D.rotation), 0.1F);
-        float fov = camera.getFov();
-        if (ImGui::SliderFloat("FOV", &fov, glm::radians(20.f), glm::radians(90.0f))) {
+        if (ImGui::SliderFloat("Camera FOV", &fov, 0.1F, glm::radians(180.0F))) {
             camera.setFov(fov);
         }
+        if (ImGui::SliderFloat("Move Speed", &cameraController.m_moveSpeed, 0.1F, 10.0F)) {
+            cameraController.m_moveSpeed = glm::clamp(cameraController.m_moveSpeed, 0.1F, 10.0F);
+        }
+        if (ImGui::SliderFloat("Look Speed", &cameraController.m_lookSpeed, 0.1F, 10.0F)) {
+            cameraController.m_lookSpeed = glm::clamp(cameraController.m_lookSpeed, 0.1F, 10.0F);
+        }
+        if (ImGui::Button("Reset position")) {
+            cameraObj.transform3D.translation = glm::vec3(0.0F, 0.0F, -2.5F);
+            cameraObj.transform3D.rotation = glm::vec3(0.0F, 0.0F, 0.0F);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset FOV")) {
+            camera.setFov(DEFAULT_FOV);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset move speed")) {
+            cameraController.m_moveSpeed = DEFAULT_MOVE_SPEED;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset look speed")) {
+            cameraController.m_lookSpeed = DEFAULT_LOOK_SPEED;
+        }
+
     }
 
     if (ImGui::CollapsingHeader("Input")) {
@@ -131,7 +156,7 @@ void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map
             ImGui::DragFloat3(("Position##" + object.name).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
             ImGui::DragFloat3(("Rotation##" + object.name).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
             ImGui::DragFloat3(("Scale##" + object.name).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
-            ImGui::ColorEdit3("", glm::value_ptr(object.color));
+            ImGui::ColorEdit3(("Color##" + object.name).c_str(), glm::value_ptr(object.color));
             if (object.pointLight != nullptr) {
                 ImGui::SliderFloat(("Intensity##" + object.name).c_str(), &object.pointLight->lightIntensity, 0.0F, 10.0F);
             }

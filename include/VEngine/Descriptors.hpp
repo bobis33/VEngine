@@ -13,7 +13,7 @@
 
 namespace ven {
 
-///
+    ///
     /// @class DescriptorSetLayout
     /// @brief Class for descriptor set layout
     /// @namespace ven
@@ -32,6 +32,7 @@ namespace ven {
                     std::unique_ptr<DescriptorSetLayout> build() const { return std::make_unique<DescriptorSetLayout>(m_device, m_bindings); }
 
                 private:
+
                     Device &m_device;
                     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> m_bindings;
             };

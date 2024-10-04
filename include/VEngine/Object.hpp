@@ -15,8 +15,6 @@
 
 namespace ven {
 
-    using id_t = unsigned int;
-
     struct Transform3DComponent {
         glm::vec3 translation{};
         glm::vec3 scale{1.F, 1.F, 1.F};
@@ -34,10 +32,10 @@ namespace ven {
 
         public:
 
-         using Map = std::unordered_map<id_t, Object>;
+         using Map = std::unordered_map<unsigned int, Object>;
 
 
-            static Object createObject() { static id_t objId = 0; return Object(objId++); }
+            static Object createObject() { static unsigned int objId = 0; return Object(objId++); }
 
             ~Object() = default;
 
@@ -48,9 +46,7 @@ namespace ven {
             Object(Object&&) = default;
             Object& operator=(Object&&) = default;
 
-            [[nodiscard]] id_t getId() const { return m_objId; }
-
-            void setColor(const glm::vec3& color) { this->color = color; }
+            [[nodiscard]] unsigned int getId() const { return m_objId; }
 
             std::shared_ptr<Model> model{};
             glm::vec3 color{};
@@ -59,10 +55,11 @@ namespace ven {
 
             std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
-    private:
-            explicit Object(const id_t objId) : m_objId(objId) {}
+        private:
 
-            id_t m_objId;
+            explicit Object(const unsigned int objId) : m_objId(objId) {}
+
+            unsigned int m_objId;
 
     }; // class Object
 

@@ -44,16 +44,16 @@ namespace ven {
             Device(Device &&) = delete;
             Device &operator=(Device &&) = delete;
 
-            [[nodiscard]] VkCommandPool getCommandPool() const { return commandPool; }
-            [[nodiscard]] VkDevice device() const { return device_; }
-            [[nodiscard]] VkSurfaceKHR surface() const { return surface_; }
-            [[nodiscard]] VkQueue graphicsQueue() const { return graphicsQueue_; }
-            [[nodiscard]] VkQueue presentQueue() const { return presentQueue_; }
+            [[nodiscard]] VkCommandPool getCommandPool() const { return m_commandPool; }
+            [[nodiscard]] VkDevice device() const { return m_device; }
+            [[nodiscard]] VkSurfaceKHR surface() const { return m_surface; }
+            [[nodiscard]] VkQueue graphicsQueue() const { return m_graphicsQueue; }
+            [[nodiscard]] VkQueue presentQueue() const { return m_presentQueue; }
 
-        [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
-        [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
-        [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(physicalDevice); }
-        [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+            [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
+            [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
+            [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(m_physicalDevice); }
+            [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
             // Buffer Helper Functions
             void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
@@ -64,16 +64,16 @@ namespace ven {
 
             void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
 
-            VkPhysicalDeviceProperties m_properties;
+            [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
+            [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
 
-            [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return physicalDevice; }
-            [[nodiscard]] VkQueue getGraphicsQueue() const { return graphicsQueue_; }
+            VkPhysicalDeviceProperties properties;
 
         private:
 
             void createInstance();
             void setupDebugMessenger();
-            void createSurface() { m_window.createWindowSurface(instance, &surface_); };
+            void createSurface() { m_window.createWindowSurface(m_instance, &m_surface); };
             void pickPhysicalDevice();
             void createLogicalDevice();
             void createCommandPool();
@@ -88,16 +88,16 @@ namespace ven {
             bool checkDeviceExtensionSupport(VkPhysicalDevice device) const;
             SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
 
-            VkInstance instance;
-            VkDebugUtilsMessengerEXT debugMessenger;
-            VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+            VkInstance m_instance;
+            VkDebugUtilsMessengerEXT m_debugMessenger;
+            VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
             Window &m_window;
-            VkCommandPool commandPool;
+            VkCommandPool m_commandPool;
 
-            VkDevice device_;
-            VkSurfaceKHR surface_;
-            VkQueue graphicsQueue_;
-            VkQueue presentQueue_;
+            VkDevice m_device;
+            VkSurfaceKHR m_surface;
+            VkQueue m_graphicsQueue;
+            VkQueue m_presentQueue;
 
             const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
             const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
