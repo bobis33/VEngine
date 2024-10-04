@@ -13,6 +13,7 @@
 
 #include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
+#include "VEngine/Camera.hpp"
 
 namespace ven {
 
@@ -27,7 +28,7 @@ namespace ven {
         ImGuiWindowManager& operator=(const ImGuiWindowManager&) = delete;
 
         static void initImGui(GLFWwindow* window, VkInstance instance, Device* device, VkRenderPass renderPass);
-        void imGuiRender(Renderer *renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& camera, VkPhysicalDevice physicalDevice);
+        void imGuiRender(Renderer *renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, VkPhysicalDevice physicalDevice);
         static void imGuiRenderDemo(Renderer* renderer);
         // void imGuiCleanup();
 

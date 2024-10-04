@@ -114,7 +114,7 @@ void ven::Engine::mainLoop()
 
         cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, &showDebugWindow);
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
-        camera.setPerspectiveProjection(glm::radians(50.0F), m_renderer.getAspectRatio(), 0.1F, 100.F);
+        camera.setPerspectiveProjection(camera.getFov(), m_renderer.getAspectRatio(), 0.1F, 100.F);
 
         if (VkCommandBuffer_T *commandBuffer = m_renderer.beginFrame())
         {
@@ -141,7 +141,7 @@ void ven::Engine::mainLoop()
             pointLightSystem.render(frameInfo);
 
             if (showDebugWindow) {
-                imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, m_device.getPhysicalDevice());
+                imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, camera, m_device.getPhysicalDevice());
                 // ImGuiWindowManager().imGuiRenderDemo(&m_renderer);
             }
 

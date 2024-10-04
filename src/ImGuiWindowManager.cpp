@@ -1,3 +1,5 @@
+#include <glm/gtc/type_ptr.hpp>
+
 #include "VEngine/ImGuiWindowManager.hpp"
 
 void ven::ImGuiWindowManager::initImGui(GLFWwindow* window, VkInstance instance, Device* device, VkRenderPass renderPass)
@@ -46,7 +48,7 @@ void ven::ImGuiWindowManager::initImGui(GLFWwindow* window, VkInstance instance,
     ImGui_ImplVulkan_Init(&init_info, renderPass);
 }
 
-void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& camera, VkPhysicalDevice physicalDevice)
+void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map<id_t, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, VkPhysicalDevice physicalDevice)
 {
     float framerate = io.Framerate;
     VkPhysicalDeviceProperties deviceProperties;
@@ -66,8 +68,12 @@ void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map
     ImGui::Begin("ImGui Debug Window");
 
     if (ImGui::CollapsingHeader("Camera")) {
-        ImGui::Text("Camera Position: (%.2f, %.2f, %.2f)", camera.transform3D.translation.x, camera.transform3D.translation.y, camera.transform3D.translation.z);
-        ImGui::Text("Camera Rotation: (%.2f, %.2f, %.2f)", camera.transform3D.rotation.x, camera.transform3D.rotation.y, camera.transform3D.rotation.z);
+        ImGui::DragFloat3("Camera Position", glm::value_ptr(cameraObj.transform3D.translation), 0.1F);
+        ImGui::DragFloat3("Camera Rotation", glm::value_ptr(cameraObj.transform3D.rotation), 0.1F);
+        float fov = camera.getFov();
+        if (ImGui::SliderFloat("FOV", &fov, glm::radians(20.f), glm::radians(90.0f))) {
+            camera.setFov(fov);
+        }
     }
 
     if (ImGui::CollapsingHeader("Input")) {
@@ -122,14 +128,12 @@ void ven::ImGuiWindowManager::imGuiRender(Renderer* renderer, std::unordered_map
     ImGui::Begin("Objects");
     for (auto& [id, object] : objects) {
         if (ImGui::CollapsingHeader(object.name.c_str())) {
-            ImGui::Text("Position: %.2f, %.2f, %.2f", object.transform3D.translation.x, object.transform3D.translation.y, object.transform3D.translation.z);
-            ImGui::Text("Rotation: %.2f, %.2f, %.2f", object.transform3D.rotation.x, object.transform3D.rotation.y, object.transform3D.rotation.z);
-            ImGui::Text("Scale: %.2f, %.2f, %.2f", object.transform3D.scale.x, object.transform3D.scale.y, object.transform3D.scale.z);
-            ImGui::Text("Color: %.2f, %.2f, %.2f", object.color.x, object.color.y, object.color.z);
-            ImGui::SameLine();
-            ImGui::ColorButton("Color Button", ImVec4(object.color.x, object.color.y, object.color.z, 1.0f), ImGuiColorEditFlags_NoTooltip, ImVec2(20, 20));
+            ImGui::DragFloat3(("Position##" + object.name).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
+            ImGui::DragFloat3(("Rotation##" + object.name).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
+            ImGui::DragFloat3(("Scale##" + object.name).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
+            ImGui::ColorEdit3("", glm::value_ptr(object.color));
             if (object.pointLight != nullptr) {
-                ImGui::Text("Intensity: %.2f", object.pointLight->lightIntensity);
+                ImGui::SliderFloat(("Intensity##" + object.name).c_str(), &object.pointLight->lightIntensity, 0.0F, 10.0F);
             }
             ImGui::Text("ID: %d", object.getId());
             ImGui::Text("Address: %p", &object);

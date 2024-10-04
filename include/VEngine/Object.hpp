@@ -50,6 +50,8 @@ namespace ven {
 
             [[nodiscard]] id_t getId() const { return m_objId; }
 
+            void setColor(const glm::vec3& color) { this->color = color; }
+
             std::shared_ptr<Model> model{};
             glm::vec3 color{};
             Transform3DComponent transform3D{};
