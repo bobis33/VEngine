@@ -100,10 +100,6 @@ void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = m_swapChain->getSwapChainExtent();
 
-    if (m_clearValues.empty()) {
-        m_clearValues[0].color = {0.01F, 0.01F, 0.01F, 1.0F};
-    }
-    m_clearValues[1].depthStencil = {1.0F, 0};
     renderPassInfo.clearValueCount = static_cast<uint32_t>(m_clearValues.size());
     renderPassInfo.pClearValues = m_clearValues.data();
 

@@ -9,5 +9,5 @@ int myLib::Random::randomInt(const int min, const int max)
 
 float myLib::Random::randomFloat(const float min, const float max)
 {
-    return min + static_cast<float>(randomInt(-1000, 1000)) / 1000.0f * (max - min);
+    return min + (static_cast<float>(randomInt(RANDOM_INT_MIN, RANDOM_INT_MAX)) / RANDOM_FLOAT_MAX * (max - min));
 }

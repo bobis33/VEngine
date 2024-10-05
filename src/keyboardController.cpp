@@ -2,7 +2,6 @@
 
 #include "VEngine/KeyboardController.hpp"
 
-
 void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, bool* showDebugWindow) const
 {
     glm::vec3 rotate{0};

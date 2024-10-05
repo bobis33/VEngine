@@ -11,11 +11,10 @@
 #include <imgui.h>
 
 #include "VEngine/Window.hpp"
-#include "VEngine/Constant.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
-#include "VEngine/Descriptors.hpp"
+#include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Camera.hpp"
 
 namespace ven {

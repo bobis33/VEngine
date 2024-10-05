@@ -13,6 +13,11 @@
 
 namespace ven {
 
+    ///
+    /// @class SwapChain
+    /// @brief Class for swap chain
+    /// @namespace ven
+    ///
     class SwapChain {
 
         public:

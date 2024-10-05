@@ -8,8 +8,8 @@ cmake-build-debug/*
 build/*
 
 # Doxygen
-.doxygen/html/*
-.doxygen/latex/*
+documentation/.doxygen/html/*
+documentation/.doxygen/latex/*
 
 # Intellij IDEA
 .idea/*

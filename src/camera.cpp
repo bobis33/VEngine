@@ -14,17 +14,16 @@ void ven::Camera::setOrthographicProjection(const float left, const float right,
     m_projectionMatrix[3][2] = -near / (far - near);
 }
 
-void ven::Camera::setPerspectiveProjection(const float fov, const float aspect, const float near, const float far)
+void ven::Camera::setPerspectiveProjection(const float aspect)
 {
-    m_fov = fov;
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0F);
-    const float tanHalfFov = std::tan(fov / 2.F);
+    const float tanHalfFov = std::tan(m_fov / 2.F);
     m_projectionMatrix = glm::mat4{0.0F};
     m_projectionMatrix[0][0] = 1.F / (aspect * tanHalfFov);
     m_projectionMatrix[1][1] = 1.F / (tanHalfFov);
-    m_projectionMatrix[2][2] = far / (far - near);
+    m_projectionMatrix[2][2] = m_far / (m_far - m_near);
     m_projectionMatrix[2][3] = 1.F;
-    m_projectionMatrix[3][2] = -(far * near) / (far - near);
+    m_projectionMatrix[3][2] = -(m_far * m_near) / (m_far - m_near);
 }
 
 void ven::Camera::setViewDirection(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 up)

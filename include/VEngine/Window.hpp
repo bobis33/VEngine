@@ -14,6 +14,15 @@
 
 namespace ven {
 
+    static constexpr uint32_t DEFAULT_WIDTH = 1920;
+    static constexpr uint32_t DEFAULT_HEIGHT = 1080;
+    static constexpr std::string_view DEFAULT_TITLE = "VEngine";
+
+    ///
+    /// @class Window
+    /// @brief Class for window
+    /// @namespace ven
+    ///
     class Window {
 
         public:

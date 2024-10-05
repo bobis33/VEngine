@@ -1,5 +1,5 @@
 name: Update documentation
-run-name: ${{github.actor}} | Update documentation
+run-name: ${{ github.actor }} | Update documentation
 on:
   push:
     branches:
@@ -22,21 +22,13 @@ jobs:
         run: git submodule update --init --recursive
 
       - name: Install dependencies
-        run: |
-          sudo apt update -y
-          sudo apt install -y libgl1-mesa-dev qt6-base-dev texlive-latex-base texlive-latex-recommended texlive-latex-extra graphviz
+        run: ./scripts/install-dependencies.sh doc
 
       - name: Install doxygen
-        run: |
-          wget https://www.doxygen.nl/files/doxygen-1.11.0.src.tar.gz
-          tar xf doxygen-1.11.0.src.tar.gz
-          mkdir doxygen-1.11.0/build && cd doxygen-1.11.0/build
-          cmake -G "Unix Makefiles" .. -Dbuild_wizard=YES
-          make
-          sudo make install
+        run: ./scripts/install-dependencies.sh doxygen
 
       - name: Generate documentation
-        run: ./build.sh doc
+        run: ./scripts/build.sh doc
 
       - name: Commit and push pdf documentation
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -44,7 +36,7 @@ jobs:
           commit_user_name: "[bot] doc generator"
           commit_message: "[DOCS]: Update docs"
           commit_options: "--no-verify"
-          file_pattern: "./VEngine.pdf"
+          file_pattern: "./documentation/VEngine.pdf"
 
       - name: Setup for Github pages
         uses: actions/configure-pages@v5
@@ -52,7 +44,7 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./.doxygen/html
+          source: ./documentation/.doxygen/html
           destination: ./_site
 
       - name: Upload artifact

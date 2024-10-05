@@ -8,15 +8,15 @@
 #include "VEngine/KeyboardController.hpp"
 #include "VEngine/System/RenderSystem.hpp"
 #include "VEngine/System/PointLightSystem.hpp"
-
+#include "VEngine/Descriptors/DescriptorWriter.hpp"
 #include "VEngine/ImGuiWindowManager.hpp"
-
+#include "VEngine/Colors.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
 {
     createInstance();
     createSurface();
-    ImGuiWindowManager::initImGui(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
+    ImGuiWindowManager::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
@@ -26,7 +26,7 @@ void ven::Engine::createInstance()
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = nullptr;
     VkInstanceCreateInfo createInfo{};
-    VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
+    VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pNext = nullptr, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
 
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
@@ -68,17 +68,17 @@ void ven::Engine::loadObjects()
     m_objects.emplace(floor.getId(), std::move(floor));
 
     const std::vector<glm::vec3> lightColors{
-            {1.F, .1F, .1F},
-            {.1F, .1F, 1.F},
-            {.1F, 1.F, .1F},
-            {1.F, 1.F, .1F},
-            {.1F, 1.F, 1.F},
-            {1.F, 1.F, 1.F}
+            {Colors::RED},
+            {Colors::GREEN},
+            {Colors::BLUE},
+            {Colors::YELLOW},
+            {Colors::CYAN},
+            {Colors::MAGENTA}
     };
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        Object pointLight = Object::makePointLight(0.2F);
+        Object pointLight = Object::makePointLight();
         pointLight.name = "point light " + std::to_string(i);
         pointLight.color = lightColors[i];
         auto rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
@@ -91,7 +91,6 @@ void ven::Engine::mainLoop()
 {
     GlobalUbo ubo{};
     Camera camera{};
-    ImGuiWindowManager imGuiWindowManager{};
     KeyboardController cameraController{};
     std::chrono::duration<float> deltaTime{};
     VkCommandBuffer_T *commandBuffer = nullptr;
@@ -121,7 +120,9 @@ void ven::Engine::mainLoop()
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
     camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
-    viewerObject.transform3D.translation.z = -2.5F;
+    viewerObject.transform3D.translation.z = DEFAULT_POSITION[2];
+
+    m_renderer.setClearValue();
 
     while (glfwWindowShouldClose(m_window.getGLFWindow()) == 0)
     {
@@ -135,7 +136,7 @@ void ven::Engine::mainLoop()
 
         cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, &showDebugWindow);
         camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
-        camera.setPerspectiveProjection(camera.getFov(), m_renderer.getAspectRatio(), 0.1F, 100.F);
+        camera.setPerspectiveProjection(m_renderer.getAspectRatio());
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
@@ -151,12 +152,13 @@ void ven::Engine::mainLoop()
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
 
-            if (showDebugWindow) imGuiWindowManager.imGuiRender(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice());
+            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice()); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
             commandBuffer = nullptr;
         }
     }
+    ImGuiWindowManager::cleanup();
     vkDeviceWaitIdle(m_device.device());
 }

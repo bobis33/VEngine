@@ -11,10 +11,10 @@ int main()
         engine.mainLoop();
     } catch (const std::exception &e) {
         std::cerr << "std exception: " << e.what() << '\n';
-        return VEN_FAILURE;
+        return EXIT_FAILURE;
     } catch (...) {
         std::cerr << "Unknown error\n";
-        return VEN_FAILURE;
+        return EXIT_SUCCESS;
     }
-    return VEN_SUCCESS;
+    return EXIT_SUCCESS;
 }

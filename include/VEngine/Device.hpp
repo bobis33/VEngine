@@ -67,7 +67,7 @@ namespace ven {
             [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
             [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
 
-            VkPhysicalDeviceProperties properties;
+            VkPhysicalDeviceProperties properties_;
 
         private:
 
