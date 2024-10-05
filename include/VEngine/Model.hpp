@@ -13,6 +13,11 @@
 
 namespace ven {
 
+    ///
+    /// @class Model
+    /// @brief Class for model
+    /// @namespace ven
+    ///
     class Model {
 
         public:

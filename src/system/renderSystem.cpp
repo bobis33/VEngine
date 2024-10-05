@@ -1,6 +1,4 @@
 #include "VEngine/System/RenderSystem.hpp"
-#include "VEngine/Constant.hpp"
-
 
 ven::RenderSystem::RenderSystem(Device& device, const VkRenderPass renderPass,const VkDescriptorSetLayout globalSetLayout) : m_device{device}
 {

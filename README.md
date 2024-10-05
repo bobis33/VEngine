@@ -5,6 +5,7 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
+
 # Description
 
 **ACTUALLY WORKING ON IT!**
@@ -41,10 +42,27 @@ $> ./vengine
 ```
 
 
+## Key Bindings
+
+| Key           | Description                                                                 |
+|:--------------|:----------------------------------------------------------------------------|
+| `z`           | Move forward                                                                |
+| `S`           | Move backward                                                               |
+| `q`           | Move left                                                                   |
+| `D`           | Move right                                                                  |
+| `SHIFT`       | Move down                                                                   |
+| `SPACE`       | Move up                                                                     |
+| `arrow up`    | Look up                                                                     |
+| `arrow down`  | Look down                                                                   |
+| `arrow left`  | Look left                                                                   |
+| `arrow right` | Look right                                                                  |
+| `F1`          | Show debug windows                                                          |
+
+
 ## Documentation
 
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-You can vizualize it on [GitHub Pages](https://bobis33.github.io/VEngine/).
+You can visualize it on the [GitHub Pages](https://bobis33.github.io/VEngine/).
 
 
 # Commit Norms

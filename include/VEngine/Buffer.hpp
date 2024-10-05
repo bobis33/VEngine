@@ -14,6 +14,7 @@ namespace ven {
     /// @class Buffer
     /// @brief Class for buffer
     /// @namespace ven
+    ///
     class Buffer {
 
         public:

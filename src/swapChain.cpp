@@ -19,10 +19,10 @@ ven::SwapChain::~SwapChain()
     for (size_t i = 0; i < depthImages.size(); i++) {
         vkDestroyImageView(device.device(), depthImageViews[i], nullptr);
         vkDestroyImage(device.device(), depthImages[i], nullptr);
-        vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
+        vkFreeMemory(device.device(), depthImageMemory[i], nullptr);
     }
 
-    for (VkFramebuffer_T *framebuffer : swapChainFramebuffers) {
+    for (VkFramebuffer_T *framebuffer : swapChainFrameBuffers) {
         vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
     }
 
@@ -42,7 +42,7 @@ void ven::SwapChain::init()
     createImageViews();
     createRenderPass();
     createDepthResources();
-    createFramebuffers();
+    createFrameBuffers();
     createSyncObjects();
 }
 
@@ -149,10 +149,6 @@ void ven::SwapChain::createSwapChain()
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    // we only specified a minimum number of images in the swap chain, so the implementation is
-    // allowed to create a swap chain with more. That's why we'll first query the final number of
-    // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
-    // retrieve the handles.
     vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, nullptr);
     swapChainImages.resize(imageCount);
     vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data());
@@ -241,9 +237,9 @@ void ven::SwapChain::createRenderPass()
     }
 }
 
-void ven::SwapChain::createFramebuffers()
+void ven::SwapChain::createFrameBuffers()
 {
-    swapChainFramebuffers.resize(imageCount());
+    swapChainFrameBuffers.resize(imageCount());
     for (size_t i = 0; i < imageCount(); i++) {
         std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageViews[i]};
 
@@ -257,7 +253,7 @@ void ven::SwapChain::createFramebuffers()
         framebufferInfo.height = swapChainExtent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &swapChainFrameBuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
@@ -270,7 +266,7 @@ void ven::SwapChain::createDepthResources()
 
     swapChainDepthFormat = depthFormat;
     depthImages.resize(imageCount());
-    depthImageMemorys.resize(imageCount());
+    depthImageMemory.resize(imageCount());
     depthImageViews.resize(imageCount());
 
     for (size_t i = 0; i < depthImages.size(); i++) {
@@ -290,7 +286,7 @@ void ven::SwapChain::createDepthResources()
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.flags = 0;
 
-        device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageMemorys[i]);
+        device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageMemory[i]);
 
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

@@ -25,27 +25,27 @@ namespace ven {
     /// @class RenderSystem
     /// @brief Class for render system
     /// @namespace ven
+    ///
     class RenderSystem {
 
-    public:
+        public:
 
-        explicit RenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~RenderSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
+            explicit RenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+            ~RenderSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
-        RenderSystem(const RenderSystem&) = delete;
-        RenderSystem& operator=(const RenderSystem&) = delete;
+            RenderSystem(const RenderSystem&) = delete;
+            RenderSystem& operator=(const RenderSystem&) = delete;
 
-        void renderObjects(const FrameInfo &frameInfo) const;
+            void renderObjects(const FrameInfo &frameInfo) const;
 
-    private:
+        private:
 
-        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-        void createPipeline(VkRenderPass renderPass);
+            void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+            void createPipeline(VkRenderPass renderPass);
 
-        Device &m_device;
-
-        std::unique_ptr<Shaders> m_shaders;
-        VkPipelineLayout m_pipelineLayout{nullptr};
+            Device &m_device;
+            std::unique_ptr<Shaders> m_shaders;
+            VkPipelineLayout m_pipelineLayout{nullptr};
 
     }; // class RenderSystem
 

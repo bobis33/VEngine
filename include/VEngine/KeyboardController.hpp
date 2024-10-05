@@ -11,6 +11,14 @@
 
 namespace ven {
 
+    static constexpr float DEFAULT_MOVE_SPEED = 3.F;
+    static constexpr float DEFAULT_LOOK_SPEED = 1.5F;
+
+    ///
+    /// @class KeyboardController
+    /// @brief Class for keyboard controller
+    /// @namespace ven
+    ///
     class KeyboardController {
 
         public:
@@ -28,11 +36,11 @@ namespace ven {
                 int lookDown = GLFW_KEY_DOWN;
             };
 
-            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object) const;
+            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, bool* showDebugWindow) const;
 
             KeyMappings m_keys{};
-            float m_moveSpeed{3.F};
-            float m_lookSpeed{1.5F};
+            float m_moveSpeed{DEFAULT_MOVE_SPEED};
+            float m_lookSpeed{DEFAULT_LOOK_SPEED};
 
     }; // class KeyboardController
 

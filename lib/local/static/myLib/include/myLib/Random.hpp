@@ -10,6 +10,10 @@
 
 namespace myLib {
 
+    static constexpr int RANDOM_INT_MIN = -1000;
+    static constexpr int RANDOM_INT_MAX = 1000;
+    static constexpr float RANDOM_FLOAT_MAX = 1000.0F;
+
     ///
     /// @class Random
     /// @brief Class for random number generation
@@ -33,7 +37,7 @@ namespace myLib {
             /// @return float The random float
             ///
             static float randomFloat(float min, float max);
-            static float randomFloat() { return randomFloat(-1.0f, 1.0f); };
+            static float randomFloat() { return randomFloat(-1.0F, 1.0F); };
 
     }; // class Random
 

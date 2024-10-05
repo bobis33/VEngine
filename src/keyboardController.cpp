@@ -2,7 +2,7 @@
 
 #include "VEngine/KeyboardController.hpp"
 
-void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object& object) const
+void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, bool* showDebugWindow) const
 {
     glm::vec3 rotate{0};
     if (glfwGetKey(window, m_keys.lookLeft) == GLFW_PRESS) { rotate.y -= 1.F; }
@@ -32,5 +32,10 @@ void ven::KeyboardController::moveInPlaneXZ(GLFWwindow* window, float dt, Object
 
     if (dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
         object.transform3D.translation += m_moveSpeed * dt * normalize(moveDir);
+    }
+
+    // imgui debug window
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        *showDebugWindow = !*showDebugWindow;
     }
 }

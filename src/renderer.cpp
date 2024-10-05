@@ -42,7 +42,7 @@ void ven::Renderer::recreateSwapChain()
 
 VkCommandBuffer ven::Renderer::beginFrame()
 {
-    assert(!isFrameStarted && "Can't start new frame while previous one is still in progress");
+    assert(!m_isFrameStarted && "Can't start new frame while previous one is still in progress");
 
     const VkResult result = m_swapChain->acquireNextImage(&m_currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -68,11 +68,11 @@ VkCommandBuffer ven::Renderer::beginFrame()
 
 void ven::Renderer::endFrame()
 {
-    assert(isFrameStarted && "Can't end frame that hasn't been started");
+    assert(m_isFrameStarted && "Can't end frame that hasn't been started");
 
     VkCommandBuffer_T *commandBuffer = getCurrentCommandBuffer();
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to record command m_buffer");
+        throw std::runtime_error("Failed to record command buffer");
     }
     VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
@@ -80,16 +80,16 @@ void ven::Renderer::endFrame()
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to submit command m_buffer");
+        throw std::runtime_error("Failed to submit command buffer");
     }
 
     m_isFrameStarted = false;
     m_currentFrameIndex = (m_currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
-void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer) const
+void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer)
 {
-    assert(isFrameStarted && "Can't begin render pass when frame not in progress");
+    assert(m_isFrameStarted && "Can't begin render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command m_buffer from a different frame");
 
     VkRenderPassBeginInfo renderPassInfo{};
@@ -100,11 +100,8 @@ void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = m_swapChain->getSwapChainExtent();
 
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {{0.01F, 0.01F, 0.01F, 1.0F}};
-    clearValues[1].depthStencil = {1.0F, 0};
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(m_clearValues.size());
+    renderPassInfo.pClearValues = m_clearValues.data();
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -122,7 +119,7 @@ void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer
 
 void ven::Renderer::endSwapChainRenderPass(const VkCommandBuffer commandBuffer)
 {
-    assert(isFrameStarted && "Can't end render pass when frame not in progress");
+    assert(m_isFrameStarted && "Can't end render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command m_buffer from a different frame");
 
     vkCmdEndRenderPass(commandBuffer);

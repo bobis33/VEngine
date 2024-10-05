@@ -16,6 +16,8 @@
 
 namespace ven {
 
+    static constexpr std::string_view SHADERS_BIN_PATH = "shaders/bin/";
+
     struct PipelineConfigInfo {
         PipelineConfigInfo() = default;
         PipelineConfigInfo(const PipelineConfigInfo&) = delete;
@@ -36,6 +38,11 @@ namespace ven {
         uint32_t subpass = 0;
     };
 
+    ///
+    /// @class Shaders
+    /// @brief Class for shaders
+    /// @namespace ven
+    ///
     class Shaders {
 
         public:

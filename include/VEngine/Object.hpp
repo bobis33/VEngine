@@ -15,7 +15,9 @@
 
 namespace ven {
 
-    using id_t = unsigned int;
+    static constexpr float DEFAULT_LIGHT_INTENSITY = .2F;
+    static constexpr float DEFAULT_LIGHT_RADIUS = 0.1F;
+    static constexpr glm::vec3 DEFAULT_LIGHT_COLOR = glm::vec3(1.F);
 
     struct Transform3DComponent {
         glm::vec3 translation{};
@@ -27,39 +29,43 @@ namespace ven {
     };
 
     struct PointLightComponent {
-        float lightIntensity = 1.0F;
+        float lightIntensity = DEFAULT_LIGHT_INTENSITY;
     };
 
+    ///
+    /// @class Object
+    /// @brief Class for object
+    /// @namespace ven
+    ///
     class Object {
 
         public:
 
-         using Map = std::unordered_map<id_t, Object>;
-
-
-            static Object createObject() { static id_t objId = 0; return Object(objId++); }
+            using Map = std::unordered_map<unsigned int, Object>;
 
             ~Object() = default;
-
-            static Object makePointLight(float intensity = 10.F, float radius = 0.1F, glm::vec3 color = glm::vec3(1.F));
 
             Object(const Object&) = delete;
             Object& operator=(const Object&) = delete;
             Object(Object&&) = default;
             Object& operator=(Object&&) = default;
 
-            [[nodiscard]] id_t getId() const { return m_objId; }
+            static Object createObject() { static unsigned int objId = 0; return Object(objId++); }
+            static Object makePointLight(float intensity = DEFAULT_LIGHT_INTENSITY, float radius = DEFAULT_LIGHT_RADIUS, glm::vec3 color = DEFAULT_LIGHT_COLOR);
+
+            [[nodiscard]] unsigned int getId() const { return m_objId; }
 
             std::shared_ptr<Model> model{};
             glm::vec3 color{};
             Transform3DComponent transform3D{};
-
+            std::string name{""};
             std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
-    private:
-            explicit Object(const id_t objId) : m_objId(objId) {}
+        private:
 
-            id_t m_objId;
+            explicit Object(const unsigned int objId) : m_objId(objId) {}
+
+            unsigned int m_objId;
 
     }; // class Object
 
