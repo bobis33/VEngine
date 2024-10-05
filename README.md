@@ -1,20 +1,44 @@
 ![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/logo.png)
 
-[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/check_compilation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/check_compilation.yml)
-[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update_documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update_documentation.yml)
+[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml)
+[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update-adocumentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
 
-# Description
+# VEngine - Vulkan Graphics Engine
 
-**ACTUALLY WORKING ON IT!**
+**WORK IN PROGRESS!**
 
-Welcome to **VEngine**, a graphics engine developed with Vulkan.
-This project aims to provide a robust foundation for game and application developers, focusing on the performance and flexibility offered by Vulkan.
+Welcome to **VEngine**, a Vulkan-based graphics engine.
+
+This project is designed to provide a high-performance and flexible foundation for building 3D applications and games, 
+taking full advantage of the Vulkan API.
 
 
-# Prerequisites
+## Features
+
+- **Vulkan Rendering Pipeline**: Leveraging Vulkan for high-performance graphics rendering
+- **Basic Camera System**: Control camera movement in the 3D space
+- **Input System**: Keyboard-based controls for movement and looking around
+- **Model Loading**: Import 3D models using TinyObjLoader
+- **Real-time debugging**: Toggle debug windows using key bindings
+- **Doxygen Documentation**: Automatically generated documentation hosted on GitHub Pages
+
+
+### Planned Features:
+
+- **Cross-platform support** (Linux, macOS, Windows)
+- Improve shadow
+- Model Importing (using Assimp)
+- Physics Integration
+- Support for more input devices (e.g., mouse, game controller)
+- Audio Integration
+
+
+## Prerequisites
+
+Make sure you have the following dependencies installed on your system:
 
 - [CMake 3.27](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
@@ -23,9 +47,9 @@ This project aims to provide a robust foundation for game and application develo
 - [assimp](https://www.assimp.org/) (unused ATM)
 
 
-# Usage
+## Usage
 
-## Build
+### Build
 
 ```bash
 $> ./build.sh build
@@ -34,7 +58,7 @@ $> ./build.sh build
 > This script also handle several other commands: `clean`, `format` and `doc`.
 
 
-## Run
+### Run
 
 ```bash
 $> ./vengine
@@ -43,6 +67,8 @@ $> ./vengine
 
 
 ## Key Bindings
+
+The following keyboard controls are currently available for interacting with the engine:
 
 | Key           | Description                                                                 |
 |:--------------|:----------------------------------------------------------------------------|
@@ -62,10 +88,10 @@ $> ./vengine
 ## Documentation
 
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-You can visualize it on the [GitHub Pages](https://bobis33.github.io/VEngine/).
+You can access the latest version on the [GitHub Pages dite](https://bobis33.github.io/VEngine/).
 
 
-# Commit Norms
+## Commit Norms
 
 | Commit Type | Description                                                                                                               |
 |:------------|:--------------------------------------------------------------------------------------------------------------------------|
@@ -80,11 +106,11 @@ You can visualize it on the [GitHub Pages](https://bobis33.github.io/VEngine/).
 | test        | Addition or modification of tests                                                                                         |
 
 
-# License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/bobis33/VEngine/blob/main/LICENSE) file for details.
 
 
-# Acknowledgements
+## Acknowledgements
 
-Thanks to [Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine).
+Special thanks to [Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine) for inspiration and resources related to Vulkan development.
