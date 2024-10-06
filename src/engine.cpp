@@ -108,8 +108,6 @@ void ven::Engine::mainLoop()
     ImGuiIO &io = ImGui::GetIO();
     VkDescriptorBufferInfo bufferInfo{};
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
-
     for (auto& uboBuffer : uboBuffers)
     {
         uboBuffer = std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -152,7 +150,7 @@ void ven::Engine::mainLoop()
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
 
-            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice()); }
+            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();

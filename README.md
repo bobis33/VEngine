@@ -1,7 +1,7 @@
 ![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/logo.png)
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml)
-[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update-adocumentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
+[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 

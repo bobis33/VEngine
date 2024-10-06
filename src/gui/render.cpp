@@ -5,55 +5,16 @@
 #include "VEngine/ImGuiWindowManager.hpp"
 #include "VEngine/Colors.hpp"
 
-void ven::ImGuiWindowManager::init(GLFWwindow* window, VkInstance instance, Device* device, VkRenderPass renderPass)
+
+void ven::ImGuiWindowManager::cleanup()
 {
-    VkDescriptorPool pool = nullptr;
-
-    ImGui::CreateContext();
-    // ImGui::StyleColorsDark();
-    VkDescriptorPoolSize pool_sizes[] = {
-            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-    };
-    VkDescriptorPoolCreateInfo pool_info = {
-            VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-            nullptr,
-            VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-            1000,
-            std::size(pool_sizes),
-            pool_sizes
-    };
-
-    if (vkCreateDescriptorPool(device->device(), &pool_info, nullptr, &pool) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create ImGui descriptor pool");
-    }
-    ImGui_ImplVulkan_InitInfo init_info = {
-            .Instance = instance,
-            .PhysicalDevice = device->getPhysicalDevice(),
-            .Device = device->device(),
-            .Queue = device->graphicsQueue(),
-            .DescriptorPool = pool,
-            .MinImageCount = 3,
-            .ImageCount = 3,
-            .MSAASamples = VK_SAMPLE_COUNT_1_BIT
-    };
-
-    ImGui_ImplGlfw_InitForVulkan(window, true);
-    ImGui_ImplVulkan_Init(&init_info, renderPass);
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
-void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice)
+void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
-    const float framerate = io.Framerate;
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 
@@ -61,13 +22,33 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Application Info");
-    ImGui::Text("FPS: %.1f", framerate);
-    ImGui::Text("Frame time: %.3fms", 1000.0f / framerate);
-    ImGui::End();
+    renderFrameWindow(io);
 
     ImGui::Begin("Debug Window");
+    rendererSection(renderer, ubo);
+    cameraSection(cameraObj, camera, cameraController);
+    objectsSection(objects);
+    inputsSection(io);
+    devicePropertiesSection(deviceProperties);
 
+    ImGui::End();
+    ImGui::Render();
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
+}
+
+void ven::ImGuiWindowManager::renderFrameWindow(ImGuiIO& io)
+{
+    const float framerate = io.Framerate;
+
+    ImGui::SetNextWindowPos(ImVec2(0.0F, 0.0F), ImGuiCond_Always, ImVec2(0.0F, 0.0F));
+    ImGui::Begin("Application Info", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
+    ImGui::Text("FPS: %.1f", framerate);
+    ImGui::Text("Frame time: %.3fms", 1000.0F / framerate);
+    ImGui::End();
+}
+
+void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, KeyboardController &cameraController)
+{
     if (ImGui::CollapsingHeader("Camera")) {
         float fov = camera.getFov();
         float near = camera.getNear();
@@ -111,7 +92,10 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
             ImGui::EndTable();
         }
     }
+}
 
+void ven::ImGuiWindowManager::inputsSection(ImGuiIO &io)
+{
     if (ImGui::CollapsingHeader("Input")) {
         ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
         ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
@@ -130,8 +114,11 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
             ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
         }
     }
+}
 
-    if (ImGui::CollapsingHeader("Render Settings")) {
+void ven::ImGuiWindowManager::rendererSection(ven::Renderer *renderer, GlobalUbo& ubo)
+{
+    if (ImGui::CollapsingHeader("Renderer")) {
         ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
 
         if (ImGui::BeginTable("ClearColorTable", 2)) {
@@ -146,7 +133,7 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
             ImGui::TableNextColumn();
             static int item_current = 0;
 
-            if (ImGui::Combo("Color Presets",
+            if (ImGui::Combo("Color Presets##clearColor",
                              &item_current,
                              [](void*, int idx, const char** out_text) -> bool {
                                  if (idx < 0 || idx >= static_cast<int>(std::size(Colors::CLEAR_COLORS))) { return false; }
@@ -157,10 +144,40 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
                              std::size(Colors::CLEAR_COLORS))) {
                 renderer->setClearValue(Colors::CLEAR_COLORS.at(static_cast<unsigned long>(item_current)).second);
             }
+
+            ImGui::TableNextColumn();
+            if (ImGui::ColorEdit4("Ambient Light Color", glm::value_ptr(ubo.ambientLightColor))) {
+                for (auto& pointLight : ubo.pointLights) {
+                    pointLight.color = glm::vec4(ubo.ambientLightColor.r, ubo.ambientLightColor.g, ubo.ambientLightColor.b, 1.0F);
+                }
+            }
+
+            ImGui::TableNextColumn();
+            if (ImGui::Combo("Color Presets##ambientColor",
+                                &item_current,
+                                [](void*, int idx, const char** out_text) -> bool {
+                                    if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
+                                    *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                    return true;
+                                },
+                                nullptr,
+                                std::size(Colors::COLORS))) {
+                ubo.ambientLightColor = glm::vec4(Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.r, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.g, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.b, 1.0F);
+
+            }
+
+            ImGui::TableNextColumn();
+            ImGui::SliderFloat(("Intensity##" + std::to_string(0)).c_str(), &ubo.ambientLightColor.a, 0.0F, 1.0F);
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset##ambientIntensity")) { ubo.ambientLightColor.a = DEFAULT_INTENSITY; }
+
             ImGui::EndTable();
         }
     }
+}
 
+void ven::ImGuiWindowManager::devicePropertiesSection(VkPhysicalDeviceProperties deviceProperties)
+{
     if (ImGui::CollapsingHeader("Device Properties")) {
         if (ImGui::BeginTable("DevicePropertiesTable", 2)) {
 
@@ -184,7 +201,10 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
             ImGui::EndTable();
         }
     }
+}
 
+void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Object>& objects)
+{
     if (ImGui::CollapsingHeader("Objects")) {
         ImVec4 color;
         bool open = false;
@@ -211,12 +231,12 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
                     if (ImGui::Combo("Color Presets",
                                      &item_current,
                                      [](void*, int idx, const char** out_text) -> bool {
-                        if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
-                        *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
-                        return true;
-                        },
-                        nullptr,
-                        std::size(Colors::COLORS))) {
+                                         if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
+                                         *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                         return true;
+                                     },
+                                     nullptr,
+                                     std::size(Colors::COLORS))) {
                         object.color = Colors::COLORS.at(static_cast<unsigned long>(item_current)).second;
                     }
 
@@ -229,15 +249,4 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
             }
         }
     }
-
-    ImGui::End();
-    ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
-}
-
-void ven::ImGuiWindowManager::cleanup()
-{
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
