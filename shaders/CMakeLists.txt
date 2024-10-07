@@ -3,10 +3,10 @@ set(SHADER_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 file(MAKE_DIRECTORY ${SHADER_BIN_DIR})
 
-file(GLOB VERTEX_SHADERS ${SHADER_SRC_DIR}/*.vert)
-file(GLOB FRAGMENT_SHADERS ${SHADER_SRC_DIR}/*.frag)
+file(GLOB SHADERS ${SHADER_SRC_DIR}/*.vert ${SHADER_SRC_DIR}/*.frag)
 
-foreach(SHADER ${VERTEX_SHADERS} ${FRAGMENT_SHADERS})
+
+foreach(SHADER ${SHADERS})
     get_filename_component(FILE_NAME ${SHADER} NAME_WE)
     set(SPIRV_BINARY ${SHADER_BIN_DIR}/${FILE_NAME}.spv)
     add_custom_command(
@@ -19,7 +19,4 @@ foreach(SHADER ${VERTEX_SHADERS} ${FRAGMENT_SHADERS})
     list(APPEND SPIRV_BINARIES ${SPIRV_BINARY})
 endforeach()
 
-add_custom_target(
-        Shaders
-        DEPENDS ${SPIRV_BINARIES}
-)
+add_custom_target(Shaders DEPENDS ${SPIRV_BINARIES})
