@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 
 #include "VEngine/System/PointLightSystem.hpp"
+#include "VEngine/Light.hpp"
 
 struct PointLightPushConstants {
     glm::vec4 position{};
@@ -52,32 +53,29 @@ void ven::PointLightSystem::render(const FrameInfo &frameInfo) const
 
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-    for (auto &kv : frameInfo.objects)
+    for (auto &kv : frameInfo.lights)
     {
-        Object &object = kv.second;
-        if (object.pointLight == nullptr) continue;
+        Light &light = kv.second;
         PointLightPushConstants push{};
-        push.position = glm::vec4(object.transform3D.translation, 1.F);
-        push.color = glm::vec4(object.color, object.pointLight->lightIntensity);
-        push.radius = object.transform3D.scale.x;
+        push.position = glm::vec4(light.transform3D.translation, 1.F);
+        push.color = light.color;
+        push.radius = light.transform3D.scale.x;
         vkCmdPushConstants(frameInfo.commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PointLightPushConstants), &push);
         vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
     }
-
 }
 
 void ven::PointLightSystem::update(const FrameInfo &frameInfo, GlobalUbo &ubo)
 {
     const auto rotateLight = rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
     unsigned long lightIndex = 0;
-    for (auto &kv : frameInfo.objects)
+    for (auto &kv : frameInfo.lights)
     {
-        Object &object = kv.second;
-        if (object.pointLight == nullptr) continue;
+        Light &light = kv.second;
         assert(lightIndex < MAX_LIGHTS && "Too many lights");
-        object.transform3D.translation = glm::vec3(rotateLight * glm::vec4(object.transform3D.translation, 1.F));
-        ubo.pointLights[lightIndex].position = glm::vec4(object.transform3D.translation, 1.F);
-        ubo.pointLights[lightIndex].color = glm::vec4(object.color, object.pointLight->lightIntensity);
+        light.transform3D.translation = glm::vec3(rotateLight * glm::vec4(light.transform3D.translation, 1.F));
+        ubo.pointLights[lightIndex].position = glm::vec4(light.transform3D.translation, 1.F);
+        ubo.pointLights[lightIndex].color = light.color;
         lightIndex++;
     }
     ubo.numLights = static_cast<int>(lightIndex);

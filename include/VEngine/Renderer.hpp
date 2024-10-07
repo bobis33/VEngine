@@ -43,6 +43,8 @@ namespace ven {
                 m_clearValues[0].color.float32[3]
             };}
 
+            [[nodiscard]] Window& getWindow() { return m_window; }
+
             void setClearValue(VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
             VkCommandBuffer beginFrame();
             void endFrame();

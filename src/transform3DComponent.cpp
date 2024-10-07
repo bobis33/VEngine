@@ -1,4 +1,4 @@
-#include "VEngine/Object.hpp"
+#include "VEngine/Transform3DComponent.hpp"
 
 glm::mat4 ven::Transform3DComponent::mat4() const {
     const float c3 = glm::cos(rotation.z);
@@ -47,29 +47,19 @@ glm::mat3 ven::Transform3DComponent::normalMatrix() const
 
     return glm::mat3{
             {
-                    invScale.x * (c1 * c3 + s1 * s2 * s3),
-                    invScale.x * (c2 * s3),
-                    invScale.x * (c1 * s2 * s3 - c3 * s1)
+                invScale.x * (c1 * c3 + s1 * s2 * s3),
+                invScale.x * (c2 * s3),
+                invScale.x * (c1 * s2 * s3 - c3 * s1)
             },
             {
-                    invScale.y * (c3 * s1 * s2 - c1 * s3),
-                    invScale.y * (c2 * c3),
-                    invScale.y * (c1 * c3 * s2 + s1 * s3)
+                invScale.y * (c3 * s1 * s2 - c1 * s3),
+                invScale.y * (c2 * c3),
+                invScale.y * (c1 * c3 * s2 + s1 * s3)
             },
             {
-                    invScale.z * (c2 * s1),
-                    invScale.z * (-s2),
-                    invScale.z * (c1 * c2)
+                invScale.z * (c2 * s1),
+                invScale.z * (-s2),
+                invScale.z * (c1 * c2)
             }
     };
-}
-
-ven::Object ven::Object::makePointLight(const float intensity, const float radius, const glm::vec3 color)
-{
-    Object obj = Object::createObject();
-    obj.color = color;
-    obj.transform3D.scale.x = radius;
-    obj.pointLight = std::make_unique<PointLightComponent>();
-    obj.pointLight->lightIntensity = intensity;
-    return obj;
 }
