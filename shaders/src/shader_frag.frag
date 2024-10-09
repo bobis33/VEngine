@@ -26,9 +26,9 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-  vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
   vec3 specularLight = vec3(0.0);
   vec3 surfaceNormal = normalize(fragNormalWorld);
+  vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.a;
 
   vec3 cameraPosWorld = ubo.invView[3].xyz;
   vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
@@ -41,16 +41,17 @@ void main() {
 
     float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
     vec3 intensity = light.color.xyz * light.color.w * attenuation;
+    vec3 reflectionDirection = reflect(-directionToLight, surfaceNormal);
+    float cosAngReflection = max(dot(viewDirection, reflectionDirection), 0);
 
+    // diffuse lighting
     diffuseLight += intensity * cosAngIncidence;
-
     // specular lighting
-    vec3 halfAngle = normalize(directionToLight + viewDirection);
-    float blinnTerm = dot(surfaceNormal, halfAngle);
-    blinnTerm = clamp(blinnTerm, 0, 1);
-    blinnTerm = pow(blinnTerm, 512.0); // higher values -> sharper highlight
-    specularLight += intensity * blinnTerm;
-  }
+    float specular = pow(cosAngReflection, 512);
+    specularLight += intensity * specular
+    * step(0.0, cosAngIncidence) // only add specular if light is on the correct side
+    * step(0.0, cosAngReflection); // only add specular if reflection is in
 
-  outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
+  }
+  outColor = vec4(fragColor * (diffuseLight + specularLight), 1.0);
 }
