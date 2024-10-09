@@ -6,41 +6,33 @@
 
 #pragma once
 
-#include <memory>
-
-#include "VEngine/Device.hpp"
-#include "VEngine/Shaders.hpp"
+#include "VEngine/Abstraction/ARenderSystemBase.hpp"
 #include "VEngine/FrameInfo.hpp"
 
 namespace ven {
+
+    struct LightPushConstantData {
+        glm::vec4 position{};
+        glm::vec4 color{};
+        float radius;
+    };
 
     ///
     /// @class PointLightSystem
     /// @brief Class for point light system
     /// @namespace ven
     ///
-    class PointLightSystem {
+    class PointLightSystem : public ARenderSystemBase {
 
         public:
 
-            explicit PointLightSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-            ~PointLightSystem() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
+            explicit PointLightSystem(Device& device, const VkRenderPass renderPass, const VkDescriptorSetLayout globalSetLayout) : ARenderSystemBase(device) {
+                createPipelineLayout(globalSetLayout, sizeof(LightPushConstantData));
+                createPipeline(renderPass, std::string(SHADERS_BIN_PATH) + "point_light_vert.spv", std::string(SHADERS_BIN_PATH) + "point_light_frag.spv", true);
+            }
 
-            PointLightSystem(const PointLightSystem&) = delete;
-            PointLightSystem& operator=(const PointLightSystem&) = delete;
-
-            static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
             void render(const FrameInfo &frameInfo) const;
-
-        private:
-
-            void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-            void createPipeline(VkRenderPass renderPass);
-
-            Device &m_device;
-
-            std::unique_ptr<Shaders> m_shaders;
-            VkPipelineLayout m_pipelineLayout{nullptr};
+            static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
 
     }; // class PointLightSystem
 
