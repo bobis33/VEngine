@@ -26,7 +26,7 @@ void ven::Engine::createInstance()
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = nullptr;
     VkInstanceCreateInfo createInfo{};
-    VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pNext = nullptr, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
+    constexpr VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pNext = nullptr, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
 
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
@@ -45,24 +45,24 @@ void ven::Engine::loadObjects()
     std::shared_ptr model = Model::createModelFromFile(m_device, "models/quad.obj");
 
     Object floor = Object::createObject();
-    floor.name = "floor";
-    floor.model = model;
+    floor.setName("floor");
+    floor.setModel(model);
     floor.transform3D.translation = {0.F, .5F, 0.F};
     floor.transform3D.scale = {3.F, 1.F, 3.F};
     m_objects.emplace(floor.getId(), std::move(floor));
 
     model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
     Object flatVase = Object::createObject();
-    flatVase.name = "flat vase";
-    flatVase.model = model;
+    flatVase.setName("flat vase");
+    flatVase.setModel(model);
     flatVase.transform3D.translation = {-.5F, .5F, 0.F};
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(flatVase.getId(), std::move(flatVase));
 
     model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
-    smoothVase.name = "smooth vase";
-    smoothVase.model = model;
+    smoothVase.setName("smooth vase");
+    smoothVase.setModel(model);
     smoothVase.transform3D.translation = {.5F, .5F, 0.F};
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(smoothVase.getId(), std::move(smoothVase));
@@ -137,7 +137,7 @@ void ven::Engine::mainLoop()
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects, m_lights};
+            FrameInfo frameInfo{.frameIndex=frameIndex, .frameTime=frameTime, .commandBuffer=commandBuffer, .camera=camera, .globalDescriptorSet=globalDescriptorSets[static_cast<unsigned long>(frameIndex)], .objects=m_objects, .lights=m_lights};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();

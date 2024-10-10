@@ -51,12 +51,14 @@ namespace ven {
             [[nodiscard]] VkQueue presentQueue() const { return m_presentQueue; }
 
             [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(m_physicalDevice); }
-            [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
+            [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
             [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(m_physicalDevice); }
+            [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
+            [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
             [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
             // Buffer Helper Functions
-            void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
+            void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
             [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
             void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
             void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
@@ -64,10 +66,6 @@ namespace ven {
 
             void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
 
-            [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
-            [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
-
-            VkPhysicalDeviceProperties properties_;
 
         private:
 
@@ -98,6 +96,7 @@ namespace ven {
             VkSurfaceKHR m_surface;
             VkQueue m_graphicsQueue;
             VkQueue m_presentQueue;
+            VkPhysicalDeviceProperties m_properties;
 
             const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
             const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};

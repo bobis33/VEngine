@@ -15,8 +15,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(const VkDebugUtilsMessageSev
 
 VkResult CreateDebugUtilsMessengerEXT(const VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
 {
-    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
-    if (func != nullptr) {
+    if (const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT")); func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     }
 
@@ -25,8 +24,7 @@ VkResult CreateDebugUtilsMessengerEXT(const VkInstance instance, const VkDebugUt
 
 void DestroyDebugUtilsMessengerEXT(const VkInstance instance, const VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator)
 {
-    auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
-    if (func != nullptr) {
+    if (const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")); func != nullptr) {
         func(instance, debugMessenger, pAllocator);
     }
 }
@@ -117,16 +115,16 @@ void ven::Device::pickPhysicalDevice()
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 
-    vkGetPhysicalDeviceProperties(m_physicalDevice, &properties_);
-    std::cout << "physical device: " << properties_.deviceName << '\n';
+    vkGetPhysicalDeviceProperties(m_physicalDevice, &m_properties);
+    std::cout << "physical device: " << m_properties.deviceName << '\n';
 }
 
 void ven::Device::createLogicalDevice()
 {
-    const QueueFamilyIndices indices = findQueueFamilies(m_physicalDevice);
+    const auto [graphicsFamily, presentFamily, graphicsFamilyHasValue, presentFamilyHasValue] = findQueueFamilies(m_physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    const std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
+    const std::set<uint32_t> uniqueQueueFamilies = {graphicsFamily, presentFamily};
     float queuePriority = 1.0F;
 
     for (const uint32_t queueFamily : uniqueQueueFamilies) {
@@ -164,8 +162,8 @@ void ven::Device::createLogicalDevice()
         throw std::runtime_error("failed to create logical device!");
     }
 
-    vkGetDeviceQueue(m_device, indices.graphicsFamily, 0, &m_graphicsQueue);
-    vkGetDeviceQueue(m_device, indices.presentFamily, 0, &m_presentQueue);
+    vkGetDeviceQueue(m_device, graphicsFamily, 0, &m_graphicsQueue);
+    vkGetDeviceQueue(m_device, presentFamily, 0, &m_presentQueue);
 }
 
 void ven::Device::createCommandPool()
@@ -189,8 +187,8 @@ bool ven::Device::isDeviceSuitable(const VkPhysicalDevice device) const
     bool swapChainAdequate = false;
 
     if (extensionsSupported) {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        auto [capabilities, formats, presentModes] = querySwapChainSupport(device);
+        swapChainAdequate = !formats.empty() && !presentModes.empty();
     }
 
     VkPhysicalDeviceFeatures supportedFeatures;
@@ -233,8 +231,8 @@ bool ven::Device::checkValidationLayerSupport() const
     for (const char *layerName : validationLayers) {
         bool layerFound = false;
 
-        for (const auto &layerProperties : availableLayers) {
-            if (strcmp(layerName, layerProperties.layerName) == 0) {
+        for (const auto &[layerName, specVersion, implementationVersion, description] : availableLayers) {
+            if (strcmp(layerName, layerName) == 0) {
                 layerFound = true;
                 break;
             }
@@ -271,16 +269,16 @@ void ven::Device::hasGlfwRequiredInstanceExtensions() const
 
     std::cout << "available extensions:\n";
     std::unordered_set<std::string> available;
-    for (const auto &extension : extensions) {
-        std::cout << '\t' << extension.extensionName << '\n';
-        available.insert(extension.extensionName);
+    for (const auto &[extensionName, specVersion] : extensions) {
+        std::cout << '\t' << extensionName << '\n';
+        available.insert(extensionName);
     }
 
     std::cout << "required extensions:\n";
     const std::vector<const char *> requiredExtensions = getRequiredExtensions();
     for (const auto &required : requiredExtensions) {
         std::cout << "\t" << required << '\n';
-        if (available.find(required) == available.end()) {
+        if (!available.contains(required)) {
             throw std::runtime_error("Missing required glfw extension");
         }
     }
@@ -295,8 +293,8 @@ bool ven::Device::checkDeviceExtensionSupport(const VkPhysicalDevice device) con
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
     std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-     for (const auto &extension : availableExtensions) {
-         requiredExtensions.erase(extension.extensionName);
+     for (const auto &[extensionName, specVersion] : availableExtensions) {
+         requiredExtensions.erase(extensionName);
      }
 
      return requiredExtensions.empty();
@@ -312,14 +310,14 @@ ven::QueueFamilyIndices ven::Device::findQueueFamilies(const VkPhysicalDevice de
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
     uint32_t index = 0;
 
-    for (const auto &queueFamily : queueFamilies) {
-        if (queueFamily.queueCount > 0 && ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)) {
+    for (const auto &[queueFlags, queueCount, timestampValidBits, minImageTransferGranularity] : queueFamilies) {
+        if (queueCount > 0 && ((queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)) {
             indices.graphicsFamily = index;
             indices.graphicsFamilyHasValue = true;
         }
         VkBool32 presentSupport = 0U;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, index, m_surface, &presentSupport);
-        if (queueFamily.queueCount > 0 && (presentSupport != 0U)) {
+        if (queueCount > 0 && (presentSupport != 0U)) {
             indices.presentFamily = index;
             indices.presentFamilyHasValue = true;
         }
@@ -366,14 +364,14 @@ VkFormat ven::Device::findSupportedFormat(const std::vector<VkFormat> &candidate
     throw std::runtime_error("failed to find supported format!");
 }
 
-uint32_t ven::Device::findMemoryType(const uint32_t typeFilter, const VkMemoryPropertyFlags propertiesp) const
+uint32_t ven::Device::findMemoryType(const uint32_t typeFilter, const VkMemoryPropertyFlags properties) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if (((typeFilter & (1 << i)) != 0U) &&
-        (memProperties.memoryTypes[i].propertyFlags & propertiesp) == propertiesp) {
+        (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
             return i;
         }
     }
@@ -381,7 +379,7 @@ uint32_t ven::Device::findMemoryType(const uint32_t typeFilter, const VkMemoryPr
     throw std::runtime_error("failed to find suitable m_memory type!");
 }
 
-void ven::Device::createBuffer(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const
+void ven::Device::createBuffer(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -399,7 +397,7 @@ void ven::Device::createBuffer(const VkDeviceSize size, const VkBufferUsageFlags
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, propertiesp);
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(m_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate vertex m_buffer m_memory!");
@@ -469,8 +467,8 @@ void ven::Device::copyBufferToImage(const VkBuffer buffer, const VkImage image, 
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = layerCount;
 
-    region.imageOffset = {0, 0, 0};
-    region.imageExtent = {width, height, 1};
+    region.imageOffset = {.x=0, .y=0, .z=0};
+    region.imageExtent = {.width=width, .height=height, .depth=1};
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     endSingleTimeCommands(commandBuffer);

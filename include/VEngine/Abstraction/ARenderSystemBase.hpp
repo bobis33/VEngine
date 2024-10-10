@@ -30,11 +30,11 @@ namespace ven {
         protected:
 
             void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, uint32_t pushConstantSize);
-            void createPipeline(VkRenderPass renderPass, std::string shadersVertPath, std::string shadersFragPath, bool isLight);
+            void createPipeline(VkRenderPass renderPass, const std::string &shadersVertPath, const std::string &shadersFragPath, bool isLight);
 
             [[nodiscard]] Device& getDevice() const { return m_device; }
             [[nodiscard]] VkPipelineLayout getPipelineLayout() const { return m_pipelineLayout; }
-            [[nodiscard]] Shaders& getShaders() const { return *m_shaders; }
+            [[nodiscard]] const std::unique_ptr<Shaders>& getShaders() const { return m_shaders; }
 
         private:
 

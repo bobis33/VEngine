@@ -4,7 +4,7 @@
 
 void ven::PointLightSystem::render(const FrameInfo &frameInfo) const
 {
-    getShaders().bind(frameInfo.commandBuffer);
+    getShaders()->bind(frameInfo.commandBuffer);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, getPipelineLayout(), 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
     for (const Light &light : frameInfo.lights | std::views::values) {

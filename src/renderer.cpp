@@ -74,8 +74,7 @@ void ven::Renderer::endFrame()
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
         throw std::runtime_error("Failed to record command buffer");
     }
-    VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
+    if (const VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex); result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
         m_window.resetWindowResizedFlag();
         recreateSwapChain();
     }
@@ -87,7 +86,7 @@ void ven::Renderer::endFrame()
     m_currentFrameIndex = (m_currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
-void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer)
+void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer) const
 {
     assert(m_isFrameStarted && "Can't begin render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command m_buffer from a different frame");
@@ -97,7 +96,7 @@ void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer
     renderPassInfo.renderPass = m_swapChain->getRenderPass();
     renderPassInfo.framebuffer = m_swapChain->getFrameBuffer(m_currentImageIndex);
 
-    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.offset = {.x=0, .y=0};
     renderPassInfo.renderArea.extent = m_swapChain->getSwapChainExtent();
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(m_clearValues.size());
@@ -117,7 +116,7 @@ void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
-void ven::Renderer::endSwapChainRenderPass(const VkCommandBuffer commandBuffer)
+void ven::Renderer::endSwapChainRenderPass(const VkCommandBuffer commandBuffer) const
 {
     assert(m_isFrameStarted && "Can't end render pass when frame not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command m_buffer from a different frame");

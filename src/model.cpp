@@ -11,16 +11,14 @@
 #include "VEngine/Model.hpp"
 #include "VEngine/Utils.hpp"
 
-namespace std {
-    template<>
-    struct hash<ven::Model::Vertex> {
-        size_t operator()(ven::Model::Vertex const &vertex) const {
-            size_t seed = 0;
-            ven::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
-            return seed;
-        }
-    };
-}
+template<>
+struct std::hash<ven::Model::Vertex> {
+    size_t operator()(ven::Model::Vertex const &vertex) const noexcept {
+        size_t seed = 0;
+        ven::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+        return seed;
+    }
+};
 
 ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0)
 {
@@ -56,7 +54,6 @@ void ven::Model::createIndexBuffer(const std::vector<uint32_t> &indices)
         return;
     }
 
-    const VkDeviceSize bufferSize = sizeof(indices[0]) * m_indexCount;
     uint32_t indexSize = sizeof(indices[0]);
 
     Buffer stagingBuffer{m_device, indexSize, m_indexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
@@ -66,7 +63,7 @@ void ven::Model::createIndexBuffer(const std::vector<uint32_t> &indices)
 
     m_indexBuffer = std::make_unique<Buffer>(m_device, indexSize, m_indexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
+    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), sizeof(indices[0]) * m_indexCount);
 }
 
 void ven::Model::draw(const VkCommandBuffer commandBuffer) const
@@ -80,9 +77,9 @@ void ven::Model::draw(const VkCommandBuffer commandBuffer) const
 
 void ven::Model::bind(const VkCommandBuffer commandBuffer) const
 {
-    const VkBuffer buffers[] = {m_vertexBuffer->getBuffer()};
+    const std::array buffers{m_vertexBuffer->getBuffer()};
     constexpr VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers.data(), offsets);
 
     if (m_hasIndexBuffer) {
         vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -134,35 +131,35 @@ void ven::Model::Builder::loadModel(const std::string &filename)
     indices.clear();
 
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-    for (const auto &shape : shapes) {
-        for (const auto &index : shape.mesh.indices) {
+    for (const auto &[name, mesh, lines, points] : shapes) {
+        for (const auto &[vertex_index, normal_index, texcoord_index] : mesh.indices) {
             Vertex vertex{};
-            if (index.vertex_index >= 0) {
+            if (vertex_index >= 0) {
                 vertex.position = {
-                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 0],
-                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 1],
-                        attrib.vertices[3 * static_cast<size_t>(index.vertex_index) + 2]
+                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 0],
+                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 1],
+                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 2]
                 };
 
                 vertex.color = {
-                        attrib.colors[3 * static_cast<size_t>(index.vertex_index) + 0],
-                        attrib.colors[3 * static_cast<size_t>(index.vertex_index) + 1],
-                        attrib.colors[3 * static_cast<size_t>(index.vertex_index) + 2]
+                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 0],
+                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 1],
+                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 2]
                 };
             }
 
-            if (index.normal_index >= 0) {
+            if (normal_index >= 0) {
                 vertex.normal = {
-                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 0],
-                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 1],
-                        attrib.normals[3 * static_cast<size_t>(index.normal_index) + 2]
+                        attrib.normals[3 * static_cast<size_t>(normal_index) + 0],
+                        attrib.normals[3 * static_cast<size_t>(normal_index) + 1],
+                        attrib.normals[3 * static_cast<size_t>(normal_index) + 2]
                 };
             }
 
-            if (index.texcoord_index >= 0) {
+            if (texcoord_index >= 0) {
                 vertex.uv = {
-                        attrib.texcoords[2 * static_cast<size_t>(index.texcoord_index) + 0],
-                        attrib.texcoords[2 * static_cast<size_t>(index.texcoord_index) + 1]
+                        attrib.texcoords[2 * static_cast<size_t>(texcoord_index) + 0],
+                        attrib.texcoords[2 * static_cast<size_t>(texcoord_index) + 1]
                 };
             }
 

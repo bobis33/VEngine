@@ -36,7 +36,7 @@ void ven::Window::framebufferResizeCallback(GLFWwindow *window, const int width,
     app->m_height = static_cast<uint32_t>(height);
 }
 
-void ven::Window::setFullscreen(bool fullscreen, uint32_t width, uint32_t height)
+void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, const uint32_t height)
 {
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
