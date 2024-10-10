@@ -29,11 +29,11 @@ namespace ven {
             void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
             void setPerspectiveProjection(float aspect);
             void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.F, -1.F, 0.F});
-            void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.F, -1.F, 0.F}) { setViewDirection(position, target - position, up); }
+            void setViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = glm::vec3{0.F, -1.F, 0.F}) { setViewDirection(position, target - position, up); }
             void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
-            void setFov(float fov) { m_fov = fov; }
-            void setNear(float near) { m_near = near; }
-            void setFar(float far) { m_far = far; }
+            void setFov(const float fov) { m_fov = fov; }
+            void setNear(const float near) { m_near = near; }
+            void setFar(const float far) { m_far = far; }
 
             [[nodiscard]] const glm::mat4& getProjection() const { return m_projectionMatrix; }
             [[nodiscard]] const glm::mat4& getView() const { return m_viewMatrix; }

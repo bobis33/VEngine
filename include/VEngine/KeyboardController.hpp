@@ -38,7 +38,7 @@ namespace ven {
             };
 
             void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, bool* showDebugWindow) const;
-            void moveInPlaneXZ(GLFWwindow* window, float dt, Light& object, bool* showDebugWindow) const;
+            void moveInPlaneXZ(GLFWwindow* window, float dt, Light& light, bool* showDebugWindow) const;
 
             KeyMappings m_keys{};
             float m_moveSpeed{DEFAULT_MOVE_SPEED};

@@ -41,15 +41,18 @@ namespace ven {
 
             glm::vec4 color{DEFAULT_LIGHT_COLOR};
             Transform3DComponent transform3D{};
-            std::string name{"point light"};
 
             [[nodiscard]] unsigned int getId() const { return m_lightId; }
+            [[nodiscard]] std::string getName() const { return m_name; }
+
+            void setName(const std::string &name) { m_name = name; }
 
         private:
 
             explicit Light(const unsigned int lightId) : m_lightId(lightId) {}
 
             unsigned int m_lightId;
+            std::string m_name{"point light"};
 
     }; // class Light
 

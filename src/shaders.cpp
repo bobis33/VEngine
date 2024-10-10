@@ -36,7 +36,7 @@ void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const
     createShaderModule(vertCode, &m_vertShaderModule);
     createShaderModule(fragCode, &m_fragShaderModule);
 
-    VkPipelineShaderStageCreateInfo shaderStages[2];
+    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{};
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     shaderStages[0].module = m_vertShaderModule;
@@ -74,7 +74,7 @@ void ven::Shaders::createGraphicsPipeline(const std::string& vertFilepath, const
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
     pipelineInfo.pViewportState = &viewportInfo;

@@ -1,3 +1,6 @@
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include "VEngine/ImGuiWindowManager.hpp"
@@ -11,7 +14,7 @@ void ven::ImGuiWindowManager::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, const ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -35,7 +38,7 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }
 
-void ven::ImGuiWindowManager::renderFrameWindow(ImGuiIO& io)
+void ven::ImGuiWindowManager::renderFrameWindow(const ImGuiIO& io)
 {
     const float framerate = io.Framerate;
 
@@ -46,7 +49,7 @@ void ven::ImGuiWindowManager::renderFrameWindow(ImGuiIO& io)
     ImGui::End();
 }
 
-void ven::ImGuiWindowManager::rendererSection(ven::Renderer *renderer, GlobalUbo& ubo)
+void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo)
 {
     if (ImGui::CollapsingHeader("Renderer")) {
         ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
@@ -166,12 +169,12 @@ void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Ob
                 color = { object.color.r, object.color.g, object.color.b, 1.0F };
             }
             ImGui::PushStyleColor(ImGuiCol_Text, color);
-            open = ImGui::TreeNode(std::string(object.name + " [" + std::to_string(object.getId()) + "]").c_str());
+            open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
-                ImGui::DragFloat3(("Position##" + object.name).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + object.name).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + object.name).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
+                ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
                 ImGui::Text("Address: %p", &object);
                 ImGui::TreePop();
             }
@@ -182,13 +185,12 @@ void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Ob
 void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Light> &lights)
 {
     if (ImGui::CollapsingHeader("Lights")) {
-        ImVec4 color;
         bool open = false;
 
         for (auto& [id, light] : lights) {
-            color = { light.color.r, light.color.g, light.color.b, 1.0F };
+            ImVec4 color{light.color.r, light.color.g, light.color.b, 1.0F};
             ImGui::PushStyleColor(ImGuiCol_Text, color);
-            open = ImGui::TreeNode(std::string(light.name + " [" + std::to_string(light.getId()) + "]").c_str());
+            open = ImGui::TreeNode(std::string(light.getName() + " [" + std::to_string(light.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
                 ImGui::Text("Address: %p", &light);
@@ -202,7 +204,7 @@ void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Lig
                     static int item_current = 0;
                     if (ImGui::Combo("Color Presets",
                                      &item_current,
-                                     [](void*, int idx, const char** out_text) -> bool {
+                                     [](void*, const int idx, const char** out_text) -> bool {
                                          if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
                                          *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
                                          return true;
@@ -225,7 +227,7 @@ void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Lig
     }
 }
 
-void ven::ImGuiWindowManager::inputsSection(ImGuiIO &io)
+void ven::ImGuiWindowManager::inputsSection(const ImGuiIO &io)
 {
     if (ImGui::CollapsingHeader("Input")) {
         ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
@@ -239,7 +241,7 @@ void ven::ImGuiWindowManager::inputsSection(ImGuiIO &io)
         }
         ImGui::Text("Mouse wheel: %.1f", io.MouseWheel);
         ImGui::Text("Keys down:");
-        for (ImGuiKey key = static_cast<ImGuiKey>(0); key < ImGuiKey_NamedKey_END; key = static_cast<ImGuiKey>(key + 1)) {
+        for (auto key = static_cast<ImGuiKey>(0); key < ImGuiKey_NamedKey_END; key = static_cast<ImGuiKey>(key + 1)) {
             if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) { continue; }
             ImGui::SameLine();
             ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);

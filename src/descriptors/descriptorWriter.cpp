@@ -1,4 +1,5 @@
 #include <cassert>
+#include <functional>
 
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
 
@@ -6,7 +7,7 @@ ven::DescriptorWriter &ven::DescriptorWriter::writeBuffer(const uint32_t binding
 {
     assert(m_setLayout.m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-    const auto &bindingDescription = m_setLayout.m_bindings[binding];
+    const auto &bindingDescription = m_setLayout.m_bindings.at(binding);
 
     assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -25,7 +26,7 @@ ven::DescriptorWriter &ven::DescriptorWriter::writeImage(const uint32_t binding,
 {
     assert(m_setLayout.m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-    const VkDescriptorSetLayoutBinding &bindingDescription = m_setLayout.m_bindings[binding];
+    const VkDescriptorSetLayoutBinding &bindingDescription = m_setLayout.m_bindings.at(binding);
 
     assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -49,10 +50,9 @@ bool ven::DescriptorWriter::build(VkDescriptorSet &set)
     return true;
 }
 
-void ven::DescriptorWriter::overwrite(const VkDescriptorSet &set)
-{
-    for (auto &write : m_writes) {
-        write.dstSet = set;
+void ven::DescriptorWriter::overwrite(const VkDescriptorSet &set) {
+    for (auto &[sType, pNext, dstSet, dstBinding, dstArrayElement, descriptorCount, descriptorType, pImageInfo, pBufferInfo, pTexelBufferView] : m_writes) {
+        dstSet = set;
     }
     vkUpdateDescriptorSets(m_pool.m_device.device(), static_cast<unsigned int>(m_writes.size()), m_writes.data(), 0, nullptr);
 }
