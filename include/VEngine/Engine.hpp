@@ -16,6 +16,7 @@
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Camera.hpp"
+#include "Light.hpp"
 
 namespace ven {
 
@@ -41,6 +42,7 @@ namespace ven {
 
         std::unique_ptr<DescriptorPool> m_globalPool;
         Object::Map m_objects;
+        Light::Map m_lights;
 
         VkInstance m_instance{nullptr};
         VkSurfaceKHR m_surface{nullptr};

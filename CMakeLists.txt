@@ -8,9 +8,6 @@ project(vengine
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-option(BUILD_EXTERNAL_LIBRARIES "Build external libraries (like GLFW)" ON)
-option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
-
 include(${CMAKE_MODULE_PATH}/myVariables.cmake)
 include(${CMAKE_MODULE_PATH}/ClangFormat.cmake)
 clangformat_setup()
@@ -23,12 +20,12 @@ find_package(Vulkan)
 
 if (VULKAN_FOUND)
 
-    add_subdirectory(shaders)
-    add_subdirectory(lib)
-
     file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
+    add_subdirectory(lib)
+    add_subdirectory(shaders)
     add_executable(${PROJECT_NAME} ${SOURCES})
+    add_dependencies(${PROJECT_NAME} Shaders)
 
     target_include_directories(${PROJECT_NAME} PRIVATE
             ${INCLUDE_DIR}
@@ -42,13 +39,11 @@ if (VULKAN_FOUND)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
             my_lib
-            ${Vulkan_LIBRARIES}
+            Vulkan::Vulkan
             glfw
             tinyobjloader
             imgui
     )
-
-    add_dependencies(${PROJECT_NAME} Shaders)
 
     target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
     target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})

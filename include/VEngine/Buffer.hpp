@@ -127,7 +127,7 @@ namespace ven {
             [[nodiscard]] void* getMappedMemory() const { return m_mapped; }
             [[nodiscard]] uint32_t getInstanceCount() const { return m_instanceCount; }
             [[nodiscard]] VkDeviceSize getInstanceSize() const { return m_instanceSize; }
-            [[nodiscard]] VkDeviceSize getAlignmentSize() const { return m_instanceSize; }
+            [[nodiscard]] VkDeviceSize getAlignmentSize() const { return m_alignmentSize; }
             [[nodiscard]] VkBufferUsageFlags getUsageFlags() const { return m_usageFlags; }
             [[nodiscard]] VkMemoryPropertyFlags getMemoryPropertyFlags() const { return m_memoryPropertyFlags; }
             [[nodiscard]] VkDeviceSize getBufferSize() const { return m_bufferSize; }

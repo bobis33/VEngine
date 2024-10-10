@@ -3,7 +3,7 @@ add_subdirectory(glfw)
 
 ## Add imgui
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
-set(SRCS
+file(GLOB IMGUI_SRCS
         ${IMGUI_DIR}/imgui.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
         ${IMGUI_DIR}/imgui_widgets.cpp
@@ -12,7 +12,8 @@ set(SRCS
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
 )
 
-add_library(imgui STATIC ${SRCS})
-target_include_directories(imgui PRIVATE ${IMGUI_DIR} ${IMGUI_DIR}/backends)
-target_link_libraries(imgui PRIVATE glfw Vulkan::Vulkan)
-
+add_library(imgui STATIC ${IMGUI_SRCS})
+target_include_directories(imgui PRIVATE
+        ${IMGUI_DIR}
+        ${IMGUI_DIR}/backends
+)

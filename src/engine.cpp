@@ -42,8 +42,16 @@ void ven::Engine::createInstance()
 
 void ven::Engine::loadObjects()
 {
-    std::shared_ptr model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
+    std::shared_ptr model = Model::createModelFromFile(m_device, "models/quad.obj");
 
+    Object floor = Object::createObject();
+    floor.name = "floor";
+    floor.model = model;
+    floor.transform3D.translation = {0.F, .5F, 0.F};
+    floor.transform3D.scale = {3.F, 1.F, 3.F};
+    m_objects.emplace(floor.getId(), std::move(floor));
+
+    model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
     Object flatVase = Object::createObject();
     flatVase.name = "flat vase";
     flatVase.model = model;
@@ -59,31 +67,22 @@ void ven::Engine::loadObjects()
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(smoothVase.getId(), std::move(smoothVase));
 
-    model = Model::createModelFromFile(m_device, "models/quad.obj");
-    Object floor = Object::createObject();
-    floor.name = "floor";
-    floor.model = model;
-    floor.transform3D.translation = {0.F, .5F, 0.F};
-    floor.transform3D.scale = {3.F, 1.F, 3.F};
-    m_objects.emplace(floor.getId(), std::move(floor));
-
-    const std::vector<glm::vec3> lightColors{
-            {Colors::RED},
-            {Colors::GREEN},
-            {Colors::BLUE},
-            {Colors::YELLOW},
-            {Colors::CYAN},
-            {Colors::MAGENTA}
+    const std::vector<glm::vec4> lightColors{
+            {Colors::RED, DEFAULT_LIGHT_INTENSITY},
+            {Colors::GREEN, DEFAULT_LIGHT_INTENSITY},
+            {Colors::BLUE, DEFAULT_LIGHT_INTENSITY},
+            {Colors::YELLOW, DEFAULT_LIGHT_INTENSITY},
+            {Colors::CYAN, DEFAULT_LIGHT_INTENSITY},
+            {Colors::MAGENTA, DEFAULT_LIGHT_INTENSITY}
     };
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        Object pointLight = Object::makePointLight();
-        pointLight.name = "point light " + std::to_string(i);
+        Light pointLight = Light::createLight();
         pointLight.color = lightColors[i];
         auto rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
         pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
-        m_objects.emplace(pointLight.getId(), std::move(pointLight));
+        m_lights.emplace(pointLight.getId(), std::move(pointLight));
     }
 }
 
@@ -117,7 +116,7 @@ void ven::Engine::mainLoop()
         bufferInfo = uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
-    camera.setViewTarget(glm::vec3(-1.F, -2.F, -2.F), glm::vec3(0.F, 0.F, 2.5F));
+    camera.setViewTarget({-1.F, -2.F, -2.F}, {0.F, 0.F, 2.5F});
     viewerObject.transform3D.translation.z = DEFAULT_POSITION[2];
 
     m_renderer.setClearValue();
@@ -138,7 +137,7 @@ void ven::Engine::mainLoop()
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects};
+            FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[static_cast<unsigned long>(frameIndex)], m_objects, m_lights};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
@@ -150,7 +149,7 @@ void ven::Engine::mainLoop()
             renderSystem.renderObjects(frameInfo);
             pointLightSystem.render(frameInfo);
 
-            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
+            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, m_lights, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
