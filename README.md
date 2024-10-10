@@ -43,7 +43,7 @@ Make sure you have the following dependencies installed on your system:
 - [CMake 3.27](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
 - [Vulkan](https://www.vulkan.org/)
-- [GLM](https://github.com/g-truc/glm)
+- [GLM](https://github.com/icaven/glm)
 - [assimp](https://www.assimp.org/) (unused ATM)
 
 

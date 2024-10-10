@@ -48,8 +48,8 @@ namespace ven {
             void setClearValue(VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
             VkCommandBuffer beginFrame();
             void endFrame();
-            void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-            void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+            void beginSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
+            void endSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
 
         private:
 

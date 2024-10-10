@@ -8,14 +8,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include <imgui.h>
-
 #include "VEngine/Window.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
-#include "VEngine/Camera.hpp"
 #include "Light.hpp"
 
 namespace ven {
