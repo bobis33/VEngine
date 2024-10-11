@@ -6,13 +6,9 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
 #include <array>
 
 #include <vulkan/vulkan.h>
-
-#include <glm/glm.hpp>
 
 namespace ven {
 

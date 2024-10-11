@@ -37,17 +37,22 @@ namespace ven {
             static Object createObject() { static unsigned int objId = 0; return Object(objId++); }
 
             [[nodiscard]] unsigned int getId() const { return m_objId; }
+            [[nodiscard]] std::string getName() const { return m_name; }
+            [[nodiscard]] std::shared_ptr<Model> getModel() const { return m_model; }
 
-            std::shared_ptr<Model> model{};
+            void setName(const std::string &name) { m_name = name; }
+            void setModel(const std::shared_ptr<Model> &model) { m_model = model; }
+
             glm::vec3 color{};
             Transform3DComponent transform3D{};
-            std::string name{""};
 
         private:
 
             explicit Object(const unsigned int objId) : m_objId(objId) {}
 
             unsigned int m_objId;
+            std::string m_name{};
+            std::shared_ptr<Model> m_model{};
 
     }; // class Object
 

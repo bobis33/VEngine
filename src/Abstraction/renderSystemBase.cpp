@@ -21,7 +21,7 @@ void ven::ARenderSystemBase::createPipelineLayout(const VkDescriptorSetLayout gl
     }
 }
 
-void ven::ARenderSystemBase::createPipeline(const VkRenderPass renderPass, const std::string shadersVertPath, const std::string shadersFragPath, const bool isLight)
+void ven::ARenderSystemBase::createPipeline(const VkRenderPass renderPass, const std::string &shadersVertPath, const std::string &shadersFragPath, const bool isLight)
 {
     assert(m_pipelineLayout && "Cannot create pipeline before pipeline layout");
     PipelineConfigInfo pipelineConfig{};
