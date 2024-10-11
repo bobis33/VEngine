@@ -37,7 +37,9 @@ namespace ven {
 
             [[nodiscard]] VkExtent2D getExtent() const { return {m_width, m_height}; };
             [[nodiscard]] bool wasWindowResized() const { return m_framebufferResized; }
-            void resetWindowResizedFlag() { m_framebufferResized = false; }
+            void resetWindowResizedFlag() { m_framebufferResized = false;}
+
+            void setFullscreen(bool fullscreen, uint32_t width, uint32_t height);
 
         private:
 

@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <glm/gtc/type_ptr.hpp>
 
 #include "VEngine/ImGuiWindowManager.hpp"
@@ -13,7 +11,7 @@ void ven::ImGuiWindowManager::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -28,6 +26,7 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     rendererSection(renderer, ubo);
     cameraSection(cameraObj, camera, cameraController);
     objectsSection(objects);
+    lightsSection(lights);
     inputsSection(io);
     devicePropertiesSection(deviceProperties);
 
@@ -45,6 +44,66 @@ void ven::ImGuiWindowManager::renderFrameWindow(ImGuiIO& io)
     ImGui::Text("FPS: %.1f", framerate);
     ImGui::Text("Frame time: %.3fms", 1000.0F / framerate);
     ImGui::End();
+}
+
+void ven::ImGuiWindowManager::rendererSection(ven::Renderer *renderer, GlobalUbo& ubo)
+{
+    if (ImGui::CollapsingHeader("Renderer")) {
+        ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
+
+        if (ImGui::BeginTable("ClearColorTable", 2)) {
+            ImGui::TableNextColumn();
+            std::array<float, 4> clearColor = renderer->getClearColor();
+
+            if (ImGui::ColorEdit4("Clear Color", clearColor.data())) {
+                VkClearColorValue clearColorValue = {{clearColor[0], clearColor[1], clearColor[2], clearColor[3]}};
+                renderer->setClearValue(clearColorValue);
+            }
+
+            ImGui::TableNextColumn();
+            static int item_current = 0;
+
+            if (ImGui::Combo("Color Presets##clearColor",
+                             &item_current,
+                             [](void*, int idx, const char** out_text) -> bool {
+                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::CLEAR_COLORS))) { return false; }
+                                 *out_text = Colors::CLEAR_COLORS.at(static_cast<unsigned long>(idx)).first;
+                                 return true;
+                             },
+                             nullptr,
+                             std::size(Colors::CLEAR_COLORS))) {
+                renderer->setClearValue(Colors::CLEAR_COLORS.at(static_cast<unsigned long>(item_current)).second);
+            }
+
+            ImGui::TableNextColumn();
+            ImGui::ColorEdit4("Ambient Light Color", glm::value_ptr(ubo.ambientLightColor));
+            ImGui::TableNextColumn();
+            if (ImGui::Combo("Color Presets##ambientColor",
+                             &item_current,
+                             [](void*, int idx, const char** out_text) -> bool {
+                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
+                                 *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                 return true;
+                             },
+                             nullptr,
+                             std::size(Colors::COLORS))) {
+                ubo.ambientLightColor = glm::vec4(Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.r, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.g, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.b, 1.0F);
+
+            }
+
+            ImGui::TableNextColumn();
+            ImGui::SliderFloat(("Intensity##" + std::to_string(0)).c_str(), &ubo.ambientLightColor.a, 0.0F, 1.0F);
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset##ambientIntensity")) { ubo.ambientLightColor.a = DEFAULT_AMBIENT_LIGHT_INTENSITY; }
+
+            ImGui::EndTable();
+        }
+
+        static bool fullscreen = false;
+        if (ImGui::Checkbox("Fullscreen", &fullscreen)) {
+            renderer->getWindow().setFullscreen(fullscreen, renderer->getWindow().getExtent().width, renderer->getWindow().getExtent().height);
+        }
+    }
 }
 
 void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, KeyboardController &cameraController)
@@ -94,6 +153,78 @@ void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, K
     }
 }
 
+void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Object>& objects)
+{
+    if (ImGui::CollapsingHeader("Objects")) {
+        ImVec4 color;
+        bool open = false;
+
+        for (auto& [id, object] : objects) {
+            if (object.color.r == 0.0F && object.color.g == 0.0F && object.color.b == 0.0F) {
+                color = { Colors::GRAY.r, Colors::GRAY.g, Colors::GRAY.b, 1.0F };
+            } else {
+                color = { object.color.r, object.color.g, object.color.b, 1.0F };
+            }
+            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            open = ImGui::TreeNode(std::string(object.name + " [" + std::to_string(object.getId()) + "]").c_str());
+            ImGui::PopStyleColor(1);
+            if (open) {
+                ImGui::DragFloat3(("Position##" + object.name).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + object.name).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + object.name).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
+                ImGui::Text("Address: %p", &object);
+                ImGui::TreePop();
+            }
+        }
+    }
+}
+
+void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Light> &lights)
+{
+    if (ImGui::CollapsingHeader("Lights")) {
+        ImVec4 color;
+        bool open = false;
+
+        for (auto& [id, light] : lights) {
+            color = { light.color.r, light.color.g, light.color.b, 1.0F };
+            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            open = ImGui::TreeNode(std::string(light.name + " [" + std::to_string(light.getId()) + "]").c_str());
+            ImGui::PopStyleColor(1);
+            if (open) {
+                ImGui::Text("Address: %p", &light);
+                ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.scale), 0.1F);
+                if (ImGui::BeginTable("ColorTable", 2)) {
+                    ImGui::TableNextColumn(); ImGui::ColorEdit4(("Color##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.color));
+
+                    ImGui::TableNextColumn();
+                    static int item_current = 0;
+                    if (ImGui::Combo("Color Presets",
+                                     &item_current,
+                                     [](void*, int idx, const char** out_text) -> bool {
+                                         if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
+                                         *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                         return true;
+                                     },
+                                     nullptr,
+                                     std::size(Colors::COLORS))) {
+                        light.color = {Colors::COLORS.at(static_cast<unsigned long>(item_current)).second, light.color.a};
+                    }
+
+                    ImGui::TableNextColumn();
+                    ImGui::SliderFloat(("Intensity##" + std::to_string(light.getId())).c_str(), &light.color.a, 0.0F, 5.F);
+                    ImGui::TableNextColumn();
+                    if (ImGui::Button(("Reset##" + std::to_string(light.getId())).c_str())) { light.color.a = DEFAULT_LIGHT_INTENSITY; }
+
+                    ImGui::EndTable();
+                }
+                ImGui::TreePop();
+            }
+        }
+    }
+}
+
 void ven::ImGuiWindowManager::inputsSection(ImGuiIO &io)
 {
     if (ImGui::CollapsingHeader("Input")) {
@@ -112,66 +243,6 @@ void ven::ImGuiWindowManager::inputsSection(ImGuiIO &io)
             if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) { continue; }
             ImGui::SameLine();
             ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
-        }
-    }
-}
-
-void ven::ImGuiWindowManager::rendererSection(ven::Renderer *renderer, GlobalUbo& ubo)
-{
-    if (ImGui::CollapsingHeader("Renderer")) {
-        ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
-
-        if (ImGui::BeginTable("ClearColorTable", 2)) {
-            ImGui::TableNextColumn();
-            std::array<float, 4> clearColor = renderer->getClearColor();
-
-            if (ImGui::ColorEdit4("Clear Color", clearColor.data())) {
-                VkClearColorValue clearColorValue = {{clearColor[0], clearColor[1], clearColor[2], clearColor[3]}};
-                renderer->setClearValue(clearColorValue);
-            }
-
-            ImGui::TableNextColumn();
-            static int item_current = 0;
-
-            if (ImGui::Combo("Color Presets##clearColor",
-                             &item_current,
-                             [](void*, int idx, const char** out_text) -> bool {
-                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::CLEAR_COLORS))) { return false; }
-                                 *out_text = Colors::CLEAR_COLORS.at(static_cast<unsigned long>(idx)).first;
-                                 return true;
-                             },
-                             nullptr,
-                             std::size(Colors::CLEAR_COLORS))) {
-                renderer->setClearValue(Colors::CLEAR_COLORS.at(static_cast<unsigned long>(item_current)).second);
-            }
-
-            ImGui::TableNextColumn();
-            if (ImGui::ColorEdit4("Ambient Light Color", glm::value_ptr(ubo.ambientLightColor))) {
-                for (auto& pointLight : ubo.pointLights) {
-                    pointLight.color = glm::vec4(ubo.ambientLightColor.r, ubo.ambientLightColor.g, ubo.ambientLightColor.b, 1.0F);
-                }
-            }
-
-            ImGui::TableNextColumn();
-            if (ImGui::Combo("Color Presets##ambientColor",
-                                &item_current,
-                                [](void*, int idx, const char** out_text) -> bool {
-                                    if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
-                                    *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
-                                    return true;
-                                },
-                                nullptr,
-                                std::size(Colors::COLORS))) {
-                ubo.ambientLightColor = glm::vec4(Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.r, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.g, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.b, 1.0F);
-
-            }
-
-            ImGui::TableNextColumn();
-            ImGui::SliderFloat(("Intensity##" + std::to_string(0)).c_str(), &ubo.ambientLightColor.a, 0.0F, 1.0F);
-            ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##ambientIntensity")) { ubo.ambientLightColor.a = DEFAULT_INTENSITY; }
-
-            ImGui::EndTable();
         }
     }
 }
@@ -199,54 +270,6 @@ void ven::ImGuiWindowManager::devicePropertiesSection(VkPhysicalDeviceProperties
             ImGui::TableNextColumn(); ImGui::Text("Max Uniform Buffer Range: %d", deviceProperties.limits.maxUniformBufferRange);
             ImGui::TableNextColumn(); ImGui::Text("Max Storage Buffer Range: %d", deviceProperties.limits.maxStorageBufferRange);
             ImGui::EndTable();
-        }
-    }
-}
-
-void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Object>& objects)
-{
-    if (ImGui::CollapsingHeader("Objects")) {
-        ImVec4 color;
-        bool open = false;
-
-        for (auto& [id, object] : objects) {
-            if (object.color.r == 0.0F && object.color.g == 0.0F && object.color.b == 0.0F) {
-                color = { Colors::GRAY.r, Colors::GRAY.g, Colors::GRAY.b, 1.0F };
-            } else {
-                color = { object.color.r, object.color.g, object.color.b, 1.0F };
-            }
-            ImGui::PushStyleColor(ImGuiCol_Text, color);
-            open = ImGui::TreeNode(std::string(object.name + " [" + std::to_string(object.getId()) + "]").c_str());
-            ImGui::PopStyleColor(1);
-            if (open) {
-                ImGui::Text("Address: %p", &object);
-                ImGui::DragFloat3(("Position##" + object.name).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + object.name).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + object.name).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
-                if (ImGui::BeginTable("ColorTable", 2)) {
-                    ImGui::TableNextColumn(); ImGui::ColorEdit3(("Color##" + object.name).c_str(), glm::value_ptr(object.color));
-
-                    ImGui::TableNextColumn();
-                    static int item_current = 0;
-                    if (ImGui::Combo("Color Presets",
-                                     &item_current,
-                                     [](void*, int idx, const char** out_text) -> bool {
-                                         if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
-                                         *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
-                                         return true;
-                                     },
-                                     nullptr,
-                                     std::size(Colors::COLORS))) {
-                        object.color = Colors::COLORS.at(static_cast<unsigned long>(item_current)).second;
-                    }
-
-                    ImGui::EndTable();
-                }
-                if (object.pointLight != nullptr) {
-                    ImGui::SliderFloat(("Intensity##" + object.name).c_str(), &object.pointLight->lightIntensity, 0.0F, 10.0F);
-                }
-                ImGui::TreePop();
-            }
         }
     }
 }
