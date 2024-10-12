@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "VEngine/Abstraction/ARenderSystemBase.hpp"
 
 void ven::ARenderSystemBase::createPipelineLayout(const VkDescriptorSetLayout globalSetLayout, const uint32_t pushConstantSize)

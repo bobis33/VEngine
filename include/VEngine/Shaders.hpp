@@ -9,10 +9,8 @@
 #include <string>
 
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
 
 #include "VEngine/Device.hpp"
-#include "VEngine/Model.hpp"
 
 namespace ven {
 

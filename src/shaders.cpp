@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <fstream>
+#include <array>
 
+#include "VEngine/Model.hpp"
 #include "VEngine/Shaders.hpp"
 
 ven::Shaders::~Shaders()
@@ -120,7 +122,7 @@ void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
     configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
     configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
     configInfo.rasterizationInfo.lineWidth = 1.0F;
-    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE; // to enable later (VK_CULL_MODE_BACK_BIT) back-face culling
     configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
     configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0F;

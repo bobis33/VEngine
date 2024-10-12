@@ -59,7 +59,7 @@ void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo
             std::array<float, 4> clearColor = renderer->getClearColor();
 
             if (ImGui::ColorEdit4("Clear Color", clearColor.data())) {
-                VkClearColorValue clearColorValue = {{clearColor[0], clearColor[1], clearColor[2], clearColor[3]}};
+                const VkClearColorValue clearColorValue = {{clearColor[0], clearColor[1], clearColor[2], clearColor[3]}};
                 renderer->setClearValue(clearColorValue);
             }
 
@@ -83,7 +83,7 @@ void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo
             ImGui::TableNextColumn();
             if (ImGui::Combo("Color Presets##ambientColor",
                              &item_current,
-                             [](void*, int idx, const char** out_text) -> bool {
+                             [](void*, const int idx, const char** out_text) -> bool {
                                  if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
                                  *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
                                  return true;
@@ -159,16 +159,16 @@ void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, K
 void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Object>& objects)
 {
     if (ImGui::CollapsingHeader("Objects")) {
-        ImVec4 color;
+        ImVec4 boxColor;
         bool open = false;
 
         for (auto& [id, object] : objects) {
             if (object.color.r == 0.0F && object.color.g == 0.0F && object.color.b == 0.0F) {
-                color = { Colors::GRAY.r, Colors::GRAY.g, Colors::GRAY.b, 1.0F };
+                boxColor = { Colors::GRAY.r, Colors::GRAY.g, Colors::GRAY.b, 1.0F };
             } else {
-                color = { object.color.r, object.color.g, object.color.b, 1.0F };
+                boxColor = { object.color.r, object.color.g, object.color.b, 1.0F };
             }
-            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            ImGui::PushStyleColor(ImGuiCol_Text, boxColor);
             open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {

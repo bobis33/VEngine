@@ -17,7 +17,7 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
     createInstance();
     createSurface();
     ImGuiWindowManager::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
-    m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT).build();
+    m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
 
@@ -44,12 +44,12 @@ void ven::Engine::loadObjects()
 {
     std::shared_ptr model = Model::createModelFromFile(m_device, "models/quad.obj");
 
-    Object floor = Object::createObject();
-    floor.setName("floor");
-    floor.setModel(model);
-    floor.transform3D.translation = {0.F, .5F, 0.F};
-    floor.transform3D.scale = {3.F, 1.F, 3.F};
-    m_objects.emplace(floor.getId(), std::move(floor));
+    Object quad = Object::createObject();
+    quad.setName("quad");
+    quad.setModel(model);
+    quad.transform3D.translation = {0.F, .5F, 0.F};
+    quad.transform3D.scale = {3.F, 1.F, 3.F};
+    m_objects.emplace(quad.getId(), std::move(quad));
 
     model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
     Object flatVase = Object::createObject();
@@ -100,11 +100,12 @@ void ven::Engine::mainLoop()
     std::chrono::time_point<std::chrono::system_clock> newTime;
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     std::unique_ptr<DescriptorSetLayout> globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
-    std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
+    std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
     RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     PointLightSystem pointLightSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = "assets/imgui-config.txt";
     VkDescriptorBufferInfo bufferInfo{};
 
     for (auto& uboBuffer : uboBuffers)

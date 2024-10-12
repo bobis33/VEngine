@@ -13,6 +13,8 @@
 
 namespace ven {
 
+    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
     ///
     /// @class SwapChain
     /// @brief Class for swap chain
@@ -21,8 +23,6 @@ namespace ven {
     class SwapChain {
 
         public:
-
-            static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
             SwapChain(Device &deviceRef, const VkExtent2D windowExtentRef) : m_device{deviceRef}, m_windowExtent{windowExtentRef} { init(); }
             SwapChain(Device &deviceRef, const VkExtent2D windowExtentRef, std::shared_ptr<SwapChain> previous) : m_device{deviceRef}, m_windowExtent{windowExtentRef}, m_oldSwapChain{std::move(previous)} { init(); m_oldSwapChain = nullptr; }

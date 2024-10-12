@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <glm/glm.hpp>
 
 #include "VEngine/Device.hpp"
 #include "VEngine/Buffer.hpp"

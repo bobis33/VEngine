@@ -43,9 +43,9 @@ namespace ven {
                 m_clearValues[0].color.float32[3]
             };}
 
-            [[nodiscard]] Window& getWindow() { return m_window; }
+            [[nodiscard]] Window& getWindow() const { return m_window; }
 
-            void setClearValue(VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
+            void setClearValue(const VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, const VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
             VkCommandBuffer beginFrame();
             void endFrame();
             void beginSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
@@ -61,7 +61,7 @@ namespace ven {
             Device &m_device;
             std::unique_ptr<SwapChain> m_swapChain;
             std::vector<VkCommandBuffer> m_commandBuffers;
-            std::array<VkClearValue, 2> m_clearValues;
+            std::array<VkClearValue, 2> m_clearValues{DEFAULT_CLEAR_COLOR, 1.0F, 0.F};
 
             uint32_t m_currentImageIndex{0};
             int m_currentFrameIndex{0};

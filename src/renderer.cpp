@@ -2,7 +2,7 @@
 
 void ven::Renderer::createCommandBuffers()
 {
-    m_commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -83,7 +83,7 @@ void ven::Renderer::endFrame()
     }
 
     m_isFrameStarted = false;
-    m_currentFrameIndex = (m_currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+    m_currentFrameIndex = (m_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void ven::Renderer::beginSwapChainRenderPass(const VkCommandBuffer commandBuffer) const

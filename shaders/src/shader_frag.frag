@@ -27,7 +27,8 @@ layout(push_constant) uniform Push {
 
 void main() {
   vec3 specularLight = vec3(0.0);
-  vec3 surfaceNormal = normalize(fragNormalWorld);
+  vec3 normal = gl_FrontFacing ? fragNormalWorld : -fragNormalWorld; // to disable if backface culling is used -> have to load multiple face for obj, for the moment we have only one face per obj
+  vec3 surfaceNormal = normalize(normal);
   vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.a;
 
   vec3 cameraPosWorld = ubo.invView[3].xyz;
