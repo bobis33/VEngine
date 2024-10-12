@@ -88,7 +88,7 @@ The following keyboard controls are currently available for interacting with the
 ## Documentation
 
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-You can access the latest version on the [GitHub Pages dite](https://bobis33.github.io/VEngine/).
+You can access the latest version on the [GitHub Pages](https://bobis33.github.io/VEngine/).
 
 
 ## Commit Norms
