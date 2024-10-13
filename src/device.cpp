@@ -489,10 +489,10 @@ void ven::Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, const 
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate image m_memory!");
+        throw std::runtime_error("failed to allocate image memory!");
     }
 
     if (vkBindImageMemory(m_device, image, imageMemory, 0) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind image m_memory!");
+        throw std::runtime_error("failed to bind image memory!");
     }
 }

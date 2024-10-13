@@ -1,15 +1,15 @@
-HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/assets/favicon.ico
+HTML_EXTRA_FILES       = @CMAKE_CURRENT_SOURCE_DIR@/assets/icons/favicon.ico
 HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/lib/external/doxygen-awesome-css/doxygen-awesome.css \
                          @CMAKE_CURRENT_SOURCE_DIR@/lib/external/doxygen-awesome-css/doxygen-awesome-sidebar-only.css
 HTML_HEADER            = @CMAKE_CURRENT_SOURCE_DIR@/documentation/.doxygen/header.html
 
-IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@/assets/
+IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@/assets/icons/
 
 QUIET                  = NO
 GENERATE_HTML          = YES
 GENERATE_LATEX         = YES
 
-PROJECT_LOGO           = @CMAKE_CURRENT_SOURCE_DIR@/assets/logo.svg
+PROJECT_LOGO           = @CMAKE_CURRENT_SOURCE_DIR@/assets/icons/logo.svg
 PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
 PROJECT_NUMBER         = @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
 PROJECT_BRIEF          = "@CMAKE_PROJECT_DESCRIPTION@"

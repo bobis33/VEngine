@@ -12,21 +12,16 @@ ven::Shaders::~Shaders()
     vkDestroyPipeline(m_device.device(), m_graphicsPipeline, nullptr);
 }
 
-std::vector<char> ven::Shaders::readFile(const std::string &filename)
-{
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
+std::vector<char> ven::Shaders::readFile(const std::string &filename) {
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         throw std::runtime_error("failed to open file!");
     }
 
-    const std::streamsize fileSize = file.tellg();
-    std::vector<char> buffer(static_cast<unsigned long>(fileSize));
-
+    const long int fileSize = file.tellg();
+    std::vector<char> buffer(static_cast<long unsigned int>(fileSize));
     file.seekg(0);
     file.read(buffer.data(), fileSize);
-
-    file.close();
     return buffer;
 }
 

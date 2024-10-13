@@ -26,8 +26,8 @@ void ven::PointLightSystem::update(const FrameInfo &frameInfo, GlobalUbo &ubo)
     for (Light &light : frameInfo.lights | std::views::values) {
         assert(lightIndex < MAX_LIGHTS && "Too many lights");
         light.transform3D.translation = glm::vec3(rotateLight * glm::vec4(light.transform3D.translation, 1.F));
-        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform3D.translation, 1.F);
-        ubo.pointLights.at(lightIndex).color = light.color;
+        ubo.pointLights.at(static_cast<long unsigned int>(lightIndex)).position = glm::vec4(light.transform3D.translation, 1.F);
+        ubo.pointLights.at(static_cast<long unsigned int>(lightIndex)).color = light.color;
         lightIndex++;
     }
     ubo.numLights = lightIndex;

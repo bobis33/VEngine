@@ -31,7 +31,7 @@ if (VULKAN_FOUND)
             ${INCLUDE_DIR}
             ${Vulkan_INCLUDE_DIRS}
             ${EXTERNAL_DIR}/glfw/include
-            ${EXTERNAL_DIR}/tinyobjloader
+            ${EXTERNAL_DIR}/assimp/include
             ${EXTERNAL_DIR}/stb
             ${EXTERNAL_DIR}/imgui
             ${EXTERNAL_DIR}/imgui/backends
@@ -41,7 +41,7 @@ if (VULKAN_FOUND)
             my_lib
             Vulkan::Vulkan
             glfw
-            tinyobjloader
+            assimp::assimp
             imgui
     )
 

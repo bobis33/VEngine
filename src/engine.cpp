@@ -42,7 +42,7 @@ void ven::Engine::createInstance()
 
 void ven::Engine::loadObjects()
 {
-    std::shared_ptr model = Model::createModelFromFile(m_device, "models/quad.obj");
+    std::shared_ptr model = Model::createModelFromFile(m_device, "assets/models/quad.obj");
 
     Object quad = Object::createObject();
     quad.setName("quad");
@@ -51,7 +51,7 @@ void ven::Engine::loadObjects()
     quad.transform3D.scale = {3.F, 1.F, 3.F};
     m_objects.emplace(quad.getId(), std::move(quad));
 
-    model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
+    model = Model::createModelFromFile(m_device, "assets/models/flat_vase.obj");
     Object flatVase = Object::createObject();
     flatVase.setName("flat vase");
     flatVase.setModel(model);
@@ -59,7 +59,7 @@ void ven::Engine::loadObjects()
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(flatVase.getId(), std::move(flatVase));
 
-    model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
+    model = Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
     smoothVase.setName("smooth vase");
     smoothVase.setModel(model);

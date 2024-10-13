@@ -2,12 +2,15 @@
 #include <cstring>
 #include <unordered_map>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+#include "VEngine/Colors.hpp"
 #include "VEngine/Model.hpp"
 #include "VEngine/Utils.hpp"
 
@@ -78,8 +81,8 @@ void ven::Model::draw(const VkCommandBuffer commandBuffer) const
 void ven::Model::bind(const VkCommandBuffer commandBuffer) const
 {
     const std::array buffers{m_vertexBuffer->getBuffer()};
-    constexpr VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers.data(), offsets);
+    constexpr std::array<VkDeviceSize, 1> offsets{0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers.data(), offsets.data());
 
     if (m_hasIndexBuffer) {
         vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -114,60 +117,71 @@ std::vector<VkVertexInputAttributeDescription> ven::Model::Vertex::getAttributeD
     return attributeDescriptions;
 }
 
-void ven::Model::Builder::loadModel(const std::string &filename)
-{
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn;
-    std::string err;
+void ven::Model::Builder::loadModel(const std::string &filename) {
+    Assimp::Importer importer;
 
-    if (!LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str()))
-    {
-        throw std::runtime_error(warn + err);
+    const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenNormals);
+
+    if ((scene == nullptr) || ((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0U) || !scene->mRootNode) {
+        throw std::runtime_error("Failed to load model with Assimp: " + std::string(importer.GetErrorString()));
     }
 
     vertices.clear();
     indices.clear();
 
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-    for (const auto &[name, mesh, lines, points] : shapes) {
-        for (const auto &[vertex_index, normal_index, texcoord_index] : mesh.indices) {
-            Vertex vertex{};
-            if (vertex_index >= 0) {
-                vertex.position = {
-                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 0],
-                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 1],
-                        attrib.vertices[3 * static_cast<size_t>(vertex_index) + 2]
-                };
+    processNode(scene->mRootNode, scene);
+}
 
-                vertex.color = {
-                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 0],
-                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 1],
-                        attrib.colors[3 * static_cast<size_t>(vertex_index) + 2]
-                };
-            }
+void ven::Model::Builder::processNode(const aiNode* node, const aiScene* scene) {
+    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+        const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        processMesh(mesh, scene);
+    }
 
-            if (normal_index >= 0) {
-                vertex.normal = {
-                        attrib.normals[3 * static_cast<size_t>(normal_index) + 0],
-                        attrib.normals[3 * static_cast<size_t>(normal_index) + 1],
-                        attrib.normals[3 * static_cast<size_t>(normal_index) + 2]
-                };
-            }
-
-            if (texcoord_index >= 0) {
-                vertex.uv = {
-                        attrib.texcoords[2 * static_cast<size_t>(texcoord_index) + 0],
-                        attrib.texcoords[2 * static_cast<size_t>(texcoord_index) + 1]
-                };
-            }
-
-            if (!uniqueVertices.contains(vertex)) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
-            }
-            indices.push_back(uniqueVertices[vertex]);
-        }
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+        processNode(node->mChildren[i], scene);
     }
 }
+
+void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) {
+    std::unordered_map<Vertex, uint32_t> uniqueVertices;
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+        Vertex vertex{};
+
+        vertex.position = glm::vec3(
+            mesh->mVertices[i].x,
+            mesh->mVertices[i].y,
+            mesh->mVertices[i].z
+        );
+
+        if (mesh->HasNormals()) {
+            vertex.normal = glm::vec3(
+                mesh->mNormals[i].x,
+                mesh->mNormals[i].y,
+                mesh->mNormals[i].z
+            );
+        }
+
+        if (mesh->mTextureCoords[0] != nullptr) {
+            vertex.uv = glm::vec2(
+                mesh->mTextureCoords[0][i].x,
+                mesh->mTextureCoords[0][i].y
+            );
+        } else {
+            vertex.uv = glm::vec2(0.0F, 0.0F);
+        }
+
+        if (vertex.color == Colors::BLACK) {
+            vertex.color = Colors::WHITE;
+        }
+
+        if (!uniqueVertices.contains(vertex)) {
+            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+            vertices.push_back(vertex);
+        }
+
+        indices.push_back(uniqueVertices[vertex]);
+    }
+}
+

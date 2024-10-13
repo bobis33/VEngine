@@ -1,4 +1,12 @@
-add_subdirectory(tinyobjloader)
+## assimp
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "" FORCE)
+add_subdirectory(assimp)
+
+## glfw
 add_subdirectory(glfw)
 
 ## Add imgui
