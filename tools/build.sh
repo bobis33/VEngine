@@ -43,7 +43,7 @@ function build() {
         mkdir -p build
     fi
     if [ "$debug" == "true" ]; then
-        ./scripts/build.sh clean && "${CMAKE_CMD[@]}" -DUSE_CLANG_TIDY=ON && cmake --build build
+        clean && "${CMAKE_CMD[@]}" -DUSE_CLANG_TIDY=ON && cmake --build build
     else
         "${CMAKE_CMD[@]}" && cmake --build build
     fi
