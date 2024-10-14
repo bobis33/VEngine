@@ -41,16 +41,17 @@ void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, con
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
+    /*
     if (fullscreen) {
         glfwSetWindowMonitor(m_window, primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     } else {
         // To restore a window that was originally windowed to its original size and position,
         // save these before making it full screen and then pass them in as above
-        glfwSetWindowMonitor(m_window, nullptr, 0, 0, width, height, mode->refreshRate);
+        glfwSetWindowMonitor(m_window, nullptr, 0, 0, static_cast<int>(width), static_cast<int>(height), mode->refreshRate);
 
     }
 
-
     m_width = width;
     m_height = height;
+    */
 }

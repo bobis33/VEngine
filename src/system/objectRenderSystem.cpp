@@ -1,8 +1,8 @@
 #include <ranges>
 
-#include "VEngine/System/RenderSystem.hpp"
+#include "VEngine/System/ObjectRenderSystem.hpp"
 
-void ven::RenderSystem::renderObjects(const FrameInfo &frameInfo) const
+void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
 {
     getShaders()->bind(frameInfo.commandBuffer);
 

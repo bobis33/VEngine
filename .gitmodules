@@ -1,15 +1,18 @@
-[submodule "lib/external/glfw"]
-	path = lib/external/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "lib/external/tinyobjloader"]
-	path = lib/external/tinyobjloader
-	url = https://github.com/tinyobjloader/tinyobjloader.git
-[submodule "lib/external/stb"]
-	path = lib/external/stb
-	url = https://github.com/nothings/stb.git
-[submodule "lib/external/doxygen-awesome-css"]
-	path = lib/external/doxygen-awesome-css
-	url = https://github.com/jothepro/doxygen-awesome-css.git
-[submodule "lib/external/imgui"]
-	path = lib/external/imgui
+[submodule "third-party/assimp"]
+	path = third-party/assimp
+	url = git@github.com:assimp/assimp.git
+
+[submodule "third-party/doxygen-awesome-css"]
+	path = third-party/doxygen-awesome-css
+	url = git@github.com:jothepro/doxygen-awesome-css.git
+
+[submodule "third-party/glfw"]
+	path = third-party/glfw
+	url = git@github.com:glfw/glfw.git
+
+[submodule "third-party/imgui"]
+	path = third-party/imgui
 	url = git@github.com:ocornut/imgui.git
+[submodule "third-party/stb"]
+	path = third-party/stb
+	url = git@github.com:nothings/stb.git

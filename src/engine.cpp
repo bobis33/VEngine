@@ -6,8 +6,8 @@
 
 #include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
-#include "VEngine/System/RenderSystem.hpp"
-#include "VEngine/System/PointLightSystem.hpp"
+#include "VEngine/System/ObjectRenderSystem.hpp"
+#include "VEngine/System/PointLightRenderSystem.hpp"
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
 #include "VEngine/ImGuiWindowManager.hpp"
 #include "VEngine/Colors.hpp"
@@ -42,7 +42,7 @@ void ven::Engine::createInstance()
 
 void ven::Engine::loadObjects()
 {
-    std::shared_ptr model = Model::createModelFromFile(m_device, "models/quad.obj");
+    std::shared_ptr model = Model::createModelFromFile(m_device, "assets/models/quad.obj");
 
     Object quad = Object::createObject();
     quad.setName("quad");
@@ -51,7 +51,7 @@ void ven::Engine::loadObjects()
     quad.transform3D.scale = {3.F, 1.F, 3.F};
     m_objects.emplace(quad.getId(), std::move(quad));
 
-    model = Model::createModelFromFile(m_device, "models/flat_vase.obj");
+    model = Model::createModelFromFile(m_device, "assets/models/flat_vase.obj");
     Object flatVase = Object::createObject();
     flatVase.setName("flat vase");
     flatVase.setModel(model);
@@ -59,7 +59,7 @@ void ven::Engine::loadObjects()
     flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(flatVase.getId(), std::move(flatVase));
 
-    model = Model::createModelFromFile(m_device, "models/smooth_vase.obj");
+    model = Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj");
     Object smoothVase = Object::createObject();
     smoothVase.setName("smooth vase");
     smoothVase.setModel(model);
@@ -102,8 +102,8 @@ void ven::Engine::mainLoop()
     std::unique_ptr<DescriptorSetLayout> globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
-    RenderSystem renderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-    PointLightSystem pointLightSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     ImGuiIO &io = ImGui::GetIO();
     io.IniFilename = "assets/imgui-config.txt";
     VkDescriptorBufferInfo bufferInfo{};
@@ -142,13 +142,13 @@ void ven::Engine::mainLoop()
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
-            PointLightSystem::update(frameInfo, ubo);
+            PointLightRenderSystem::update(frameInfo, ubo);
             uboBuffers[static_cast<unsigned long>(frameIndex)]->writeToBuffer(&ubo);
             uboBuffers[static_cast<unsigned long>(frameIndex)]->flush();
 
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
-            renderSystem.renderObjects(frameInfo);
-            pointLightSystem.render(frameInfo);
+            objectRenderSystem.render(frameInfo);
+            pointLightRenderSystem.render(frameInfo);
 
             if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, m_lights, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
 

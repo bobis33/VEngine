@@ -7,7 +7,10 @@
 #pragma once
 
 #include <memory>
+
 #include <glm/glm.hpp>
+
+#include <assimp/scene.h>
 
 #include "VEngine/Device.hpp"
 #include "VEngine/Buffer.hpp"
@@ -42,6 +45,8 @@ namespace ven {
                 std::vector<uint32_t> indices;
 
                 void loadModel(const std::string &filename);
+                void processNode(const aiNode* node, const aiScene* scene);
+                void processMesh(const aiMesh* mesh, const aiScene* scene);
             };
 
             Model(Device &device, const Builder &builder);

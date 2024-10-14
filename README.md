@@ -1,4 +1,4 @@
-![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/logo.png)
+![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/icons/logo.png)
 
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml)
 [![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
@@ -21,7 +21,7 @@ taking full advantage of the Vulkan API.
 - **Vulkan Rendering Pipeline**: Leveraging Vulkan for high-performance graphics rendering
 - **Basic Camera System**: Control camera movement in the 3D space
 - **Input System**: Keyboard-based controls for movement and looking around
-- **Model Loading**: Import 3D models using TinyObjLoader
+- **Model Loading**: Import 3D models using [assimp](https://github.com/assimp/assimp)
 - **Real-time debugging**: Toggle debug windows using key bindings
 - **Doxygen Documentation**: Automatically generated documentation hosted on GitHub Pages
 
@@ -30,7 +30,6 @@ taking full advantage of the Vulkan API.
 
 - **Cross-platform support** (Linux, macOS, Windows)
 - Improve shadow
-- Model Importing (using Assimp)
 - Physics Integration
 - Support for more input devices (e.g., mouse, game controller)
 - Audio Integration
@@ -44,7 +43,6 @@ Make sure you have the following dependencies installed on your system:
 - [C++20](https://en.cppreference.com/w/cpp/20)
 - [Vulkan](https://www.vulkan.org/)
 - [GLM](https://github.com/icaven/glm)
-- [assimp](https://www.assimp.org/) (unused ATM)
 
 
 ## Usage
@@ -52,7 +50,7 @@ Make sure you have the following dependencies installed on your system:
 ### Build
 
 ```bash
-$> ./scripts/build.sh build
+$> ./tools/build.sh build
 [...]
 ```
 > This script also handle several other commands: `clean`, `format` and `doc`.

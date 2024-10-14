@@ -70,14 +70,14 @@ void ven::Device::createInstance()
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    std::vector<const char *> extensions = getRequiredExtensions();
+    const std::vector<const char *> extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.ppEnabledLayerNames = m_validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = &debugCreateInfo;
@@ -146,14 +146,14 @@ void ven::Device::createLogicalDevice()
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(m_deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = m_deviceExtensions.data();
 
         // might not really be necessary anymore because device specific validation layers
         // have been deprecated
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+        createInfo.enabledLayerCount = static_cast<uint32_t>(m_validationLayers.size());
+        createInfo.ppEnabledLayerNames = m_validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -228,11 +228,11 @@ bool ven::Device::checkValidationLayerSupport() const
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char *layerName : validationLayers) {
+    for (const char *validationLayer : m_validationLayers) {
         bool layerFound = false;
 
         for (const auto &[layerName, specVersion, implementationVersion, description] : availableLayers) {
-            if (strcmp(layerName, layerName) == 0) {
+            if (strcmp(layerName, validationLayer) == 0) {
                 layerFound = true;
                 break;
             }
@@ -275,8 +275,7 @@ void ven::Device::hasGlfwRequiredInstanceExtensions() const
     }
 
     std::cout << "required extensions:\n";
-    const std::vector<const char *> requiredExtensions = getRequiredExtensions();
-    for (const auto &required : requiredExtensions) {
+    for (const std::vector<const char *> requiredExtensions = getRequiredExtensions(); const auto &required : requiredExtensions) {
         std::cout << "\t" << required << '\n';
         if (!available.contains(required)) {
             throw std::runtime_error("Missing required glfw extension");
@@ -292,7 +291,7 @@ bool ven::Device::checkDeviceExtensionSupport(const VkPhysicalDevice device) con
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> requiredExtensions(m_deviceExtensions.begin(), m_deviceExtensions.end());
      for (const auto &[extensionName, specVersion] : availableExtensions) {
          requiredExtensions.erase(extensionName);
      }
@@ -489,10 +488,10 @@ void ven::Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, const 
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate image m_memory!");
+        throw std::runtime_error("failed to allocate image memory!");
     }
 
     if (vkBindImageMemory(m_device, image, imageMemory, 0) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind image m_memory!");
+        throw std::runtime_error("failed to bind image memory!");
     }
 }

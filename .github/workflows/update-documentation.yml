@@ -23,13 +23,13 @@ jobs:
         run: git submodule update --init --recursive
 
       - name: Install dependencies
-        run: ./scripts/install-dependencies.sh doc
+        run: ./tools/install-dependencies.sh doc
 
       - name: Install doxygen
-        run: ./scripts/install-dependencies.sh doxygen
+        run: ./tools/install-dependencies.sh doxygen
 
       - name: Generate documentation
-        run: ./scripts/build.sh doc
+        run: ./tools/build.sh doc
 
       - name: Commit and push pdf documentation
         uses: stefanzweifel/git-auto-commit-action@v5

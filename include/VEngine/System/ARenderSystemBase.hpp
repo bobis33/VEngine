@@ -10,7 +10,7 @@
 
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
-
+#include "VEngine/FrameInfo.hpp"
 
 namespace ven {
 
@@ -22,10 +22,11 @@ namespace ven {
     class ARenderSystemBase {
 
         public:
-            explicit ARenderSystemBase(Device& device)
-                : m_device{device} {}
 
-            ~ARenderSystemBase() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
+            explicit ARenderSystemBase(Device& device) : m_device{device} {}
+            virtual ~ARenderSystemBase() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
+
+            virtual void render(const FrameInfo &frameInfo) const = 0;
 
         protected:
 
@@ -42,6 +43,6 @@ namespace ven {
             VkPipelineLayout m_pipelineLayout{nullptr};
             std::unique_ptr<Shaders> m_shaders;
 
-    }; // class RenderSystemBase
+    }; // class ARenderSystemBase
 
 } // namespace ven

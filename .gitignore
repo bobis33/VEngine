@@ -17,4 +17,3 @@ documentation/.doxygen/latex/*
 # Binarys
 vengine
 *.spv
-/plugins/*
