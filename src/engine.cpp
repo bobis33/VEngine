@@ -105,8 +105,6 @@ void ven::Engine::mainLoop()
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
     ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-    ImGuiIO &io = ImGui::GetIO();
-    io.IniFilename = "assets/imgui-config.txt";
     VkDescriptorBufferInfo bufferInfo{};
 
     for (auto& uboBuffer : uboBuffers)
@@ -151,7 +149,7 @@ void ven::Engine::mainLoop()
             objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
-            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, m_lights, io, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
+            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, m_lights, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();

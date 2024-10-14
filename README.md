@@ -23,7 +23,7 @@ taking full advantage of the Vulkan API.
 - **Input System**: Keyboard-based controls for movement and looking around
 - **Model Loading**: Import 3D models using [assimp](https://github.com/assimp/assimp)
 - **Real-time debugging**: Toggle debug windows using key bindings
-- **Doxygen Documentation**: Automatically generated documentation hosted on GitHub Pages
+- **Doxygen Documentation**: Automatically generated documentation hosted on [GitHub Pages](https://bobis33.github.io/VEngine/)
 
 
 ### Planned Features:

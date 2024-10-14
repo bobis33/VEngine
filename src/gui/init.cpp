@@ -6,11 +6,16 @@
 
 static constexpr uint32_t DESCRIPTOR_COUNT = 1000;
 
+ImGuiIO *ven::ImGuiWindowManager::m_io = nullptr;
+
 void ven::ImGuiWindowManager::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
 {
     VkDescriptorPool pool = nullptr;
 
     ImGui::CreateContext();
+    m_io = &ImGui::GetIO();
+    m_io->IniFilename = "assets/imgui-config.txt";
+
     // ImGui::StyleColorsDark();
 
     std::array<VkDescriptorPoolSize, 11> pool_sizes = {{

@@ -6,7 +6,6 @@
 #include "VEngine/ImGuiWindowManager.hpp"
 #include "VEngine/Colors.hpp"
 
-
 void ven::ImGuiWindowManager::cleanup()
 {
     ImGui_ImplVulkan_Shutdown();
@@ -14,7 +13,7 @@ void ven::ImGuiWindowManager::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, const ImGuiIO& io, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -23,14 +22,14 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    renderFrameWindow(io);
+    renderFrameWindow();
 
     ImGui::Begin("Debug Window");
     rendererSection(renderer, ubo);
     cameraSection(cameraObj, camera, cameraController);
     objectsSection(objects);
     lightsSection(lights);
-    inputsSection(io);
+    inputsSection();
     devicePropertiesSection(deviceProperties);
 
     ImGui::End();
@@ -38,9 +37,9 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }
 
-void ven::ImGuiWindowManager::renderFrameWindow(const ImGuiIO& io)
+void ven::ImGuiWindowManager::renderFrameWindow()
 {
-    const float framerate = io.Framerate;
+    const float framerate = m_io->Framerate;
 
     ImGui::SetNextWindowPos(ImVec2(0.0F, 0.0F), ImGuiCond_Always, ImVec2(0.0F, 0.0F));
     ImGui::Begin("Application Info", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
@@ -68,7 +67,7 @@ void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo
 
             if (ImGui::Combo("Color Presets##clearColor",
                              &item_current,
-                             [](void*, int idx, const char** out_text) -> bool {
+                             [](void*, const int idx, const char** out_text) -> bool {
                                  if (idx < 0 || idx >= static_cast<int>(std::size(Colors::CLEAR_COLORS))) { return false; }
                                  *out_text = Colors::CLEAR_COLORS.at(static_cast<unsigned long>(idx)).first;
                                  return true;
@@ -227,19 +226,19 @@ void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Lig
     }
 }
 
-void ven::ImGuiWindowManager::inputsSection(const ImGuiIO &io)
+void ven::ImGuiWindowManager::inputsSection()
 {
     if (ImGui::CollapsingHeader("Input")) {
-        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
-        ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
+        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", m_io->MousePos.x, m_io->MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
+        ImGui::Text("Mouse delta: (%g, %g)", m_io->MouseDelta.x, m_io->MouseDelta.y);
         ImGui::Text("Mouse down:");
-        for (int i = 0; i < static_cast<int>(std::size(io.MouseDown)); i++) {
+        for (int i = 0; i < static_cast<int>(std::size(m_io->MouseDown)); i++) {
             if (ImGui::IsMouseDown(i)) {
                 ImGui::SameLine();
-                ImGui::Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]);
+                ImGui::Text("b%d (%.02f secs)", i, m_io->MouseDownDuration[i]);
             }
         }
-        ImGui::Text("Mouse wheel: %.1f", io.MouseWheel);
+        ImGui::Text("Mouse wheel: %.1f", m_io->MouseWheel);
         ImGui::Text("Keys down:");
         for (auto key = static_cast<ImGuiKey>(0); key < ImGuiKey_NamedKey_END; key = static_cast<ImGuiKey>(key + 1)) {
             if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) { continue; }
