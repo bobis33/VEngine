@@ -50,7 +50,7 @@ Make sure you have the following dependencies installed on your system:
 ### Build
 
 ```bash
-$> ./scripts/build.sh build
+$> ./tools/build.sh build
 [...]
 ```
 > This script also handle several other commands: `clean`, `format` and `doc`.

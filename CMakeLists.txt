@@ -22,27 +22,21 @@ if (VULKAN_FOUND)
 
     file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
-    add_subdirectory(lib)
+    add_subdirectory(third-party)
     add_subdirectory(shaders)
+
     add_executable(${PROJECT_NAME} ${SOURCES})
-    add_dependencies(${PROJECT_NAME} Shaders)
+    add_dependencies(${PROJECT_NAME} ThirdParty Shaders)
 
     target_include_directories(${PROJECT_NAME} PRIVATE
             ${INCLUDE_DIR}
             ${Vulkan_INCLUDE_DIRS}
-            ${EXTERNAL_DIR}/glfw/include
-            ${EXTERNAL_DIR}/assimp/include
-            ${EXTERNAL_DIR}/stb
-            ${EXTERNAL_DIR}/imgui
-            ${EXTERNAL_DIR}/imgui/backends
+            ${THIRDPARTY_INCLUDE_DIRS}
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-            my_lib
             Vulkan::Vulkan
-            glfw
-            assimp::assimp
-            imgui
+            ${THIRDPARTY_LIBRARIES}
     )
 
     target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
