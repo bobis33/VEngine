@@ -14,7 +14,7 @@
 
 namespace ven {
 
-static constexpr std::size_t MAX_LIGHTS = 10;
+static constexpr uint16_t MAX_LIGHTS = 10;
 
 static constexpr float DEFAULT_AMBIENT_LIGHT_INTENSITY = .2F;
 static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAULT_AMBIENT_LIGHT_INTENSITY};
@@ -32,7 +32,7 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
         glm::mat4 inverseView{1.F};
         glm::vec4 ambientLightColor{DEFAULT_AMBIENT_LIGHT_COLOR};
         std::array<PointLightData, MAX_LIGHTS> pointLights;
-        int numLights;
+        uint16_t numLights;
     };
 
     struct FrameInfo

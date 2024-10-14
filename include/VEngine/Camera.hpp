@@ -8,6 +8,8 @@
 
 #include <glm/glm.hpp>
 
+#include "VEngine/Transform3DComponent.hpp"
+
 namespace ven {
 
     static constexpr glm::vec3 DEFAULT_POSITION{0.F, 0.F, -2.5F};
@@ -29,6 +31,12 @@ namespace ven {
 
         public:
 
+            Camera() = default;
+            ~Camera() = default;
+
+            Camera(const Camera&) = delete;
+            Camera& operator=(const Camera&) = delete;
+
             void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
             void setPerspectiveProjection(float aspect);
             void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = {0.F, -1.F, 0.F});
@@ -48,6 +56,8 @@ namespace ven {
             [[nodiscard]] float getFar() const { return m_far; }
             [[nodiscard]] float getMoveSpeed() const { return m_moveSpeed; }
             [[nodiscard]] float getLookSpeed() const { return m_lookSpeed; }
+
+            Transform3DComponent transform3D{DEFAULT_POSITION, {1.F, 1.F, 1.F}, DEFAULT_ROTATION};
 
         private:
 

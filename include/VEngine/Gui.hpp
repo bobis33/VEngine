@@ -35,9 +35,9 @@ namespace ven {
             Gui(const Gui&) = delete;
             Gui& operator=(const Gui&) = delete;
 
-            void init(GLFWwindow* window, VkInstance instance, const Device* device, VkRenderPass renderPass);
+            static void init(GLFWwindow* window, VkInstance instance, const Device* device, VkRenderPass renderPass);
 
-            static void render(Renderer *renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Object& cameraObj, Camera& camera, VkPhysicalDevice physicalDevice, GlobalUbo& ubo);
+            static void render(Renderer *renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Camera& camera, VkPhysicalDevice physicalDevice, GlobalUbo& ubo);
             static void cleanup();
 
             void setState(const GUI_STATE state) { m_state = state; }
@@ -47,7 +47,7 @@ namespace ven {
 
             static void initStyle();
             static void renderFrameWindow();
-            static void cameraSection(Object& cameraObj, Camera& camera);
+            static void cameraSection(Camera& camera);
             static void inputsSection(const ImGuiIO *io);
             static void rendererSection(Renderer *renderer, GlobalUbo& ubo);
             static void devicePropertiesSection(VkPhysicalDeviceProperties deviceProperties);

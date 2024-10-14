@@ -1,6 +1,6 @@
 #include "VEngine/Light.hpp"
 
-ven::Light ven::Light::createLight(float radius, glm::vec4 color)
+ven::Light ven::Light::createLight(const float radius, const glm::vec4 color)
 {
     static unsigned int objId = 0;
     Light light(objId++);

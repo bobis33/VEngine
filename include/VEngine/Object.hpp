@@ -43,7 +43,6 @@ namespace ven {
             void setName(const std::string &name) { m_name = name; }
             void setModel(const std::shared_ptr<Model> &model) { m_model = model; }
 
-            glm::vec3 color{};
             Transform3DComponent transform3D{};
 
         private:
@@ -51,8 +50,8 @@ namespace ven {
             explicit Object(const unsigned int objId) : m_objId(objId) {}
 
             unsigned int m_objId;
-            std::string m_name{};
-            std::shared_ptr<Model> m_model{};
+            std::string m_name;
+            std::shared_ptr<Model> m_model;
 
     }; // class Object
 

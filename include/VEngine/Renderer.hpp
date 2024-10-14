@@ -20,6 +20,11 @@ namespace ven {
     static constexpr VkClearColorValue DEFAULT_CLEAR_COLOR = {{0.0F, 0.0F, 0.0F, 1.0F}};
     static constexpr VkClearDepthStencilValue DEFAULT_CLEAR_DEPTH = {1.0F, 0};
 
+    ///
+    /// @class Renderer
+    /// @brief Class for renderer
+    /// @namespace ven
+    ///
     class Renderer {
 
         public:

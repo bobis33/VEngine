@@ -37,8 +37,8 @@ namespace ven {
             explicit Engine(uint32_t = DEFAULT_WIDTH, uint32_t = DEFAULT_HEIGHT, const std::string &title = DEFAULT_TITLE.data());
             ~Engine() = default;
 
-            Engine(const Engine &) = delete;
-            Engine operator=(const Engine &) = delete;
+            Engine(const Engine&) = delete;
+            Engine operator=(const Engine&) = delete;
 
             void mainLoop();
 

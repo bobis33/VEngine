@@ -10,6 +10,11 @@
 
 namespace ven {
 
+    ///
+    /// @class Transform3DComponent
+    /// @brief Class for 3D transformation
+    /// @namespace ven
+    ///
     class Transform3DComponent {
 
         public:

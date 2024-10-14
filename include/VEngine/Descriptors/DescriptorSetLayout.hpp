@@ -40,6 +40,7 @@ namespace ven {
 
             DescriptorSetLayout(Device &device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
             ~DescriptorSetLayout() { vkDestroyDescriptorSetLayout(m_device.device(), m_descriptorSetLayout, nullptr); }
+
             DescriptorSetLayout(const DescriptorSetLayout &) = delete;
             DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 

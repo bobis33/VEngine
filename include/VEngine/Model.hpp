@@ -50,7 +50,7 @@ namespace ven {
             };
 
             Model(Device &device, const Builder &builder);
-            ~Model();
+            ~Model() = default;
 
             Model(const Model&) = delete;
             void operator=(const Model&) = delete;

@@ -12,6 +12,8 @@
 
 namespace ven {
 
+    static constexpr uint32_t DEFAULT_MAX_SETS = 1000;
+
     ///
     /// @class DescriptorPool
     /// @brief Class for descriptor pool
@@ -27,22 +29,24 @@ namespace ven {
 
                     explicit Builder(Device &device) : m_device{device} {}
 
-                    Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
-                    Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
-                    Builder &setMaxSets(uint32_t count);
                     [[nodiscard]] std::unique_ptr<DescriptorPool> build() const { return std::make_unique<DescriptorPool>(m_device, m_maxSets, m_poolFlags, m_poolSizes); }
+
+                    Builder &addPoolSize(const VkDescriptorType descriptorType, const uint32_t count) { m_poolSizes.push_back({descriptorType, count}); return *this; }
+                    Builder &setPoolFlags(const VkDescriptorPoolCreateFlags flags) { m_poolFlags = flags; return *this; }
+                    Builder &setMaxSets(const uint32_t count) { m_maxSets = count; return *this; }
 
                 private:
 
                     Device &m_device;
                     std::vector<VkDescriptorPoolSize> m_poolSizes;
-                    uint32_t m_maxSets = 1000;
-                    VkDescriptorPoolCreateFlags m_poolFlags = 0;
+                    uint32_t m_maxSets{DEFAULT_MAX_SETS};
+                    VkDescriptorPoolCreateFlags m_poolFlags{0};
 
             }; // class Builder
 
             DescriptorPool(Device &device, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize> &poolSizes);
             ~DescriptorPool() { vkDestroyDescriptorPool(m_device.device(), m_descriptorPool, nullptr); }
+
             DescriptorPool(const DescriptorPool &) = delete;
             DescriptorPool &operator=(const DescriptorPool &) = delete;
 

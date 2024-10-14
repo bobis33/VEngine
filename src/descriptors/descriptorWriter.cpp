@@ -1,5 +1,4 @@
 #include <cassert>
-#include <functional>
 
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
 

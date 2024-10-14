@@ -13,7 +13,7 @@ void ven::Gui::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Object& cameraObj, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -26,7 +26,7 @@ void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Objec
 
     ImGui::Begin("Debug Window");
     rendererSection(renderer, ubo);
-    cameraSection(cameraObj, camera);
+    cameraSection(camera);
     objectsSection(objects);
     lightsSection(lights);
     inputsSection(m_io);
@@ -68,14 +68,14 @@ void ven::Gui::rendererSection(Renderer *renderer, GlobalUbo& ubo)
             if (ImGui::Combo("Color Presets##clearColor",
                              &item_current,
                              [](void*, const int idx, const char** out_text) -> bool {
-                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::CLEAR_COLORS))) { return false; }
-                                 *out_text = Colors::CLEAR_COLORS.at(static_cast<unsigned long>(idx)).first;
+                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLOR_PRESETS_VK))) { return false; }
+                                 *out_text = Colors::COLOR_PRESETS_VK.at(static_cast<unsigned long>(idx)).first;
                                  return true;
                              },
                              nullptr,
-                             std::size(Colors::CLEAR_COLORS))) {
-                renderer->setClearValue(Colors::CLEAR_COLORS.at(static_cast<unsigned long>(item_current)).second);
-            }
+                             std::size(Colors::COLOR_PRESETS_VK))) {
+                renderer->setClearValue(Colors::COLOR_PRESETS_VK.at(static_cast<unsigned long>(item_current)).second);
+                             }
 
             ImGui::TableNextColumn();
             ImGui::ColorEdit4("Ambient Light Color", glm::value_ptr(ubo.ambientLightColor));
@@ -83,15 +83,14 @@ void ven::Gui::rendererSection(Renderer *renderer, GlobalUbo& ubo)
             if (ImGui::Combo("Color Presets##ambientColor",
                              &item_current,
                              [](void*, const int idx, const char** out_text) -> bool {
-                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
-                                 *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                 if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLOR_PRESETS_4))) { return false; }
+                                 *out_text = Colors::COLOR_PRESETS_4.at(static_cast<unsigned long>(idx)).first;
                                  return true;
                              },
                              nullptr,
-                             std::size(Colors::COLORS))) {
-                ubo.ambientLightColor = glm::vec4(Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.r, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.g, Colors::COLORS.at(static_cast<unsigned long>(item_current)).second.b, 1.0F);
-
-            }
+                             std::size(Colors::COLOR_PRESETS_4))) {
+                ubo.ambientLightColor = Colors::COLOR_PRESETS_4.at(static_cast<unsigned long>(item_current)).second;
+                             }
 
             ImGui::TableNextColumn();
             ImGui::SliderFloat(("Intensity##" + std::to_string(0)).c_str(), &ubo.ambientLightColor.a, 0.0F, 1.0F);
@@ -108,7 +107,7 @@ void ven::Gui::rendererSection(Renderer *renderer, GlobalUbo& ubo)
     }
 }
 
-void ven::Gui::cameraSection(Object &cameraObj, Camera &camera)
+void ven::Gui::cameraSection(Camera &camera)
 {
     if (ImGui::CollapsingHeader("Camera")) {
         float fov = camera.getFov();
@@ -116,14 +115,14 @@ void ven::Gui::cameraSection(Object &cameraObj, Camera &camera)
         float far = camera.getFar();
         if (ImGui::BeginTable("CameraTable", 2)) {
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Position", glm::value_ptr(cameraObj.transform3D.translation), 0.1F);
+            ImGui::DragFloat3("Position", glm::value_ptr(camera.transform3D.translation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##position")) { cameraObj.transform3D.translation = DEFAULT_POSITION; }
+            if (ImGui::Button("Reset##position")) { camera.transform3D.translation = DEFAULT_POSITION; }
 
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Rotation", glm::value_ptr(cameraObj.transform3D.rotation), 0.1F);
+            ImGui::DragFloat3("Rotation", glm::value_ptr(camera.transform3D.rotation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##rotation")) { cameraObj.transform3D.rotation = DEFAULT_ROTATION; }
+            if (ImGui::Button("Reset##rotation")) { camera.transform3D.rotation = DEFAULT_ROTATION; }
 
             ImGui::TableNextColumn();
             if (ImGui::SliderFloat("FOV", &fov, glm::radians(0.1F), glm::radians(180.0F))) { camera.setFov(fov); }
@@ -160,16 +159,9 @@ void ven::Gui::cameraSection(Object &cameraObj, Camera &camera)
 void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
 {
     if (ImGui::CollapsingHeader("Objects")) {
-        ImVec4 boxColor;
         bool open = false;
-
         for (auto& [id, object] : objects) {
-            if (object.color.r == 0.0F && object.color.g == 0.0F && object.color.b == 0.0F) {
-                boxColor = { Colors::GRAY.r, Colors::GRAY.g, Colors::GRAY.b, 1.0F };
-            } else {
-                boxColor = { object.color.r, object.color.g, object.color.b, 1.0F };
-            }
-            ImGui::PushStyleColor(ImGuiCol_Text, boxColor);
+            ImGui::PushStyleColor(ImGuiCol_Text, { Colors::GRAY_4.r, Colors::GRAY_4.g, Colors::GRAY_4.b, 1.0F });
             open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
@@ -189,8 +181,7 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
         bool open = false;
 
         for (auto& [id, light] : lights) {
-            ImVec4 color{light.color.r, light.color.g, light.color.b, 1.0F};
-            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            ImGui::PushStyleColor(ImGuiCol_Text, {light.color.r, light.color.g, light.color.b, 1.0F});
             open = ImGui::TreeNode(std::string(light.getName() + " [" + std::to_string(light.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
@@ -206,13 +197,13 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                     if (ImGui::Combo("Color Presets",
                                      &item_current,
                                      [](void*, const int idx, const char** out_text) -> bool {
-                                         if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLORS))) { return false; }
-                                         *out_text = Colors::COLORS.at(static_cast<unsigned long>(idx)).first;
+                                         if (idx < 0 || idx >= static_cast<int>(std::size(Colors::COLOR_PRESETS_3))) { return false; }
+                                         *out_text = Colors::COLOR_PRESETS_3.at(static_cast<unsigned long>(idx)).first;
                                          return true;
                                      },
                                      nullptr,
-                                     std::size(Colors::COLORS))) {
-                        light.color = {Colors::COLORS.at(static_cast<unsigned long>(item_current)).second, light.color.a};
+                                     std::size(Colors::COLOR_PRESETS_3))) {
+                        light.color = {Colors::COLOR_PRESETS_3.at(static_cast<unsigned long>(item_current)).second, light.color.a};
                     }
 
                     ImGui::TableNextColumn();

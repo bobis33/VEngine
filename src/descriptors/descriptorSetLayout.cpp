@@ -18,8 +18,8 @@ ven::DescriptorSetLayout::DescriptorSetLayout(Device &device, const std::unorder
 {
     std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
     setLayoutBindings.reserve(bindings.size());
-for (auto kv : bindings) {
-        setLayoutBindings.push_back(kv.second);
+    for (auto [fst, snd] : bindings) {
+        setLayoutBindings.push_back(snd);
     }
 
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};

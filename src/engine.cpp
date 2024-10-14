@@ -6,7 +6,6 @@
 #include <VEngine/EventManager.hpp>
 
 #include "VEngine/Engine.hpp"
-#include "VEngine/KeyboardController.hpp"
 #include "VEngine/RenderSystem/ObjectRenderSystem.hpp"
 #include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
@@ -16,7 +15,7 @@
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     createInstance();
     createSurface();
-    m_gui.init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
+    Gui::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
@@ -42,6 +41,14 @@ void ven::Engine::createInstance()
 
 void ven::Engine::loadObjects()
 {
+    constexpr std::array lightColors{
+        Colors::RED_4,
+        Colors::GREEN_4,
+        Colors::BLUE_4,
+        Colors::YELLOW_4,
+        Colors::CYAN_4,
+        Colors::MAGENTA_4
+    };
     std::shared_ptr model = Model::createModelFromFile(m_device, "assets/models/quad.obj");
 
     Object quad = Object::createObject();
@@ -67,20 +74,11 @@ void ven::Engine::loadObjects()
     smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
     m_objects.emplace(smoothVase.getId(), std::move(smoothVase));
 
-    const std::vector<glm::vec4> lightColors{
-            {Colors::RED, DEFAULT_LIGHT_INTENSITY},
-            {Colors::GREEN, DEFAULT_LIGHT_INTENSITY},
-            {Colors::BLUE, DEFAULT_LIGHT_INTENSITY},
-            {Colors::YELLOW, DEFAULT_LIGHT_INTENSITY},
-            {Colors::CYAN, DEFAULT_LIGHT_INTENSITY},
-            {Colors::MAGENTA, DEFAULT_LIGHT_INTENSITY}
-    };
-
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
         Light pointLight = Light::createLight();
-        pointLight.color = lightColors[i];
-        auto rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
+        pointLight.color = lightColors.at(i);
+        glm::mat4 rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
         pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
         m_lights.emplace(pointLight.getId(), std::move(pointLight));
     }
@@ -90,12 +88,11 @@ void ven::Engine::mainLoop()
 {
     GlobalUbo ubo{};
     Camera camera{};
-    KeyboardController cameraController{};
+    EventManager eventManager{};
     std::chrono::duration<float> deltaTime{};
     VkCommandBuffer_T *commandBuffer = nullptr;
     float frameTime = NAN;
     unsigned long frameIndex = 0;
-    Object viewerObject = Object::createObject();
     std::chrono::time_point<std::chrono::system_clock> newTime;
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     std::unique_ptr<DescriptorSetLayout> globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
@@ -114,22 +111,18 @@ void ven::Engine::mainLoop()
         bufferInfo = uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
-    viewerObject.transform3D.translation = DEFAULT_POSITION;
-
-    m_renderer.setClearValue();
 
     while (m_state != EXIT)
     {
         glfwPollEvents();
-        EventManager::handleEvents(m_window.getGLFWindow(), &m_state);
+        eventManager.handleEvents(m_window.getGLFWindow(), &m_state, camera, m_gui, frameTime);
         newTime = std::chrono::high_resolution_clock::now();
         deltaTime = newTime - currentTime;
         currentTime = newTime;
         frameTime = deltaTime.count();
         commandBuffer = m_renderer.beginFrame();
 
-        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, m_gui, camera.getMoveSpeed(), camera.getLookSpeed());
-        camera.setViewXYZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
+        camera.setViewXYZ(camera.transform3D.translation, camera.transform3D.rotation);
         camera.setPerspectiveProjection(m_renderer.getAspectRatio());
 
         if (commandBuffer != nullptr) {
@@ -146,7 +139,7 @@ void ven::Engine::mainLoop()
             objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
-            if (m_gui.getState() == VISIBLE) { m_gui.render(&m_renderer, m_objects, m_lights, viewerObject, camera, m_device.getPhysicalDevice(), ubo); }
+            if (m_gui.getState() == VISIBLE) { Gui::render(&m_renderer, m_objects, m_lights, camera, m_device.getPhysicalDevice(), ubo); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();

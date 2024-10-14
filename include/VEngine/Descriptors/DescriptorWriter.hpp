@@ -23,6 +23,10 @@ namespace ven {
         public:
 
             DescriptorWriter(DescriptorSetLayout &setLayout, DescriptorPool &pool) :  m_setLayout{setLayout}, m_pool{pool} {}
+            ~DescriptorWriter() = default;
+
+            DescriptorWriter(const DescriptorWriter &) = delete;
+            DescriptorWriter &operator=(const DescriptorWriter &) = delete;
 
             DescriptorWriter &writeBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
             DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);

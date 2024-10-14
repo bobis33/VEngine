@@ -26,6 +26,11 @@ namespace ven {
         [[nodiscard]] bool isComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue; }
     };
 
+    ///
+    /// @class Device
+    /// @brief Class for device
+    /// @namespace ven
+    ///
     class Device {
 
         public:
@@ -39,10 +44,8 @@ namespace ven {
             explicit Device(Window &window);
             ~Device();
 
-            Device(const Device &) = delete;
-            Device& operator=(const Device &) = delete;
-            Device(Device &&) = delete;
-            Device &operator=(Device &&) = delete;
+            Device(const Device&) = delete;
+            Device& operator=(const Device&) = delete;
 
             [[nodiscard]] VkCommandPool getCommandPool() const { return m_commandPool; }
             [[nodiscard]] VkDevice device() const { return m_device; }

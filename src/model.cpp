@@ -6,7 +6,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -28,8 +27,6 @@ ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_
     createVertexBuffer(builder.vertices);
     createIndexBuffer(builder.indices);
 }
-
-ven::Model::~Model() = default;
 
 void ven::Model::createVertexBuffer(const std::vector<Vertex> &vertices)
 {
@@ -172,8 +169,8 @@ void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) 
             vertex.uv = glm::vec2(0.0F, 0.0F);
         }
 
-        if (vertex.color == Colors::BLACK) {
-            vertex.color = Colors::WHITE;
+        if (vertex.color == Colors::BLACK_3) {
+            vertex.color = Colors::WHITE_3;
         }
 
         if (!uniqueVertices.contains(vertex)) {

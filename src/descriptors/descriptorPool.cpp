@@ -1,22 +1,5 @@
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 
-ven::DescriptorPool::Builder &ven::DescriptorPool::Builder::addPoolSize(const VkDescriptorType descriptorType, const uint32_t count)
-{
-    m_poolSizes.push_back({descriptorType, count});
-    return *this;
-}
-
-ven::DescriptorPool::Builder &ven::DescriptorPool::Builder::setPoolFlags(const VkDescriptorPoolCreateFlags flags)
-{
-    m_poolFlags = flags;
-    return *this;
-}
-ven::DescriptorPool::Builder &ven::DescriptorPool::Builder::setMaxSets(const uint32_t count)
-{
-    m_maxSets = count;
-    return *this;
-}
-
 ven::DescriptorPool::DescriptorPool(Device &device, const uint32_t maxSets, const VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize> &poolSizes) : m_device{device}
 {
     VkDescriptorPoolCreateInfo descriptorPoolInfo{};
