@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <VEngine/EventManager.hpp>
 
 #include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
@@ -12,7 +13,7 @@
 #include "VEngine/ImGuiWindowManager.hpp"
 #include "VEngine/Colors.hpp"
 
-ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_window(width, height, title)
+ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title)
 {
     createInstance();
     createSurface();
@@ -122,10 +123,10 @@ void ven::Engine::mainLoop()
 
     m_renderer.setClearValue();
 
-    while (glfwWindowShouldClose(m_window.getGLFWindow()) == 0)
+    while (m_state != EXIT)
     {
         glfwPollEvents();
-
+        EventManager::handleEvents(m_window.getGLFWindow(), &m_state);
         newTime = std::chrono::high_resolution_clock::now();
         deltaTime = newTime - currentTime;
         currentTime = newTime;

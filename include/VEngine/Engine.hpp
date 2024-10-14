@@ -13,39 +13,53 @@
 #include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
-#include "Light.hpp"
+#include "VEngine/Light.hpp"
 
 namespace ven {
 
+    enum ENGINE_STATE : uint8_t {
+        EDITOR = 0,
+        GAME = 1,
+        PAUSED = 2,
+        EXIT = 3
+    };
+
+    ///
+    /// @class Engine
+    /// @brief Class for engine
+    /// @namespace ven
+    ///
     class Engine {
 
-    public:
+        public:
 
-        explicit Engine(uint32_t = DEFAULT_WIDTH, uint32_t = DEFAULT_HEIGHT, const std::string &title = DEFAULT_TITLE.data());
-        ~Engine() = default;
+            explicit Engine(uint32_t = DEFAULT_WIDTH, uint32_t = DEFAULT_HEIGHT, const std::string &title = DEFAULT_TITLE.data());
+            ~Engine() = default;
 
-        Engine(const Engine &) = delete;
-        Engine operator=(const Engine &) = delete;
+            Engine(const Engine &) = delete;
+            Engine operator=(const Engine &) = delete;
 
-        void mainLoop();
+            void mainLoop();
 
-    private:
+        private:
 
-        void loadObjects();
+            void loadObjects();
 
-        Window m_window;
-        Device m_device{m_window};
-        Renderer m_renderer{m_window, m_device};
+            ENGINE_STATE m_state{EXIT};
 
-        std::unique_ptr<DescriptorPool> m_globalPool;
-        Object::Map m_objects;
-        Light::Map m_lights;
+            Window m_window;
+            Device m_device{m_window};
+            Renderer m_renderer{m_window, m_device};
 
-        VkInstance m_instance{nullptr};
-        VkSurfaceKHR m_surface{nullptr};
+            std::unique_ptr<DescriptorPool> m_globalPool;
+            Object::Map m_objects;
+            Light::Map m_lights;
 
-        void createInstance();
-        void createSurface() { if (glfwCreateWindowSurface(m_instance, m_window.getGLFWindow(), nullptr, &m_surface) != VK_SUCCESS) { throw std::runtime_error("Failed to create window surface"); } }
+            VkInstance m_instance{nullptr};
+            VkSurfaceKHR m_surface{nullptr};
+
+            void createInstance();
+            void createSurface() { if (glfwCreateWindowSurface(m_instance, m_window.getGLFWindow(), nullptr, &m_surface) != VK_SUCCESS) { throw std::runtime_error("Failed to create window surface"); } }
 
     }; // class Engine
 

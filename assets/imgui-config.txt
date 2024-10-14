@@ -9,4 +9,3 @@ Size=150,65
 [Window][Debug Window]
 Pos=1300,0
 Size=620,442
-
