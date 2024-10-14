@@ -7,7 +7,7 @@
 #pragma once
 
 #include "VEngine/FrameInfo.hpp"
-#include "VEngine/System/ARenderSystemBase.hpp"
+#include "VEngine/RenderSystem/ARenderSystemBase.hpp"
 
 namespace ven {
 
@@ -21,7 +21,7 @@ namespace ven {
     /// @brief Class for object render system
     /// @namespace ven
     ///
-    class ObjectRenderSystem : public ARenderSystemBase {
+    class ObjectRenderSystem final : public ARenderSystemBase {
 
         public:
 

@@ -17,6 +17,9 @@ namespace ven {
     static constexpr float DEFAULT_NEAR = 0.1F;
     static constexpr float DEFAULT_FAR = 100.F;
 
+    static constexpr float DEFAULT_MOVE_SPEED = 3.F;
+    static constexpr float DEFAULT_LOOK_SPEED = 1.5F;
+
     ///
     /// @class Camera
     /// @brief Class for camera
@@ -28,12 +31,14 @@ namespace ven {
 
             void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
             void setPerspectiveProjection(float aspect);
-            void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.F, -1.F, 0.F});
-            void setViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = glm::vec3{0.F, -1.F, 0.F}) { setViewDirection(position, target - position, up); }
-            void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
+            void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = {0.F, -1.F, 0.F});
+            void setViewTarget(const glm::vec3 position, const glm::vec3 target, const glm::vec3 up = {0.F, -1.F, 0.F}) { setViewDirection(position, target - position, up); }
+            void setViewXYZ(glm::vec3 position, glm::vec3 rotation);
             void setFov(const float fov) { m_fov = fov; }
             void setNear(const float near) { m_near = near; }
             void setFar(const float far) { m_far = far; }
+            void setMoveSpeed(const float moveSpeed) { m_moveSpeed = moveSpeed; }
+            void setLookSpeed(const float lookSpeed) { m_lookSpeed = lookSpeed; }
 
             [[nodiscard]] const glm::mat4& getProjection() const { return m_projectionMatrix; }
             [[nodiscard]] const glm::mat4& getView() const { return m_viewMatrix; }
@@ -41,12 +46,16 @@ namespace ven {
             [[nodiscard]] float getFov() const { return m_fov; }
             [[nodiscard]] float getNear() const { return m_near; }
             [[nodiscard]] float getFar() const { return m_far; }
+            [[nodiscard]] float getMoveSpeed() const { return m_moveSpeed; }
+            [[nodiscard]] float getLookSpeed() const { return m_lookSpeed; }
 
         private:
 
             float m_fov{DEFAULT_FOV};
             float m_near{DEFAULT_NEAR};
             float m_far{DEFAULT_FAR};
+            float m_moveSpeed{DEFAULT_MOVE_SPEED};
+            float m_lookSpeed{DEFAULT_LOOK_SPEED};
             glm::mat4 m_projectionMatrix{1.F};
             glm::mat4 m_viewMatrix{1.F};
             glm::mat4 m_inverseViewMatrix{1.F};

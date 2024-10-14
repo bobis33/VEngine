@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "VEngine/System/ARenderSystemBase.hpp"
+#include "VEngine/RenderSystem/ARenderSystemBase.hpp"
 #include "VEngine/FrameInfo.hpp"
 
 namespace ven {
@@ -22,7 +22,7 @@ namespace ven {
     /// @brief Class for point light system
     /// @namespace ven
     ///
-    class PointLightRenderSystem : public ARenderSystemBase {
+    class PointLightRenderSystem final : public ARenderSystemBase {
 
         public:
 

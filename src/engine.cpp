@@ -7,17 +7,16 @@
 
 #include "VEngine/Engine.hpp"
 #include "VEngine/KeyboardController.hpp"
-#include "VEngine/System/ObjectRenderSystem.hpp"
-#include "VEngine/System/PointLightRenderSystem.hpp"
+#include "VEngine/RenderSystem/ObjectRenderSystem.hpp"
+#include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
-#include "VEngine/ImGuiWindowManager.hpp"
+#include "VEngine/Gui.hpp"
 #include "VEngine/Colors.hpp"
 
-ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title)
-{
+ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     createInstance();
     createSurface();
-    ImGuiWindowManager::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
+    m_gui.init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     loadObjects();
 }
@@ -94,9 +93,8 @@ void ven::Engine::mainLoop()
     KeyboardController cameraController{};
     std::chrono::duration<float> deltaTime{};
     VkCommandBuffer_T *commandBuffer = nullptr;
-    bool showDebugWindow = true;
     float frameTime = NAN;
-    int frameIndex = 0;
+    unsigned long frameIndex = 0;
     Object viewerObject = Object::createObject();
     std::chrono::time_point<std::chrono::system_clock> newTime;
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
@@ -116,8 +114,7 @@ void ven::Engine::mainLoop()
         bufferInfo = uboBuffers[i]->descriptorInfo();
         DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
-    camera.setViewTarget({-1.F, -2.F, -2.F}, {0.F, 0.F, 2.5F});
-    viewerObject.transform3D.translation.z = DEFAULT_POSITION[2];
+    viewerObject.transform3D.translation = DEFAULT_POSITION;
 
     m_renderer.setClearValue();
 
@@ -131,31 +128,31 @@ void ven::Engine::mainLoop()
         frameTime = deltaTime.count();
         commandBuffer = m_renderer.beginFrame();
 
-        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, &showDebugWindow);
-        camera.setViewYXZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
+        cameraController.moveInPlaneXZ(m_window.getGLFWindow(), frameTime, viewerObject, m_gui, camera.getMoveSpeed(), camera.getLookSpeed());
+        camera.setViewXYZ(viewerObject.transform3D.translation, viewerObject.transform3D.rotation);
         camera.setPerspectiveProjection(m_renderer.getAspectRatio());
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            FrameInfo frameInfo{.frameIndex=frameIndex, .frameTime=frameTime, .commandBuffer=commandBuffer, .camera=camera, .globalDescriptorSet=globalDescriptorSets[static_cast<unsigned long>(frameIndex)], .objects=m_objects, .lights=m_lights};
+            FrameInfo frameInfo{.frameIndex=frameIndex, .frameTime=frameTime, .commandBuffer=commandBuffer, .camera=camera, .globalDescriptorSet=globalDescriptorSets[frameIndex], .objects=m_objects, .lights=m_lights};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
             PointLightRenderSystem::update(frameInfo, ubo);
-            uboBuffers[static_cast<unsigned long>(frameIndex)]->writeToBuffer(&ubo);
-            uboBuffers[static_cast<unsigned long>(frameIndex)]->flush();
+            uboBuffers[frameIndex]->writeToBuffer(&ubo);
+            uboBuffers[frameIndex]->flush();
 
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
             objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
-            if (showDebugWindow) { ImGuiWindowManager::render(&m_renderer, m_objects, m_lights, viewerObject, camera, cameraController, m_device.getPhysicalDevice(), ubo); }
+            if (m_gui.getState() == VISIBLE) { m_gui.render(&m_renderer, m_objects, m_lights, viewerObject, camera, m_device.getPhysicalDevice(), ubo); }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
             commandBuffer = nullptr;
         }
     }
-    ImGuiWindowManager::cleanup();
+    Gui::cleanup();
     vkDeviceWaitIdle(m_device.device());
 }

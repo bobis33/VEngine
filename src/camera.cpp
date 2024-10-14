@@ -61,7 +61,7 @@ void ven::Camera::setViewDirection(const glm::vec3 position, const glm::vec3 dir
     m_inverseViewMatrix[3][2] = position.z;
 }
 
-void ven::Camera::setViewYXZ(const glm::vec3 position, const glm::vec3 rotation)
+void ven::Camera::setViewXYZ(const glm::vec3 position, const glm::vec3 rotation)
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);

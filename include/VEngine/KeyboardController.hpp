@@ -8,12 +8,9 @@
 
 #include "VEngine/Window.hpp"
 #include "VEngine/Object.hpp"
-#include "Light.hpp"
+#include "VEngine/Gui.hpp"
 
 namespace ven {
-
-    static constexpr float DEFAULT_MOVE_SPEED = 3.F;
-    static constexpr float DEFAULT_LOOK_SPEED = 1.5F;
 
     ///
     /// @class KeyboardController
@@ -24,25 +21,29 @@ namespace ven {
 
         public:
 
-            struct KeyMappings {
-                int moveLeft = GLFW_KEY_A;
-                int moveRight = GLFW_KEY_D;
-                int moveForward = GLFW_KEY_W;
-                int moveBackward = GLFW_KEY_S;
-                int moveUp = GLFW_KEY_SPACE;
-                int moveDown = GLFW_KEY_LEFT_SHIFT;
-                int lookLeft = GLFW_KEY_LEFT;
-                int lookRight = GLFW_KEY_RIGHT;
-                int lookUp = GLFW_KEY_UP;
-                int lookDown = GLFW_KEY_DOWN;
+             struct KeyMappings {
+                uint16_t moveLeft = GLFW_KEY_A;
+                uint16_t moveRight = GLFW_KEY_D;
+                uint16_t moveForward = GLFW_KEY_W;
+                uint16_t moveBackward = GLFW_KEY_S;
+                uint16_t moveUp = GLFW_KEY_SPACE;
+                uint16_t moveDown = GLFW_KEY_LEFT_SHIFT;
+                uint16_t lookLeft = GLFW_KEY_LEFT;
+                uint16_t lookRight = GLFW_KEY_RIGHT;
+                uint16_t lookUp = GLFW_KEY_UP;
+                uint16_t lookDown = GLFW_KEY_DOWN;
+                uint16_t toggleGui = GLFW_KEY_F1;
             };
 
-            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, bool* showDebugWindow) const;
-            void moveInPlaneXZ(GLFWwindow* window, float dt, Light& light, bool* showDebugWindow) const;
+            void moveInPlaneXZ(GLFWwindow* window, float dt, Object& object, Gui& gui, float moveSpeed, float lookSpeed) const;
 
             KeyMappings m_keys{};
-            float m_moveSpeed{DEFAULT_MOVE_SPEED};
-            float m_lookSpeed{DEFAULT_LOOK_SPEED};
+
+        private:
+
+             static bool isKeyJustPressed(GLFWwindow* window, int key, bool& wasPressed);
+
+            mutable std::unordered_map<int, bool> m_keyStates;
 
     }; // class KeyboardController
 

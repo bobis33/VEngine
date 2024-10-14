@@ -3,17 +3,17 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "VEngine/ImGuiWindowManager.hpp"
+#include "VEngine/Gui.hpp"
 #include "VEngine/Colors.hpp"
 
-void ven::ImGuiWindowManager::cleanup()
+void ven::Gui::cleanup()
 {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Object& cameraObj, Camera& camera, KeyboardController& cameraController, VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Object& cameraObj, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -26,10 +26,10 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
 
     ImGui::Begin("Debug Window");
     rendererSection(renderer, ubo);
-    cameraSection(cameraObj, camera, cameraController);
+    cameraSection(cameraObj, camera);
     objectsSection(objects);
     lightsSection(lights);
-    inputsSection();
+    inputsSection(m_io);
     devicePropertiesSection(deviceProperties);
 
     ImGui::End();
@@ -37,7 +37,7 @@ void ven::ImGuiWindowManager::render(Renderer* renderer, std::unordered_map<unsi
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }
 
-void ven::ImGuiWindowManager::renderFrameWindow()
+void ven::Gui::renderFrameWindow()
 {
     const float framerate = m_io->Framerate;
 
@@ -48,7 +48,7 @@ void ven::ImGuiWindowManager::renderFrameWindow()
     ImGui::End();
 }
 
-void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo)
+void ven::Gui::rendererSection(Renderer *renderer, GlobalUbo& ubo)
 {
     if (ImGui::CollapsingHeader("Renderer")) {
         ImGui::Text("Aspect Ratio: %.2f", renderer->getAspectRatio());
@@ -108,7 +108,7 @@ void ven::ImGuiWindowManager::rendererSection(Renderer *renderer, GlobalUbo& ubo
     }
 }
 
-void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, KeyboardController &cameraController)
+void ven::Gui::cameraSection(Object &cameraObj, Camera &camera)
 {
     if (ImGui::CollapsingHeader("Camera")) {
         float fov = camera.getFov();
@@ -141,21 +141,23 @@ void ven::ImGuiWindowManager::cameraSection(Object &cameraObj, Camera &camera, K
             if (ImGui::Button("Reset##far")) { camera.setFar(DEFAULT_FAR); }
 
             ImGui::TableNextColumn();
-            ImGui::SliderFloat("Move Speed", &cameraController.m_moveSpeed, 0.1F, 10.0F);
+            float moveSpeed = camera.getMoveSpeed();
+            if (ImGui::SliderFloat("Move speed", &moveSpeed, 0.1F, 10.0F)) { camera.setMoveSpeed(moveSpeed); }
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##moveSpeed")) { cameraController.m_moveSpeed = DEFAULT_MOVE_SPEED; }
+            if (ImGui::Button("Reset##moveSpeed")) { camera.setMoveSpeed(DEFAULT_MOVE_SPEED); }
 
             ImGui::TableNextColumn();
-            ImGui::SliderFloat("Look Speed", &cameraController.m_lookSpeed, 0.1F, 10.0F);
+            float lookSpeed = camera.getLookSpeed();
+            if (ImGui::SliderFloat("Look speed", &lookSpeed, 0.1F, 10.0F)) { camera.setLookSpeed(lookSpeed); }
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##lookSpeed")) { cameraController.m_lookSpeed = DEFAULT_LOOK_SPEED; }
+            if (ImGui::Button("Reset##lookSpeed")) { camera.setLookSpeed(DEFAULT_LOOK_SPEED); }
 
             ImGui::EndTable();
         }
     }
 }
 
-void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Object>& objects)
+void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
 {
     if (ImGui::CollapsingHeader("Objects")) {
         ImVec4 boxColor;
@@ -181,7 +183,7 @@ void ven::ImGuiWindowManager::objectsSection(std::unordered_map<unsigned int, Ob
     }
 }
 
-void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Light> &lights)
+void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
 {
     if (ImGui::CollapsingHeader("Lights")) {
         bool open = false;
@@ -226,19 +228,19 @@ void ven::ImGuiWindowManager::lightsSection(std::unordered_map<unsigned int, Lig
     }
 }
 
-void ven::ImGuiWindowManager::inputsSection()
+void ven::Gui::inputsSection(const ImGuiIO* io)
 {
     if (ImGui::CollapsingHeader("Input")) {
-        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", m_io->MousePos.x, m_io->MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
-        ImGui::Text("Mouse delta: (%g, %g)", m_io->MouseDelta.x, m_io->MouseDelta.y);
+        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io->MousePos.x, io->MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
+        ImGui::Text("Mouse delta: (%g, %g)", io->MouseDelta.x, io->MouseDelta.y);
         ImGui::Text("Mouse down:");
-        for (int i = 0; i < static_cast<int>(std::size(m_io->MouseDown)); i++) {
+        for (int i = 0; i < static_cast<int>(std::size(io->MouseDown)); i++) {
             if (ImGui::IsMouseDown(i)) {
                 ImGui::SameLine();
-                ImGui::Text("b%d (%.02f secs)", i, m_io->MouseDownDuration[i]);
+                ImGui::Text("b%d (%.02f secs)", i, io->MouseDownDuration[i]);
             }
         }
-        ImGui::Text("Mouse wheel: %.1f", m_io->MouseWheel);
+        ImGui::Text("Mouse wheel: %.1f", io->MouseWheel);
         ImGui::Text("Keys down:");
         for (auto key = static_cast<ImGuiKey>(0); key < ImGuiKey_NamedKey_END; key = static_cast<ImGuiKey>(key + 1)) {
             if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) { continue; }
@@ -248,7 +250,7 @@ void ven::ImGuiWindowManager::inputsSection()
     }
 }
 
-void ven::ImGuiWindowManager::devicePropertiesSection(VkPhysicalDeviceProperties deviceProperties)
+void ven::Gui::devicePropertiesSection(VkPhysicalDeviceProperties deviceProperties)
 {
     if (ImGui::CollapsingHeader("Device Properties")) {
         if (ImGui::BeginTable("DevicePropertiesTable", 2)) {

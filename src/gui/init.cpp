@@ -1,14 +1,14 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
-#include "VEngine/ImGuiWindowManager.hpp"
+#include "VEngine/Gui.hpp"
 #include "VEngine/Colors.hpp"
 
 static constexpr uint32_t DESCRIPTOR_COUNT = 1000;
 
-ImGuiIO *ven::ImGuiWindowManager::m_io = nullptr;
+ImGuiIO *ven::Gui::m_io = nullptr;
 
-void ven::ImGuiWindowManager::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
+void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
 {
     VkDescriptorPool pool = nullptr;
 
@@ -59,7 +59,7 @@ void ven::ImGuiWindowManager::init(GLFWwindow* window, const VkInstance instance
     initStyle();
 }
 
-void ven::ImGuiWindowManager::initStyle()
+void ven::Gui::initStyle()
 {
     ImGuiStyle& style = ImGui::GetStyle();
     style.Alpha = 1.0;

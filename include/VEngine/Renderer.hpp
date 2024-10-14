@@ -35,7 +35,7 @@ namespace ven {
             [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
             [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command m_buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
 
-            [[nodiscard]] int getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
+            [[nodiscard]] unsigned long getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
             [[nodiscard]] std::array<float, 4> getClearColor() const { return {
                 m_clearValues[0].color.float32[0],
                 m_clearValues[0].color.float32[1],
@@ -64,7 +64,7 @@ namespace ven {
             std::array<VkClearValue, 2> m_clearValues{DEFAULT_CLEAR_COLOR, 1.0F, 0.F};
 
             uint32_t m_currentImageIndex{0};
-            int m_currentFrameIndex{0};
+            unsigned long m_currentFrameIndex{0};
             bool m_isFrameStarted{false};
 
     }; // class Renderer

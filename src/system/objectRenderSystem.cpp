@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include "VEngine/System/ObjectRenderSystem.hpp"
+#include "VEngine/RenderSystem/ObjectRenderSystem.hpp"
 
 void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
 {

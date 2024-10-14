@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "VEngine/Gui.hpp"
 #include "VEngine/Window.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Object.hpp"
@@ -50,7 +51,7 @@ namespace ven {
             Window m_window;
             Device m_device{m_window};
             Renderer m_renderer{m_window, m_device};
-
+            Gui m_gui;
             std::unique_ptr<DescriptorPool> m_globalPool;
             Object::Map m_objects;
             Light::Map m_lights;

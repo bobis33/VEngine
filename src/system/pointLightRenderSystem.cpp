@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include "VEngine/System/PointLightRenderSystem.hpp"
+#include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
 
 void ven::PointLightRenderSystem::render(const FrameInfo &frameInfo) const
 {

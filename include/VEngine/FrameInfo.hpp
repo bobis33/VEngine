@@ -37,7 +37,7 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
 
     struct FrameInfo
     {
-        int frameIndex;
+        unsigned long frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
         Camera &camera;
