@@ -1,3 +1,7 @@
+if (NOT USE_CLANG_TIDY)
+    return()
+endif()
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
 
 if (CLANG_TIDY_EXE)

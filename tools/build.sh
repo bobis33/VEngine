@@ -36,34 +36,21 @@ function clean() {
     fi
 }
 
-
-function build() {
-    debug=$1
-    if [ ! -d "build" ]; then
-        mkdir -p build
-    fi
-    if [ "$debug" == "true" ]; then
-        clean && "${CMAKE_CMD[@]}" -DUSE_CLANG_TIDY=ON && cmake --build build
-    else
-        "${CMAKE_CMD[@]}" && cmake --build build
-    fi
-}
-
 case $1 in
     build)
-        build "$([ "$2" == "debug" ] && echo true || echo false)"
+        "${CMAKE_CMD[@]}" && cmake --build build
         ;;
     clean)
         clean
         ;;
     format)
-        "${CMAKE_CMD[@]}" && cmake --build build --target clangformat
+        "${CMAKE_CMD[@]}" -DUSE_CLANG_TIDY=ON && cmake --build build --target clangformat
         ;;
     doc)
-        "${CMAKE_CMD[@]}" && cmake --build build --target doxygen
+        "${CMAKE_CMD[@]}" -DBUILD_DOC=ON && cmake --build build --target doxygen
         ;;
     *)
-        log "ERROR" "Invalid command. Usage: $0 build [debug] | clean | format | doc"
+        log "ERROR" "Invalid command. Usage: $0 build | clean | format | doc"
         exit 1
         ;;
 esac

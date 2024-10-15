@@ -19,4 +19,4 @@ foreach(SHADER ${SHADERS})
     list(APPEND SPIRV_BINARIES ${SPIRV_BINARY})
 endforeach()
 
-add_custom_target(Shaders DEPENDS ${SPIRV_BINARIES})
+add_custom_target(shaders DEPENDS ${SPIRV_BINARIES})

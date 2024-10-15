@@ -22,7 +22,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/include \
 FILE_PATTERNS          = *.hpp \
                          *.cpp \
                          *.md
-EXCLUDE_PATTERNS       = lib/external/*
+EXCLUDE_PATTERNS       = third-party/*
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
 

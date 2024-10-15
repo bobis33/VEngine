@@ -1,19 +1,25 @@
-## assimp
+add_library(thirdparty INTERFACE)
+
+#======================================= Vulkan ======================================#
+find_package(Vulkan REQUIRED)
+list(APPEND THIRDPARTY_LIBS Vulkan::Vulkan)
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${Vulkan_INCLUDE_DIRS})
+
+#======================================= Assimp ======================================#
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "" FORCE)
-set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(assimp)
-list(APPEND THIRDPARTY_LIBRARIES assimp::assimp)
+list(APPEND THIRDPARTY_LIBS assimp)
 list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
 
-## glfw
+#======================================= GLFW =======================================#
 add_subdirectory(glfw)
-list(APPEND THIRDPARTY_LIBRARIES glfw)
+list(APPEND THIRDPARTY_LIBS glfw)
 list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 
-## imgui
+#======================================= ImGui =======================================#
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 file(GLOB IMGUI_SRCS
         ${IMGUI_DIR}/imgui.cpp
@@ -23,17 +29,16 @@ file(GLOB IMGUI_SRCS
         ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
 )
-
 add_library(imgui STATIC ${IMGUI_SRCS})
 target_include_directories(imgui PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
 )
-list(APPEND THIRDPARTY_LIBRARIES imgui)
-list(APPEND THIRDPARTY_INCLUDE_DIRS ${IMGUI_DIR})
-list(APPEND THIRDPARTY_INCLUDE_DIRS ${IMGUI_DIR}/backends)
 
-add_custom_target(ThirdParty DEPENDS ${THIRDPARTY_LIBRARIES})
+list(APPEND THIRDPARTY_LIBS imgui)
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${IMGUI_DIR} ${IMGUI_DIR}/backends)
 
-set(THIRDPARTY_INCLUDE_DIRS ${THIRDPARTY_INCLUDE_DIRS} PARENT_SCOPE)
-set(THIRDPARTY_LIBRARIES ${THIRDPARTY_LIBRARIES} PARENT_SCOPE)
+target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS})
+target_include_directories(thirdparty INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
+
+set(THIRDPARTY_LIBRARIES thirdparty PARENT_SCOPE)
