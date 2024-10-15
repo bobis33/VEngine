@@ -1,3 +1,8 @@
+///
+/// @file point_light_vert.vert
+/// @brief vertex shader for the point lights.
+///
+
 #version 450
 
 const vec2 OFFSETS[6] = vec2[](

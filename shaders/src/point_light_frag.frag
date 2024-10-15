@@ -1,3 +1,8 @@
+///
+/// @file point_light_frag.frag
+/// @brief fragment shader for the point lights.
+///
+
 #version 450
 
 layout (location = 0) in vec2 fragOffset;

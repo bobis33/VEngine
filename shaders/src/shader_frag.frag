@@ -1,3 +1,8 @@
+///
+/// @file shader_frag.frag
+/// @brief fragment shader for the objects.
+///
+
 #version 450
 
 layout (location = 0) in vec3 fragColor;
