@@ -14,7 +14,7 @@
 
 namespace ven {
 
-    static constexpr std::string_view SHADERS_BIN_PATH = "shaders/bin/";
+    static constexpr std::string_view SHADERS_BIN_PATH = "build/shaders/";
 
     struct PipelineConfigInfo {
         PipelineConfigInfo() = default;

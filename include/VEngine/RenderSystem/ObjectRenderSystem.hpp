@@ -27,7 +27,7 @@ namespace ven {
 
             explicit ObjectRenderSystem(Device& device, const VkRenderPass renderPass, const VkDescriptorSetLayout globalSetLayout) : ARenderSystemBase(device) {
                 createPipelineLayout(globalSetLayout, sizeof(ObjectPushConstantData));
-                createPipeline(renderPass, std::string(SHADERS_BIN_PATH) + "shader_vert.spv", std::string(SHADERS_BIN_PATH) + "shader_frag.spv", false);
+                createPipeline(renderPass, std::string(SHADERS_BIN_PATH) + "vertex_shader.spv", std::string(SHADERS_BIN_PATH) + "fragment_shader.spv", false);
             }
 
             ObjectRenderSystem(const ObjectRenderSystem&) = delete;

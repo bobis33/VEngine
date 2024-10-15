@@ -9,7 +9,7 @@ configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 doxygen_add_docs(doxygen
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/src
-        ${CMAKE_SOURCE_DIR}/shaders/src
+        ${CMAKE_SOURCE_DIR}/assets/shaders
 )
 
 add_custom_command(TARGET doxygen POST_BUILD

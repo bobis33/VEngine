@@ -18,7 +18,7 @@ STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR_LINUX@ \
                          @PROJECT_SOURCE_DIR_LINUX@
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/include \
                          @CMAKE_CURRENT_SOURCE_DIR@/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/shaders/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/assets/shaders \
                          @CMAKE_CURRENT_SOURCE_DIR@/README.md
 FILE_PATTERNS          = *.hpp \
                          *.cpp \
@@ -28,12 +28,6 @@ FILE_PATTERNS          = *.hpp \
 EXCLUDE_PATTERNS       = third-party/*
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
-
-FILTER_PATTERNS        = "*.frag=./glslfilter.py" \
-                         "*.vert=./glslfilter.py"
-
-EXTENSION_MAPPING      = .frag=C++ \
-                         .vert=C++
 
 PLANTUML_JAR_PATH      =
 DOT_PATH               =

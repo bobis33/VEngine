@@ -1,15 +1,10 @@
-///
-/// @file shader_frag.frag
-/// @brief fragment shader for the objects.
-///
-
 #version 450
 
-layout (location = 0) in vec3 fragColor;
-layout (location = 1) in vec3 fragPosWorld;
-layout (location = 2) in vec3 fragNormalWorld;
+layout(location = 0) in vec3 fragColor;
+layout(location = 1) in vec3 fragPosWorld;
+layout(location = 2) in vec3 fragNormalWorld;
 
-layout (location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 struct PointLight {
   vec4 position; // ignore w
@@ -32,9 +27,8 @@ layout(push_constant) uniform Push {
 
 void main() {
   vec3 specularLight = vec3(0.0);
-  vec3 normal = gl_FrontFacing ? fragNormalWorld : -fragNormalWorld; // to disable if backface culling is used -> have to load multiple face for obj, for the moment we have only one face per obj
-  vec3 surfaceNormal = normalize(normal);
-  vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.a;
+  vec3 surfaceNormal = normalize(gl_FrontFacing ? fragNormalWorld : -fragNormalWorld);
+  vec3 diffuseLight = ubo.ambientLightColor.rgb * ubo.ambientLightColor.a;
 
   vec3 cameraPosWorld = ubo.invView[3].xyz;
   vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
@@ -42,11 +36,12 @@ void main() {
   for (int i = 0; i < ubo.numLights; i++) {
     PointLight light = ubo.pointLights[i];
     vec3 directionToLight = light.position.xyz - fragPosWorld;
-    float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
+    float distanceSquared = dot(directionToLight, directionToLight);
+    float attenuation = 1.0 / distanceSquared; // distance squared
     directionToLight = normalize(directionToLight);
 
     float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
-    vec3 intensity = light.color.xyz * light.color.w * attenuation;
+    vec3 intensity = light.color.rgb * light.color.a * attenuation;
     vec3 reflectionDirection = reflect(-directionToLight, surfaceNormal);
     float cosAngReflection = max(dot(viewDirection, reflectionDirection), 0);
 
@@ -54,10 +49,8 @@ void main() {
     diffuseLight += intensity * cosAngIncidence;
     // specular lighting
     float specular = pow(cosAngReflection, 512);
-    specularLight += intensity * specular
-    * step(0.0, cosAngIncidence) // only add specular if light is on the correct side
-    * step(0.0, cosAngReflection); // only add specular if reflection is in
-
+    specularLight += intensity * specular * step(0.0, cosAngIncidence) * step(0.0, cosAngReflection);
   }
+
   outColor = vec4(fragColor * (diffuseLight + specularLight), 1.0);
 }

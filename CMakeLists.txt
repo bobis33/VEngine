@@ -16,11 +16,11 @@ endif()
 include(ClangTidy)
 include(ClangFormat)
 clangformat_setup()
+include(MakeShaders)
 
 file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
 add_subdirectory(third-party)
-add_subdirectory(shaders)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

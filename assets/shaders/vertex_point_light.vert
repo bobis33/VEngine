@@ -1,20 +1,15 @@
-///
-/// @file point_light_vert.vert
-/// @brief vertex shader for the point lights.
-///
-
 #version 450
 
 const vec2 OFFSETS[6] = vec2[](
-    vec2(-1.0, -1.0),
-    vec2(-1.0, 1.0),
-    vec2(1.0, -1.0),
-    vec2(1.0, -1.0),
-    vec2(-1.0, 1.0),
-    vec2(1.0, 1.0)
+vec2(-1.0, -1.0),
+vec2(-1.0, 1.0),
+vec2(1.0, -1.0),
+vec2(1.0, -1.0),
+vec2(-1.0, 1.0),
+vec2(1.0, 1.0)
 );
 
-layout (location = 0) out vec2 fragOffset;
+layout(location = 0) out vec2 fragOffset;
 
 struct PointLight {
     vec4 position; // ignore w
@@ -36,11 +31,10 @@ layout(push_constant) uniform Push {
     float radius;
 } push;
 
-
 void main() {
     fragOffset = OFFSETS[gl_VertexIndex];
-    vec3 cameraRightWorld = {ubo.view[0][0], ubo.view[1][0], ubo.view[2][0]};
-    vec3 cameraUpWorld = {ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]};
+    vec3 cameraRightWorld = vec3(ubo.view[0][0], ubo.view[1][0], ubo.view[2][0]);
+    vec3 cameraUpWorld = vec3(ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]);
 
     vec3 positionWorld = push.position.xyz
     + push.radius * fragOffset.x * cameraRightWorld
