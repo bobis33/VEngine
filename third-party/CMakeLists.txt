@@ -19,6 +19,9 @@ add_subdirectory(glfw)
 list(APPEND THIRDPARTY_LIBS glfw)
 list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 
+#======================================= GLM =======================================#
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+
 #======================================= ImGui =======================================#
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 file(GLOB IMGUI_SRCS
@@ -33,6 +36,7 @@ add_library(imgui STATIC ${IMGUI_SRCS})
 target_include_directories(imgui PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
+        ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
 )
 
 list(APPEND THIRDPARTY_LIBS imgui)

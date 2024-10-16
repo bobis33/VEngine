@@ -1,4 +1,6 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
+
 #include "VEngine/EventManager.hpp"
 
 void ven::EventManager::handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, const float dt) const

@@ -40,7 +40,6 @@ void ven::SceneManager::updateBuffer(unsigned long frameIndex)
             .normalMatrix = object.transform.normalMatrix()
         };
         m_uboBuffers.at(frameIndex)->writeToIndex(&data, id);
-
         object.setBufferInfo(static_cast<int>(frameIndex), m_uboBuffers.at(frameIndex)->descriptorInfoForIndex(id));
     }
     m_uboBuffers.at(frameIndex)->flush();

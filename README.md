@@ -41,9 +41,29 @@ Make sure you have the following dependencies installed on your system:
 
 - [CMake 3.27](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
-- [Vulkan](https://www.vulkan.org/)
-- [GLM](https://github.com/icaven/glm)
+- [Vulkan SDK](https://www.vulkan.org/)
+- [X11](https://www.x.org/wiki/)
 
+if you are using a Debian-based distribution, you can install the required packages using the following command:
+
+```bash
+$> ./tools/install_dependencies.sh
+```
+
+## External Libraries
+
+- [**Assimp**](https://github.com/assimp/assimp): Open Asset Import Library to load various 3D model formats into the engine.
+- [**Doxygen Awesome CSS**](https://github.com/jothepro/doxygen-awesome-css/tree/main): A custom CSS theme for Doxygen documentation.
+- [**GLFW**](https://github.com/glfw/glfw): For creating windows, receiving input, and managing OpenGL and Vulkan contexts.
+- [**GLM**](https://github.com/g-truc/glm): A header-only C++ mathematics library for 3D transformations, vectors, and matrices, compatible with OpenGL and Vulkan.
+- [**ImGui**](https://github.com/ocornut/imgui): Immediate Mode Graphical User Interface for real-time debugging and tool development.
+- [**stb**](https://github.com/nothings/stb): A set of single-file public domain libraries for graphics, image loading, and more.
+
+These libraries are included directly into the project to simplify dependency management. Be sure to initialize and update the submodules when cloning the repository:
+
+```bash
+$> git submodule update --init --recursive
+```
 
 ## Usage
 
