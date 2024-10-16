@@ -17,18 +17,3 @@ void ven::PointLightRenderSystem::render(const FrameInfo &frameInfo) const
         vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
     }
 }
-
-void ven::PointLightRenderSystem::update(const FrameInfo &frameInfo, GlobalUbo &ubo)
-{
-    const glm::mat4 rotateLight = rotate(glm::mat4(1.F), frameInfo.frameTime, {0.F, -1.F, 0.F});
-    uint16_t lightIndex = 0;
-
-    for (Light &light : frameInfo.lights | std::views::values) {
-        assert(lightIndex < MAX_LIGHTS && "Too many lights");
-        light.transform.translation = glm::vec3(rotateLight * glm::vec4(light.transform.translation, 1.F));
-        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform.translation, 1.F);
-        ubo.pointLights.at(lightIndex).color = light.color;
-        lightIndex++;
-    }
-    ubo.numLights = lightIndex;
-}

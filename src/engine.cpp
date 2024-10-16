@@ -68,19 +68,19 @@ void ven::Engine::loadObjects()
         Colors::CYAN_4,
         Colors::MAGENTA_4
     };
-    auto& quad = m_objectManager.createObject();
+    auto& quad = m_sceneManager.createObject();
     quad.setName("quad");
     quad.setModel(Model::createModelFromFile(m_device, "assets/models/quad.obj"));
     quad.transform.translation = {0.F, .5F, 0.F};
     quad.transform.scale = {3.F, 1.F, 3.F};
 
-    auto& flatVase = m_objectManager.createObject();
+    auto& flatVase = m_sceneManager.createObject();
     flatVase.setName("flat vase");
     flatVase.setModel(Model::createModelFromFile(m_device, "assets/models/flat_vase.obj"));
     flatVase.transform.translation = {-.5F, .5F, 0.F};
     flatVase.transform.scale = {3.F, 1.5F, 3.F};
 
-    auto& smoothVase = m_objectManager.createObject();
+    auto& smoothVase = m_sceneManager.createObject();
     smoothVase.setName("smooth vase");
     smoothVase.setModel(Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj"));
     smoothVase.transform.translation = {.5F, .5F, 0.F};
@@ -88,7 +88,7 @@ void ven::Engine::loadObjects()
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        Light pointLight = Light::createLight();
+        auto& pointLight = m_sceneManager.createLight();
         pointLight.color = lightColors.at(i);
         glm::mat4 rotateLight = rotate(
             glm::mat4(1.F),
@@ -96,7 +96,6 @@ void ven::Engine::loadObjects()
             {0.F, -1.F, 0.F}
             );
         pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
-        m_lights.emplace(pointLight.getId(), std::move(pointLight));
     }
 }
 
@@ -152,17 +151,15 @@ void ven::Engine::mainLoop()
                 .camera=camera,
                 .globalDescriptorSet=globalDescriptorSets[frameIndex],
                 .frameDescriptorPool=*framePools[frameIndex],
-                .objects=m_objectManager.getObjects(),
-                .lights=m_lights
+                .objects=m_sceneManager.getObjects(),
+                .lights=m_sceneManager.getLights()
             };
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
-            PointLightRenderSystem::update(frameInfo, ubo);
-            uboBuffers[frameIndex]->writeToBuffer(&ubo);
-            uboBuffers[frameIndex]->flush();
-
-            m_objectManager.updateBuffer(frameIndex);
+            m_sceneManager.updateBuffer(frameIndex, ubo, frameInfo.frameTime);
+            uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
+            uboBuffers.at(frameIndex)->flush();
 
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
             objectRenderSystem.render(frameInfo);
@@ -171,8 +168,8 @@ void ven::Engine::mainLoop()
             if (m_gui.getState() == VISIBLE) {
                 Gui::render(
                     &m_renderer,
-                    m_objectManager.getObjects(),
-                    m_lights,
+                    m_sceneManager.getObjects(),
+                    m_sceneManager.getLights(),
                     camera,
                     m_device.getPhysicalDevice(),
                     ubo

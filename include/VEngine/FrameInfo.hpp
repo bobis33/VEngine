@@ -15,8 +15,6 @@
 
 namespace ven {
 
-static constexpr uint16_t MAX_LIGHTS = 10;
-
 static constexpr float DEFAULT_AMBIENT_LIGHT_INTENSITY = .2F;
 static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAULT_AMBIENT_LIGHT_INTENSITY};
 

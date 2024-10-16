@@ -36,8 +36,6 @@ namespace ven {
 
             void render(const FrameInfo &frameInfo) const override;
 
-            static void update(const FrameInfo &frameInfo, GlobalUbo &ubo);
-
     }; // class PointLightRenderSystem
 
 } // namespace ven

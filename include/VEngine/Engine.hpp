@@ -54,8 +54,7 @@ namespace ven {
             Gui m_gui;
             std::unique_ptr<DescriptorPool> m_globalPool;
             std::vector<std::unique_ptr<DescriptorPool>> framePools;
-            SceneManager m_objectManager{m_device};
-            Light::Map m_lights;
+            SceneManager m_sceneManager{m_device};
 
             VkInstance m_instance{nullptr};
             VkSurfaceKHR m_surface{nullptr};

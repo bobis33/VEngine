@@ -13,11 +13,11 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
         if (object.getModel() == nullptr) { continue; }
         auto bufferInfo = object.getBufferInfo(static_cast<int>(frameInfo.frameIndex));
         auto imageInfo = object.getDiffuseMap()->getImageInfo();
-        VkDescriptorSet gameObjectDescriptorSet = nullptr;
+        VkDescriptorSet objectDescriptorSet = nullptr;
         DescriptorWriter(*renderSystemLayout, frameInfo.frameDescriptorPool)
             .writeBuffer(0, &bufferInfo)
             .writeImage(1, &imageInfo)
-            .build(gameObjectDescriptorSet);
+            .build(objectDescriptorSet);
 
         vkCmdBindDescriptorSets(
             frameInfo.commandBuffer,
@@ -25,7 +25,7 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
             getPipelineLayout(),
             1,  // starting set (0 is the globalDescriptorSet, 1 is the set specific to this system)
             1,  // set count
-            &gameObjectDescriptorSet,
+            &objectDescriptorSet,
             0,
             nullptr);
 

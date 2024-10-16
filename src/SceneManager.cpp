@@ -1,6 +1,9 @@
 #include <numeric>
+#include <ranges>
 
 #include "VEngine/SceneManager.hpp"
+
+#include <VEngine/FrameInfo.hpp>
 
 ven::SceneManager::SceneManager(Device& device)
 {
@@ -13,7 +16,7 @@ ven::SceneManager::SceneManager(Device& device)
         uboBuffer = std::make_unique<Buffer>(
             device,
             sizeof(ObjectBufferData),
-            MAX_GAME_OBJECTS,
+            MAX_OBJECTS,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
             alignment);
@@ -24,17 +27,31 @@ ven::SceneManager::SceneManager(Device& device)
 
 ven::Object& ven::SceneManager::createObject()
 {
-    assert(m_currentId < MAX_GAME_OBJECTS && "Max game object count exceeded!");
-    auto object = Object{m_currentId++};
+    assert(m_currentObjId < MAX_OBJECTS && "Max object count exceeded!");
+    auto object = Object{m_currentObjId++};
     auto objId = object.getId();
     object.setDiffuseMap(m_textureDefault);
     m_objects.emplace(objId, std::move(object));
     return m_objects.at(objId);
 }
 
-void ven::SceneManager::updateBuffer(unsigned long frameIndex)
+ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 color)
 {
-    for (auto&[id, object] : m_objects) {
+    assert(m_currentLightId < MAX_LIGHTS && "Max light count exceeded!");
+    auto light = Light(m_currentLightId++);
+    auto lightId = light.getId();
+    light.color = color;
+    light.transform.scale.x = radius;
+    m_lights.emplace(lightId, std::move(light));
+    return m_lights.at(lightId);
+}
+
+void ven::SceneManager::updateBuffer(const unsigned long frameIndex, GlobalUbo &ubo, const float frameTime)
+{
+    uint16_t lightIndex = 0;
+    const glm::mat4 rotateLight = rotate(glm::mat4(1.F), frameTime, {0.F, -1.F, 0.F});
+
+    for (auto& [id, object] : m_objects) {
         const ObjectBufferData data{
             .modelMatrix = object.transform.mat4(),
             .normalMatrix = object.transform.normalMatrix()
@@ -42,5 +59,12 @@ void ven::SceneManager::updateBuffer(unsigned long frameIndex)
         m_uboBuffers.at(frameIndex)->writeToIndex(&data, id);
         object.setBufferInfo(static_cast<int>(frameIndex), m_uboBuffers.at(frameIndex)->descriptorInfoForIndex(id));
     }
-    m_uboBuffers.at(frameIndex)->flush();
+
+    for (Light &light : m_lights | std::views::values) {
+        light.transform.translation = glm::vec3(rotateLight * glm::vec4(light.transform.translation, 1.F));
+        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform.translation, 1.F);
+        ubo.pointLights.at(lightIndex).color = light.color;
+        lightIndex++;
+    }
+    ubo.numLights = lightIndex;
 }

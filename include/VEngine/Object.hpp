@@ -18,7 +18,7 @@
 
 namespace ven {
 
-    static constexpr unsigned int MAX_GAME_OBJECTS = 1000;
+    static constexpr unsigned int MAX_OBJECTS = 1000;
 
     struct ObjectBufferData {
         glm::mat4 modelMatrix{1.F};

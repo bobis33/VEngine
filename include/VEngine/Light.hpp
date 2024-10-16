@@ -17,6 +17,9 @@ namespace ven {
     static constexpr float DEFAULT_LIGHT_RADIUS = 0.1F;
     static constexpr glm::vec4 DEFAULT_LIGHT_COLOR = {glm::vec3(1.F), DEFAULT_LIGHT_INTENSITY};
 
+    static constexpr uint16_t MAX_LIGHTS = 10;
+
+
     ///
     /// @class Light
     /// @brief Class for light
@@ -28,6 +31,8 @@ namespace ven {
 
             using Map = std::unordered_map<unsigned int, Light>;
 
+            explicit Light(const unsigned int objId) : m_lightId{objId} {}
+
             ~Light() = default;
 
             Light(const Light&) = delete;
@@ -35,19 +40,15 @@ namespace ven {
             Light(Light&&) = default;
             Light& operator=(Light&&) = default;
 
-            static Light createLight(float radius = DEFAULT_LIGHT_RADIUS, glm::vec4 color = DEFAULT_LIGHT_COLOR);
-
-            glm::vec4 color{DEFAULT_LIGHT_COLOR};
-            Transform3DComponent transform{};
-
             [[nodiscard]] unsigned int getId() const { return m_lightId; }
             [[nodiscard]] std::string getName() const { return m_name; }
 
             void setName(const std::string &name) { m_name = name; }
 
-        private:
+            glm::vec4 color{DEFAULT_LIGHT_COLOR};
+            Transform3DComponent transform{};
 
-            explicit Light(const unsigned int lightId) : m_lightId(lightId) {}
+        private:
 
             unsigned int m_lightId;
             std::string m_name{"point light"};
