@@ -3,13 +3,14 @@
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
-layout (location = 3) in vec2 fragUv;
+layout(location = 3) in vec2 fragUv;
 
 layout(location = 0) out vec4 outColor;
 
 struct PointLight {
   vec4 position; // ignore w
   vec4 color; // w is intensity
+  float shininess;
 };
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
@@ -40,21 +41,23 @@ void main() {
     PointLight light = ubo.pointLights[i];
     vec3 directionToLight = light.position.xyz - fragPosWorld;
     float distanceSquared = dot(directionToLight, directionToLight);
-    float attenuation = 1.0 / distanceSquared; // distance squared
+    float attenuation = distanceSquared > 0.001 ? (light.position.w + 1.0) / distanceSquared : 0.0;
     directionToLight = normalize(directionToLight);
 
     float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
     vec3 intensity = light.color.rgb * light.color.a * attenuation;
-    vec3 reflectionDirection = reflect(-directionToLight, surfaceNormal);
-    float cosAngReflection = max(dot(viewDirection, reflectionDirection), 0);
 
-    // diffuse lighting
-    diffuseLight += intensity * cosAngIncidence;
-    // specular lighting
-    float specular = pow(cosAngReflection, 512);
-    specularLight += intensity * specular * step(0.0, cosAngIncidence) * step(0.0, cosAngReflection);
+    if (cosAngIncidence > 0) {
+      vec3 halfVector = normalize(directionToLight + viewDirection);
+      float cosAngHalf = max(dot(surfaceNormal, halfVector), 0);
+
+      float specular = pow(cosAngHalf, light.shininess);
+
+      diffuseLight += intensity * cosAngIncidence;
+      specularLight += intensity * specular;
+    }
   }
 
-  vec3 color = texture(diffuseMap, fragUv).xyz * fragColor; // maybe remove fragColor
+  vec3 color = texture(diffuseMap, fragUv).xyz;
   outColor = vec4(diffuseLight * color + specularLight, 1.0);
 }

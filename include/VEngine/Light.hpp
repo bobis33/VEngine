@@ -47,6 +47,7 @@ namespace ven {
 
             glm::vec4 color{DEFAULT_LIGHT_COLOR};
             Transform3DComponent transform{};
+            float shininess{32.F};
 
         private:
 

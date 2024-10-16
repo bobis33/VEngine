@@ -175,10 +175,52 @@ void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
     }
 }
 
+float globalIntensity = 1.0F;
+float globalShininess = 32.F;
+
 void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
 {
     if (ImGui::CollapsingHeader("Lights")) {
         bool open = false;
+
+        float tempIntensity = globalIntensity;
+        float tempShininess = globalShininess;
+
+        if (ImGui::BeginTable("LightTable", 2)) {
+            ImGui::TableNextColumn();
+            if (ImGui::SliderFloat("Global Intensity", &tempIntensity, 0.0F, 5.F)) {
+                globalIntensity = tempIntensity;
+                for (auto& light : lights) {
+                    light.second.color.a = globalIntensity;
+                }
+            }
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset Global Intensity")) {
+                globalIntensity = DEFAULT_LIGHT_INTENSITY;
+                tempIntensity = globalIntensity;
+                for (auto& light : lights) {
+                    light.second.color.a = globalIntensity;
+                }
+            }
+
+            ImGui::TableNextColumn();
+            if (ImGui::SliderFloat("Global Shininess", &tempShininess, 0.0F, 512.F)) {
+                globalShininess = tempShininess;
+                for (auto& light : lights) {
+                    light.second.shininess = globalShininess;
+                }
+            }
+
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset Global Shininess")) {
+                globalShininess = 32.F;
+                tempShininess = globalShininess;
+                for (auto& light : lights) {
+                    light.second.shininess = globalShininess;
+                }
+            }
+            ImGui::EndTable();
+        }
 
         for (auto& [id, light] : lights) {
             ImGui::PushStyleColor(ImGuiCol_Text, {light.color.r, light.color.g, light.color.b, 1.0F});
@@ -210,6 +252,10 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                     ImGui::SliderFloat(("Intensity##" + std::to_string(light.getId())).c_str(), &light.color.a, 0.0F, 5.F);
                     ImGui::TableNextColumn();
                     if (ImGui::Button(("Reset##" + std::to_string(light.getId())).c_str())) { light.color.a = DEFAULT_LIGHT_INTENSITY; }
+                    ImGui::TableNextColumn();
+                    ImGui::SliderFloat("Shininess", &light.shininess, 0.0F, 512.F);
+                    ImGui::TableNextColumn();
+                    if (ImGui::Button("Reset##shininess")) { light.shininess = 32.F; }
 
                     ImGui::EndTable();
                 }

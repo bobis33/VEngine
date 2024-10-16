@@ -22,7 +22,7 @@ ven::SceneManager::SceneManager(Device& device)
             alignment);
         uboBuffer->map();
     }
-    m_textureDefault = Texture::createTextureFromFile(device, "assets/textures/missing.png");
+    m_textureDefault = Texture::createTextureFromFile(device, "assets/textures/default.png");
 }
 
 ven::Object& ven::SceneManager::createObject()
@@ -46,7 +46,7 @@ ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 c
     return m_lights.at(lightId);
 }
 
-void ven::SceneManager::updateBuffer(const unsigned long frameIndex, GlobalUbo &ubo, const float frameTime)
+void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIndex, const float frameTime)
 {
     uint16_t lightIndex = 0;
     const glm::mat4 rotateLight = rotate(glm::mat4(1.F), frameTime, {0.F, -1.F, 0.F});
@@ -61,9 +61,10 @@ void ven::SceneManager::updateBuffer(const unsigned long frameIndex, GlobalUbo &
     }
 
     for (Light &light : m_lights | std::views::values) {
-        light.transform.translation = glm::vec3(rotateLight * glm::vec4(light.transform.translation, 1.F));
-        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform.translation, 1.F);
+        light.transform.translation = glm::vec3(rotateLight * glm::vec4(light.transform.translation, light.transform.scale.x));
+        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform.translation, light.transform.scale.x);
         ubo.pointLights.at(lightIndex).color = light.color;
+        ubo.pointLights.at(lightIndex).shininess = light.shininess;
         lightIndex++;
     }
     ubo.numLights = lightIndex;

@@ -157,7 +157,7 @@ void ven::Engine::mainLoop()
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
-            m_sceneManager.updateBuffer(frameIndex, ubo, frameInfo.frameTime);
+            m_sceneManager.updateBuffer(ubo, frameIndex, frameTime);
             uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
             uboBuffers.at(frameIndex)->flush();
 

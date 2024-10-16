@@ -37,7 +37,7 @@ namespace ven {
         Light::Map& getLights() { return m_lights; }
         std::vector<std::unique_ptr<Buffer>> &getUboBuffers() { return m_uboBuffers; }
 
-        void updateBuffer(unsigned long frameIndex, GlobalUbo &ubo, float frameTime);
+        void updateBuffer(GlobalUbo &ubo, unsigned long frameIndex, float frameTime);
 
     private:
 

@@ -22,6 +22,8 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
     {
         glm::vec4 position{};
         glm::vec4 color{};
+        float shininess{32.F};
+        float padding[3];
     };
 
     struct GlobalUbo
