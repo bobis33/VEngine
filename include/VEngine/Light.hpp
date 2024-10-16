@@ -6,10 +6,8 @@
 
 #pragma once
 
-#include <memory>
 #include <unordered_map>
-
-#include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 #include "VEngine/Transform3DComponent.hpp"
 
@@ -40,7 +38,7 @@ namespace ven {
             static Light createLight(float radius = DEFAULT_LIGHT_RADIUS, glm::vec4 color = DEFAULT_LIGHT_COLOR);
 
             glm::vec4 color{DEFAULT_LIGHT_COLOR};
-            Transform3DComponent transform3D{};
+            Transform3DComponent transform{};
 
             [[nodiscard]] unsigned int getId() const { return m_lightId; }
             [[nodiscard]] std::string getName() const { return m_name; }

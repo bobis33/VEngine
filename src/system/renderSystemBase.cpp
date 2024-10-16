@@ -1,4 +1,5 @@
 #include <cassert>
+#include <VEngine/Descriptors/DescriptorSetLayout.hpp>
 
 #include "VEngine/RenderSystem/ARenderSystemBase.hpp"
 
@@ -9,7 +10,18 @@ void ven::ARenderSystemBase::createPipelineLayout(const VkDescriptorSetLayout gl
     pushConstantRange.offset = 0;
     pushConstantRange.size = pushConstantSize;
 
-    const std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
+    renderSystemLayout =
+    DescriptorSetLayout::Builder(m_device)
+        .addBinding(
+            0,
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+        .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        .build();
+
+    const std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+        globalSetLayout,
+        renderSystemLayout->getDescriptorSetLayout()};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

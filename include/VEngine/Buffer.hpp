@@ -61,7 +61,7 @@ namespace ven {
             ///
             /// @return VkResult of the flush call
             ///
-            [[nodiscard]] VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
+            VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 
             ///
             /// @brief Create a buffer info descriptor
@@ -100,7 +100,7 @@ namespace ven {
             ///
             /// @param index Used in offset calculation
             ///
-            [[nodiscard]] VkResult flushIndex(const VkDeviceSize index) const { return flush(m_alignmentSize, index * m_alignmentSize); }
+            [[nodiscard]] VkResult flushIndex(const VkDeviceSize index) const {   assert(m_alignmentSize % m_device.getProperties().limits.nonCoherentAtomSize == 0 && "Cannot use LveBuffer::flushIndex if alignmentSize isn't a multiple of Device Limits nonCoherentAtomSize"); return flush(m_alignmentSize, index * m_alignmentSize); }
 
             ///
             ///

@@ -11,10 +11,10 @@
 #include "VEngine/Gui.hpp"
 #include "VEngine/Window.hpp"
 #include "VEngine/Device.hpp"
-#include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Light.hpp"
+#include "VEngine/SceneManager.hpp"
 
 namespace ven {
 
@@ -53,7 +53,8 @@ namespace ven {
             Renderer m_renderer{m_window, m_device};
             Gui m_gui;
             std::unique_ptr<DescriptorPool> m_globalPool;
-            Object::Map m_objects;
+            std::vector<std::unique_ptr<DescriptorPool>> framePools;
+            SceneManager m_objectManager{m_device};
             Light::Map m_lights;
 
             VkInstance m_instance{nullptr};

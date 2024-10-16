@@ -38,7 +38,10 @@ target_include_directories(imgui PRIVATE
 list(APPEND THIRDPARTY_LIBS imgui)
 list(APPEND THIRDPARTY_INCLUDE_DIRS ${IMGUI_DIR} ${IMGUI_DIR}/backends)
 
+#======================================= STB =======================================#
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/stb)
+
 target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS})
-target_include_directories(thirdparty INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
+target_include_directories(thirdparty SYSTEM INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
 
 set(THIRDPARTY_LIBRARIES thirdparty PARENT_SCOPE)

@@ -23,7 +23,7 @@ void ven::EventManager::moveCamera(GLFWwindow* window, Camera& camera, Gui& gui,
 {
     glm::vec3 rotate{0};
     glm::vec3 moveDir{0.F};
-    const float yaw = camera.transform3D.rotation.y;
+    const float yaw = camera.transform.rotation.y;
     const glm::vec3 forwardDir{std::sin(yaw), 0.F, std::cos(yaw)};
     const glm::vec3 rightDir{forwardDir.z, 0.F, -forwardDir.x};
     constexpr glm::vec3 upDir{0.F, -1.F, 0.F};
@@ -55,14 +55,14 @@ void ven::EventManager::moveCamera(GLFWwindow* window, Camera& camera, Gui& gui,
     }
 
     if (glm::length2(rotate) > std::numeric_limits<float>::epsilon()) {
-        camera.transform3D.rotation += camera.getLookSpeed() * dt * glm::normalize(rotate);
+        camera.transform.rotation += camera.getLookSpeed() * dt * glm::normalize(rotate);
     }
     if (glm::length2(moveDir) > std::numeric_limits<float>::epsilon()) {
-        camera.transform3D.translation += camera.getMoveSpeed() * dt * glm::normalize(moveDir);
+        camera.transform.translation += camera.getMoveSpeed() * dt * glm::normalize(moveDir);
     }
 
-    camera.transform3D.rotation.x = glm::clamp(camera.transform3D.rotation.x, -1.5F, 1.5F);
-    camera.transform3D.rotation.y = glm::mod(camera.transform3D.rotation.y, glm::two_pi<float>());
+    camera.transform.rotation.x = glm::clamp(camera.transform.rotation.x, -1.5F, 1.5F);
+    camera.transform.rotation.y = glm::mod(camera.transform.rotation.y, glm::two_pi<float>());
 
     if (isKeyJustPressed(window, m_keys.toggleGui, m_keyState)) {
         gui.getState() == HIDDEN ? gui.setState(VISIBLE) : gui.setState(HIDDEN);

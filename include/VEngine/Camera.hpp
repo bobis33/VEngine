@@ -57,7 +57,7 @@ namespace ven {
             [[nodiscard]] float getMoveSpeed() const { return m_moveSpeed; }
             [[nodiscard]] float getLookSpeed() const { return m_lookSpeed; }
 
-            Transform3DComponent transform3D{DEFAULT_POSITION, {1.F, 1.F, 1.F}, DEFAULT_ROTATION};
+            Transform3DComponent transform{DEFAULT_POSITION, {1.F, 1.F, 1.F}, DEFAULT_ROTATION};
 
         private:
 

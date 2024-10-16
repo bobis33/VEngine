@@ -115,14 +115,14 @@ void ven::Gui::cameraSection(Camera &camera)
         float far = camera.getFar();
         if (ImGui::BeginTable("CameraTable", 2)) {
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Position", glm::value_ptr(camera.transform3D.translation), 0.1F);
+            ImGui::DragFloat3("Position", glm::value_ptr(camera.transform.translation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##position")) { camera.transform3D.translation = DEFAULT_POSITION; }
+            if (ImGui::Button("Reset##position")) { camera.transform.translation = DEFAULT_POSITION; }
 
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Rotation", glm::value_ptr(camera.transform3D.rotation), 0.1F);
+            ImGui::DragFloat3("Rotation", glm::value_ptr(camera.transform.rotation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##rotation")) { camera.transform3D.rotation = DEFAULT_ROTATION; }
+            if (ImGui::Button("Reset##rotation")) { camera.transform.rotation = DEFAULT_ROTATION; }
 
             ImGui::TableNextColumn();
             if (ImGui::SliderFloat("FOV", &fov, glm::radians(0.1F), glm::radians(180.0F))) { camera.setFov(fov); }
@@ -165,9 +165,9 @@ void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
             open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
-                ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
+                ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform.scale), 0.1F);
                 ImGui::Text("Address: %p", &object);
                 ImGui::TreePop();
             }
@@ -186,9 +186,9 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
             ImGui::PopStyleColor(1);
             if (open) {
                 ImGui::Text("Address: %p", &light);
-                ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.scale), 0.1F);
+                ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.scale), 0.1F);
                 if (ImGui::BeginTable("ColorTable", 2)) {
                     ImGui::TableNextColumn(); ImGui::ColorEdit4(("Color##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.color));
 

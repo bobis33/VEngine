@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Camera.hpp"
 #include "VEngine/Object.hpp"
 #include "VEngine/Light.hpp"
@@ -42,6 +43,7 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
         VkCommandBuffer commandBuffer;
         Camera &camera;
         VkDescriptorSet globalDescriptorSet;
+        DescriptorPool &frameDescriptorPool;
         Object::Map &objects;
         Light::Map &lights;
     };

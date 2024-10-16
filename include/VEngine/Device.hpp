@@ -59,6 +59,7 @@ namespace ven {
             [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return m_physicalDevice; }
             [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
             [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+            [[nodiscard]] VkPhysicalDeviceProperties getProperties() const { return m_properties; }
 
             // Buffer Helper Functions
             void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
@@ -68,7 +69,7 @@ namespace ven {
             void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) const;
 
             void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory) const;
-
+            void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1, uint32_t layerCount = 1);
 
         private:
 

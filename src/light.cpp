@@ -6,7 +6,7 @@ ven::Light ven::Light::createLight(const float radius, const glm::vec4 color)
     Light light(objId++);
 
     light.color = color;
-    light.transform3D.scale.x = radius;
+    light.transform.scale.x = radius;
 
     return light;
 }
