@@ -6,9 +6,7 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include "VEngine/Transform3DComponent.hpp"
+#include "VEngine/Transform3D.hpp"
 
 namespace ven {
 
@@ -57,7 +55,7 @@ namespace ven {
             [[nodiscard]] float getMoveSpeed() const { return m_moveSpeed; }
             [[nodiscard]] float getLookSpeed() const { return m_lookSpeed; }
 
-            Transform3DComponent transform3D{DEFAULT_POSITION, {1.F, 1.F, 1.F}, DEFAULT_ROTATION};
+            Transform3D transform{DEFAULT_POSITION, {1.F, 1.F, 1.F}, DEFAULT_ROTATION};
 
         private:
 

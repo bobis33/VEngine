@@ -10,7 +10,7 @@ function log() {
 
 function clean() {
     local BINARY="vengine"
-    local BUILD_DIR="build"
+    local BUILD_DIR=("build/CMakeFiles" "build/shaders")
     local DOC_DIRS=("documentation/.doxygen/html" "documentation/.doxygen/latex")
 
     clean_directory() {
@@ -23,7 +23,9 @@ function clean() {
         fi
     }
 
-    clean_directory "$BUILD_DIR"
+    for dir in "${BUILD_DIR[@]}"; do
+        clean_directory "$dir"
+    done
     for dir in "${DOC_DIRS[@]}"; do
         clean_directory "$dir"
     done
