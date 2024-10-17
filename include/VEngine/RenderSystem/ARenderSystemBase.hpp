@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "VEngine/Descriptors/DescriptorSetLayout.hpp"
 #include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
 #include "VEngine/FrameInfo.hpp"
@@ -37,11 +38,14 @@ namespace ven {
             [[nodiscard]] VkPipelineLayout getPipelineLayout() const { return m_pipelineLayout; }
             [[nodiscard]] const std::unique_ptr<Shaders>& getShaders() const { return m_shaders; }
 
+            std::unique_ptr<DescriptorSetLayout> renderSystemLayout;
+
         private:
 
             Device &m_device;
             VkPipelineLayout m_pipelineLayout{nullptr};
             std::unique_ptr<Shaders> m_shaders;
+
 
     }; // class ARenderSystemBase
 

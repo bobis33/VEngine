@@ -30,6 +30,9 @@ namespace ven {
         uint16_t toggleGui = GLFW_KEY_F1;
     };
 
+    static constexpr float EPSILON = std::numeric_limits<float>::epsilon();
+    static constexpr KeyMappings DEFAULT_KEY_MAPPINGS{};
+
     ///
     /// @class EventManager
     /// @brief Class for event manager
@@ -48,12 +51,13 @@ namespace ven {
             void handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, float dt) const;
 
         private:
-
-            void moveCamera(GLFWwindow* window, Camera& camera, Gui& gui, float dt) const;
+            static void moveCamera(GLFWwindow* window, Camera& camera, float dt);
             static void updateEngineState(ENGINE_STATE *engineState, const ENGINE_STATE newState) { *engineState = newState; }
             static bool isKeyJustPressed(GLFWwindow* window, int key, std::unordered_map<int, bool>& keyStates);
 
-            KeyMappings m_keys{};
+            template<typename Iterator>
+            static void processKeyActions(GLFWwindow* window, Iterator begin, Iterator end);
+
             mutable std::unordered_map<int, bool> m_keyState;
 
     }; // class EventManager

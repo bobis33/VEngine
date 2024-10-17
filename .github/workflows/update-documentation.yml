@@ -25,9 +25,6 @@ jobs:
       - name: Install dependencies
         run: ./tools/install-dependencies.sh doc
 
-      - name: Install doxygen
-        run: ./tools/install-dependencies.sh doxygen
-
       - name: Generate documentation
         run: ./tools/build.sh doc
 

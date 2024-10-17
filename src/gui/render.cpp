@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "VEngine/Gui.hpp"
-#include "VEngine/Colors.hpp"
+#include "VEngine/Utils/Colors.hpp"
 
 void ven::Gui::cleanup()
 {
@@ -17,11 +17,9 @@ void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Objec
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
     renderFrameWindow();
 
     ImGui::Begin("Debug Window");
@@ -40,11 +38,12 @@ void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Objec
 void ven::Gui::renderFrameWindow()
 {
     const float framerate = m_io->Framerate;
+    const float frametime = 1000.0F / framerate;
 
     ImGui::SetNextWindowPos(ImVec2(0.0F, 0.0F), ImGuiCond_Always, ImVec2(0.0F, 0.0F));
     ImGui::Begin("Application Info", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
     ImGui::Text("FPS: %.1f", framerate);
-    ImGui::Text("Frame time: %.3fms", 1000.0F / framerate);
+    ImGui::Text("Frame time: %.3fms", frametime);
     ImGui::End();
 }
 
@@ -115,14 +114,14 @@ void ven::Gui::cameraSection(Camera &camera)
         float far = camera.getFar();
         if (ImGui::BeginTable("CameraTable", 2)) {
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Position", glm::value_ptr(camera.transform3D.translation), 0.1F);
+            ImGui::DragFloat3("Position", glm::value_ptr(camera.transform.translation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##position")) { camera.transform3D.translation = DEFAULT_POSITION; }
+            if (ImGui::Button("Reset##position")) { camera.transform.translation = DEFAULT_POSITION; }
 
             ImGui::TableNextColumn();
-            ImGui::DragFloat3("Rotation", glm::value_ptr(camera.transform3D.rotation), 0.1F);
+            ImGui::DragFloat3("Rotation", glm::value_ptr(camera.transform.rotation), 0.1F);
             ImGui::TableNextColumn();
-            if (ImGui::Button("Reset##rotation")) { camera.transform3D.rotation = DEFAULT_ROTATION; }
+            if (ImGui::Button("Reset##rotation")) { camera.transform.rotation = DEFAULT_ROTATION; }
 
             ImGui::TableNextColumn();
             if (ImGui::SliderFloat("FOV", &fov, glm::radians(0.1F), glm::radians(180.0F))) { camera.setFov(fov); }
@@ -165,9 +164,9 @@ void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
             open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
-                ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform3D.scale), 0.1F);
+                ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform.scale), 0.1F);
                 ImGui::Text("Address: %p", &object);
                 ImGui::TreePop();
             }
@@ -180,15 +179,54 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
     if (ImGui::CollapsingHeader("Lights")) {
         bool open = false;
 
+        float tempIntensity = m_intensity;
+        float tempShininess = m_shininess;
+
+        if (ImGui::BeginTable("LightTable", 2)) {
+            ImGui::TableNextColumn();
+            if (ImGui::SliderFloat("Global Intensity", &tempIntensity, 0.0F, 5.F)) {
+                m_intensity = tempIntensity;
+                for (auto&[fst, snd] : lights) {
+                    snd.color.a = m_intensity;
+                }
+            }
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset")) {
+                m_intensity = DEFAULT_LIGHT_INTENSITY;
+                tempIntensity = m_intensity;
+                for (auto&[fst, snd] : lights) {
+                    snd.color.a = m_intensity;
+                }
+            }
+
+            ImGui::TableNextColumn();
+            if (ImGui::SliderFloat("Global Shininess", &tempShininess, 0.0F, 512.F)) {
+                m_shininess = tempShininess;
+                for (auto&[fst, snd] : lights) {
+                    snd.setShininess(m_shininess);
+                }
+            }
+
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Reset")) {
+                m_shininess = DEFAULT_SHININESS;
+                tempShininess = m_shininess;
+                for (auto&[fst, snd] : lights) {
+                    snd.setShininess(m_shininess);
+                }
+            }
+            ImGui::EndTable();
+        }
+
         for (auto& [id, light] : lights) {
             ImGui::PushStyleColor(ImGuiCol_Text, {light.color.r, light.color.g, light.color.b, 1.0F});
             open = ImGui::TreeNode(std::string(light.getName() + " [" + std::to_string(light.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
                 ImGui::Text("Address: %p", &light);
-                ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.translation), 0.1F);
-                ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.rotation), 0.1F);
-                ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform3D.scale), 0.1F);
+                ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.translation), 0.1F);
+                ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.rotation), 0.1F);
+                ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.scale), 0.1F);
                 if (ImGui::BeginTable("ColorTable", 2)) {
                     ImGui::TableNextColumn(); ImGui::ColorEdit4(("Color##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.color));
 
@@ -210,6 +248,13 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                     ImGui::SliderFloat(("Intensity##" + std::to_string(light.getId())).c_str(), &light.color.a, 0.0F, 5.F);
                     ImGui::TableNextColumn();
                     if (ImGui::Button(("Reset##" + std::to_string(light.getId())).c_str())) { light.color.a = DEFAULT_LIGHT_INTENSITY; }
+                    ImGui::TableNextColumn();
+                    float shininess = light.getShininess();
+                    if (ImGui::SliderFloat("Shininess", &shininess, 0.0F, 512.F)) {
+                        light.setShininess(shininess);
+                    }
+                    ImGui::TableNextColumn();
+                    if (ImGui::Button("Reset##shininess")) { light.setShininess(DEFAULT_SHININESS); }
 
                     ImGui::EndTable();
                 }

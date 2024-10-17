@@ -6,18 +6,19 @@
 
 #pragma once
 
-#include <memory>
 #include <unordered_map>
+#include <string>
 
-#include <glm/gtc/matrix_transform.hpp>
-
-#include "VEngine/Transform3DComponent.hpp"
+#include "VEngine/Transform3D.hpp"
 
 namespace ven {
 
     static constexpr float DEFAULT_LIGHT_INTENSITY = .2F;
     static constexpr float DEFAULT_LIGHT_RADIUS = 0.1F;
+    static constexpr float DEFAULT_SHININESS = 32.F;
     static constexpr glm::vec4 DEFAULT_LIGHT_COLOR = {glm::vec3(1.F), DEFAULT_LIGHT_INTENSITY};
+
+    static constexpr uint8_t MAX_LIGHTS = 10;
 
     ///
     /// @class Light
@@ -30,6 +31,8 @@ namespace ven {
 
             using Map = std::unordered_map<unsigned int, Light>;
 
+            explicit Light(const unsigned int objId) : m_lightId{objId} {}
+
             ~Light() = default;
 
             Light(const Light&) = delete;
@@ -37,22 +40,21 @@ namespace ven {
             Light(Light&&) = default;
             Light& operator=(Light&&) = default;
 
-            static Light createLight(float radius = DEFAULT_LIGHT_RADIUS, glm::vec4 color = DEFAULT_LIGHT_COLOR);
-
-            glm::vec4 color{DEFAULT_LIGHT_COLOR};
-            Transform3DComponent transform3D{};
-
             [[nodiscard]] unsigned int getId() const { return m_lightId; }
             [[nodiscard]] std::string getName() const { return m_name; }
+            [[nodiscard]] float getShininess() const { return m_shininess; }
 
             void setName(const std::string &name) { m_name = name; }
+            void setShininess(const float shininess) { m_shininess = shininess; }
+
+            glm::vec4 color{DEFAULT_LIGHT_COLOR};
+            Transform3D transform{};
 
         private:
 
-            explicit Light(const unsigned int lightId) : m_lightId(lightId) {}
-
             unsigned int m_lightId;
             std::string m_name{"point light"};
+            float m_shininess{DEFAULT_SHININESS};
 
     }; // class Light
 

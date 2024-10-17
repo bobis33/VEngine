@@ -10,13 +10,25 @@
 #include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
 #include "VEngine/Gui.hpp"
-#include "VEngine/Colors.hpp"
+#include "VEngine/Utils/Colors.hpp"
+#include "VEngine/Utils/Clock.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     createInstance();
     createSurface();
     Gui::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
+
+    framePools.resize(MAX_FRAMES_IN_FLIGHT);
+    const auto framePoolBuilder = DescriptorPool::Builder(m_device)
+                                .setMaxSets(1000)
+                                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
+                                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
+                                .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+    for (auto & framePool : framePools) {
+        framePool = framePoolBuilder.build();
+    }
+
     loadObjects();
 }
 
@@ -25,7 +37,15 @@ void ven::Engine::createInstance()
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = nullptr;
     VkInstanceCreateInfo createInfo{};
-    constexpr VkApplicationInfo appInfo{ .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pNext = nullptr, .pApplicationName = "VEngine App", .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .pEngineName = "VEngine", .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0), .apiVersion = VK_API_VERSION_1_0 };
+    constexpr VkApplicationInfo appInfo{
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = nullptr,
+        .pApplicationName = "VEngine App",
+        .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0),
+        .pEngineName = "VEngine",
+        .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0),
+        .apiVersion = VK_API_VERSION_1_0
+    };
 
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
@@ -49,53 +69,48 @@ void ven::Engine::loadObjects()
         Colors::CYAN_4,
         Colors::MAGENTA_4
     };
-    std::shared_ptr model = Model::createModelFromFile(m_device, "assets/models/quad.obj");
-
-    Object quad = Object::createObject();
+    auto& quad = m_sceneManager.createObject();
     quad.setName("quad");
-    quad.setModel(model);
-    quad.transform3D.translation = {0.F, .5F, 0.F};
-    quad.transform3D.scale = {3.F, 1.F, 3.F};
-    m_objects.emplace(quad.getId(), std::move(quad));
+    quad.setModel(Model::createModelFromFile(m_device, "assets/models/quad.obj"));
+    quad.transform.translation = {0.F, .5F, 0.F};
+    quad.transform.scale = {3.F, 1.F, 3.F};
 
-    model = Model::createModelFromFile(m_device, "assets/models/flat_vase.obj");
-    Object flatVase = Object::createObject();
+    auto& flatVase = m_sceneManager.createObject();
     flatVase.setName("flat vase");
-    flatVase.setModel(model);
-    flatVase.transform3D.translation = {-.5F, .5F, 0.F};
-    flatVase.transform3D.scale = {3.F, 1.5F, 3.F};
-    m_objects.emplace(flatVase.getId(), std::move(flatVase));
+    flatVase.setModel(Model::createModelFromFile(m_device, "assets/models/flat_vase.obj"));
+    flatVase.transform.translation = {-.5F, .5F, 0.F};
+    flatVase.transform.scale = {3.F, 1.5F, 3.F};
 
-    model = Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj");
-    Object smoothVase = Object::createObject();
+    auto& smoothVase = m_sceneManager.createObject();
     smoothVase.setName("smooth vase");
-    smoothVase.setModel(model);
-    smoothVase.transform3D.translation = {.5F, .5F, 0.F};
-    smoothVase.transform3D.scale = {3.F, 1.5F, 3.F};
-    m_objects.emplace(smoothVase.getId(), std::move(smoothVase));
+    smoothVase.setModel(Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj"));
+    smoothVase.transform.translation = {.5F, .5F, 0.F};
+    smoothVase.transform.scale = {3.F, 1.5F, 3.F};
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        Light pointLight = Light::createLight();
+        glm::mat4 rotateLight = rotate(
+            glm::mat4(1.F),
+            static_cast<float>(i) * glm::two_pi<float>() / static_cast<float>(lightColors.size()),
+            {0.F, -1.F, 0.F}
+        );
+        auto& pointLight = m_sceneManager.createLight();
         pointLight.color = lightColors.at(i);
-        glm::mat4 rotateLight = rotate(glm::mat4(1.F), (static_cast<float>(i) * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), {0.F, -1.F, 0.F});
-        pointLight.transform3D.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
-        m_lights.emplace(pointLight.getId(), std::move(pointLight));
+        pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
     }
 }
 
 void ven::Engine::mainLoop()
 {
+    Clock clock;
     GlobalUbo ubo{};
     Camera camera{};
     EventManager eventManager{};
-    std::chrono::duration<float> deltaTime{};
     VkCommandBuffer_T *commandBuffer = nullptr;
-    float frameTime = NAN;
+    float frameTime = 0.0F;
     unsigned long frameIndex = 0;
-    std::chrono::time_point<std::chrono::system_clock> newTime;
-    std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
-    std::unique_ptr<DescriptorSetLayout> globalSetLayout = DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
+    std::unique_ptr<DescriptorSetLayout> globalSetLayout =
+        DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
     ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
@@ -114,32 +129,47 @@ void ven::Engine::mainLoop()
 
     while (m_state != EXIT)
     {
-        glfwPollEvents();
+        clock.update();
+        frameTime = clock.getDeltaTime();
         eventManager.handleEvents(m_window.getGLFWindow(), &m_state, camera, m_gui, frameTime);
-        newTime = std::chrono::high_resolution_clock::now();
-        deltaTime = newTime - currentTime;
-        currentTime = newTime;
-        frameTime = deltaTime.count();
         commandBuffer = m_renderer.beginFrame();
 
-        camera.setViewXYZ(camera.transform3D.translation, camera.transform3D.rotation);
+        camera.setViewXYZ(camera.transform.translation, camera.transform.rotation);
         camera.setPerspectiveProjection(m_renderer.getAspectRatio());
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            FrameInfo frameInfo{.frameIndex=frameIndex, .frameTime=frameTime, .commandBuffer=commandBuffer, .camera=camera, .globalDescriptorSet=globalDescriptorSets[frameIndex], .objects=m_objects, .lights=m_lights};
+            framePools[frameIndex]->resetPool();
+            FrameInfo frameInfo{.frameIndex=frameIndex,
+                .frameTime=frameTime,
+                .commandBuffer=commandBuffer,
+                .camera=camera,
+                .globalDescriptorSet=globalDescriptorSets[frameIndex],
+                .frameDescriptorPool=*framePools[frameIndex],
+                .objects=m_sceneManager.getObjects(),
+                .lights=m_sceneManager.getLights()
+            };
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
             ubo.inverseView = camera.getInverseView();
-            PointLightRenderSystem::update(frameInfo, ubo);
-            uboBuffers[frameIndex]->writeToBuffer(&ubo);
-            uboBuffers[frameIndex]->flush();
+            m_sceneManager.updateBuffer(ubo, frameIndex, frameTime);
+            uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
+            uboBuffers.at(frameIndex)->flush();
 
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
             objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
-            if (m_gui.getState() == VISIBLE) { Gui::render(&m_renderer, m_objects, m_lights, camera, m_device.getPhysicalDevice(), ubo); }
+            if (m_gui.getState() == VISIBLE) {
+                Gui::render(
+                    &m_renderer,
+                    m_sceneManager.getObjects(),
+                    m_sceneManager.getLights(),
+                    camera,
+                    m_device.getPhysicalDevice(),
+                    ubo
+                    );
+            }
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();

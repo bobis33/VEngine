@@ -9,9 +9,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include "VEngine/Colors.hpp"
+#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Model.hpp"
-#include "VEngine/Utils.hpp"
+#include "VEngine/Utils/HashCombine.hpp"
 
 template<>
 struct std::hash<ven::Model::Vertex> {

@@ -8,7 +8,7 @@ project(vengine
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-include(myVariables)
+include(PathsAndOptions)
 if (BUILD_DOC)
     include(MakeDoc)
     return()
@@ -18,9 +18,9 @@ include(ClangFormat)
 clangformat_setup()
 include(MakeShaders)
 
-file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
-
 add_subdirectory(third-party)
+
+file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

@@ -11,10 +11,9 @@
 #include "VEngine/Gui.hpp"
 #include "VEngine/Window.hpp"
 #include "VEngine/Device.hpp"
-#include "VEngine/Object.hpp"
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
-#include "VEngine/Light.hpp"
+#include "VEngine/SceneManager.hpp"
 
 namespace ven {
 
@@ -53,8 +52,8 @@ namespace ven {
             Renderer m_renderer{m_window, m_device};
             Gui m_gui;
             std::unique_ptr<DescriptorPool> m_globalPool;
-            Object::Map m_objects;
-            Light::Map m_lights;
+            std::vector<std::unique_ptr<DescriptorPool>> framePools;
+            SceneManager m_sceneManager{m_device};
 
             VkInstance m_instance{nullptr};
             VkSurfaceKHR m_surface{nullptr};

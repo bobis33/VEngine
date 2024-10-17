@@ -78,7 +78,7 @@ VkResult ven::SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, co
 
     vkResetFences(m_device.device(), 1, &m_inFlightFences[m_currentFrame]);
     if (vkQueueSubmit(m_device.graphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command m_buffer!");
+        throw std::runtime_error("failed to submit draw command buffer!");
     }
 
     VkPresentInfoKHR presentInfo = {};
