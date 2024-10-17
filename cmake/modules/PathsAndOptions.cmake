@@ -1,8 +1,10 @@
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+#======================================= Options ======================================#
 option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
 option(BUILD_DOC "Build documentation only" OFF)
+
+#======================================= Variables ======================================#
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
 

@@ -15,6 +15,8 @@
 
 namespace ven {
 
+    static constexpr uint16_t DESCRIPTOR_COUNT = 1000;
+
     enum GUI_STATE : uint8_t {
         VISIBLE = 0,
         HIDDEN = 1
@@ -59,6 +61,8 @@ namespace ven {
 
             static ImGuiIO* m_io;
             GUI_STATE m_state{VISIBLE};
+            static float m_intensity;
+            static float m_shininess;
 
     }; // class Gui
 

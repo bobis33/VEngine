@@ -17,16 +17,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          submodules: true
-
-      - name: Initialize submodules
-        run: git submodule update --init --recursive
 
       - name: Install dependencies
         run: ./tools/install-dependencies.sh doc
-
-      - name: Install doxygen
-        run: ./tools/install-dependencies.sh doxygen
 
       - name: Generate documentation
         run: ./tools/build.sh doc
