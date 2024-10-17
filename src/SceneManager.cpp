@@ -28,8 +28,8 @@ ven::SceneManager::SceneManager(Device& device)
 ven::Object& ven::SceneManager::createObject()
 {
     assert(m_currentObjId < MAX_OBJECTS && "Max object count exceeded!");
-    auto object = Object{m_currentObjId++};
-    auto objId = object.getId();
+    Object object(m_currentObjId++);
+    const unsigned int objId = object.getId();
     object.setDiffuseMap(m_textureDefault);
     m_objects.emplace(objId, std::move(object));
     return m_objects.at(objId);
@@ -38,8 +38,8 @@ ven::Object& ven::SceneManager::createObject()
 ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 color)
 {
     assert(m_currentLightId < MAX_LIGHTS && "Max light count exceeded!");
-    auto light = Light(m_currentLightId++);
-    auto lightId = light.getId();
+    Light light(m_currentLightId++);
+    const unsigned int lightId = light.getId();
     light.color = color;
     light.transform.scale.x = radius;
     m_lights.emplace(lightId, std::move(light));
@@ -48,12 +48,12 @@ ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 c
 
 void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIndex, const float frameTime)
 {
-    uint16_t lightIndex = 0;
+    short unsigned int lightIndex = 0;
     const glm::mat4 rotateLight = rotate(glm::mat4(1.F), frameTime, {0.F, -1.F, 0.F});
 
     for (auto& [id, object] : m_objects) {
         const ObjectBufferData data{
-            .modelMatrix = object.transform.mat4(),
+            .modelMatrix = object.transform.transformMatrix(),
             .normalMatrix = object.transform.normalMatrix()
         };
         m_uboBuffers.at(frameIndex)->writeToIndex(&data, id);
@@ -61,10 +61,11 @@ void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIn
     }
 
     for (Light &light : m_lights | std::views::values) {
+        auto&[position, color, shininess, padding] = ubo.pointLights.at(lightIndex);
         light.transform.translation = glm::vec3(rotateLight * glm::vec4(light.transform.translation, light.transform.scale.x));
-        ubo.pointLights.at(lightIndex).position = glm::vec4(light.transform.translation, light.transform.scale.x);
-        ubo.pointLights.at(lightIndex).color = light.color;
-        ubo.pointLights.at(lightIndex).shininess = light.shininess;
+        position = glm::vec4(light.transform.translation, light.transform.scale.x);
+        color = light.color;
+        shininess = light.getShininess();
         lightIndex++;
     }
     ubo.numLights = lightIndex;

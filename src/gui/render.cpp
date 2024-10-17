@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "VEngine/Gui.hpp"
-#include "VEngine/Colors.hpp"
+#include "VEngine/Utils/Colors.hpp"
 
 void ven::Gui::cleanup()
 {
@@ -17,11 +17,9 @@ void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Objec
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
     renderFrameWindow();
 
     ImGui::Begin("Debug Window");
@@ -175,48 +173,45 @@ void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
     }
 }
 
-float globalIntensity = 1.0F;
-float globalShininess = 32.F;
-
 void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
 {
     if (ImGui::CollapsingHeader("Lights")) {
         bool open = false;
 
-        float tempIntensity = globalIntensity;
-        float tempShininess = globalShininess;
+        float tempIntensity = m_intensity;
+        float tempShininess = m_shininess;
 
         if (ImGui::BeginTable("LightTable", 2)) {
             ImGui::TableNextColumn();
             if (ImGui::SliderFloat("Global Intensity", &tempIntensity, 0.0F, 5.F)) {
-                globalIntensity = tempIntensity;
-                for (auto& light : lights) {
-                    light.second.color.a = globalIntensity;
+                m_intensity = tempIntensity;
+                for (auto&[fst, snd] : lights) {
+                    snd.color.a = m_intensity;
                 }
             }
             ImGui::TableNextColumn();
             if (ImGui::Button("Reset Global Intensity")) {
-                globalIntensity = DEFAULT_LIGHT_INTENSITY;
-                tempIntensity = globalIntensity;
-                for (auto& light : lights) {
-                    light.second.color.a = globalIntensity;
+                m_intensity = DEFAULT_LIGHT_INTENSITY;
+                tempIntensity = m_intensity;
+                for (auto&[fst, snd] : lights) {
+                    snd.color.a = m_intensity;
                 }
             }
 
             ImGui::TableNextColumn();
             if (ImGui::SliderFloat("Global Shininess", &tempShininess, 0.0F, 512.F)) {
-                globalShininess = tempShininess;
-                for (auto& light : lights) {
-                    light.second.shininess = globalShininess;
+                m_shininess = tempShininess;
+                for (auto&[fst, snd] : lights) {
+                    snd.setShininess(m_shininess);
                 }
             }
 
             ImGui::TableNextColumn();
             if (ImGui::Button("Reset Global Shininess")) {
-                globalShininess = 32.F;
-                tempShininess = globalShininess;
-                for (auto& light : lights) {
-                    light.second.shininess = globalShininess;
+                m_shininess = DEFAULT_SHININESS;
+                tempShininess = m_shininess;
+                for (auto&[fst, snd] : lights) {
+                    snd.setShininess(m_shininess);
                 }
             }
             ImGui::EndTable();
@@ -253,9 +248,12 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                     ImGui::TableNextColumn();
                     if (ImGui::Button(("Reset##" + std::to_string(light.getId())).c_str())) { light.color.a = DEFAULT_LIGHT_INTENSITY; }
                     ImGui::TableNextColumn();
-                    ImGui::SliderFloat("Shininess", &light.shininess, 0.0F, 512.F);
+                    float shininess = light.getShininess();
+                    if (ImGui::SliderFloat("Shininess", &shininess, 0.0F, 512.F)) {
+                        light.setShininess(shininess);
+                    }
                     ImGui::TableNextColumn();
-                    if (ImGui::Button("Reset##shininess")) { light.shininess = 32.F; }
+                    if (ImGui::Button("Reset##shininess")) { light.setShininess(DEFAULT_SHININESS); }
 
                     ImGui::EndTable();
                 }

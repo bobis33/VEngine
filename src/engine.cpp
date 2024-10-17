@@ -10,7 +10,8 @@
 #include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
 #include "VEngine/Descriptors/DescriptorWriter.hpp"
 #include "VEngine/Gui.hpp"
-#include "VEngine/Colors.hpp"
+#include "VEngine/Utils/Colors.hpp"
+#include "VEngine/Utils/Clock.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     createInstance();
@@ -101,15 +102,13 @@ void ven::Engine::loadObjects()
 
 void ven::Engine::mainLoop()
 {
+    Clock clock;
     GlobalUbo ubo{};
     Camera camera{};
     EventManager eventManager{};
-    std::chrono::duration<float> deltaTime{};
     VkCommandBuffer_T *commandBuffer = nullptr;
     float frameTime = NAN;
     unsigned long frameIndex = 0;
-    std::chrono::time_point<std::chrono::system_clock> newTime;
-    std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     std::unique_ptr<DescriptorSetLayout> globalSetLayout =
         DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
@@ -120,8 +119,7 @@ void ven::Engine::mainLoop()
 
     for (auto& uboBuffer : uboBuffers)
     {
-        uboBuffer =
-            std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        uboBuffer = std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uboBuffer->map();
     }
     for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
@@ -131,12 +129,10 @@ void ven::Engine::mainLoop()
 
     while (m_state != EXIT)
     {
+        clock.update();
         glfwPollEvents();
         eventManager.handleEvents(m_window.getGLFWindow(), &m_state, camera, m_gui, frameTime);
-        newTime = std::chrono::high_resolution_clock::now();
-        deltaTime = newTime - currentTime;
-        currentTime = newTime;
-        frameTime = deltaTime.count();
+        frameTime = clock.getDeltaTime();
         commandBuffer = m_renderer.beginFrame();
 
         camera.setViewXYZ(camera.transform.translation, camera.transform.rotation);

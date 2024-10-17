@@ -14,11 +14,11 @@
 #include "VEngine/SwapChain.hpp"
 #include "VEngine/Texture.hpp"
 #include "VEngine/Model.hpp"
-#include "VEngine/Transform3DComponent.hpp"
+#include "VEngine/Transform3D.hpp"
 
 namespace ven {
 
-    static constexpr unsigned int MAX_OBJECTS = 1000;
+    static constexpr uint16_t MAX_OBJECTS = 1000;
 
     struct ObjectBufferData {
         glm::mat4 modelMatrix{1.F};
@@ -54,7 +54,7 @@ namespace ven {
                 m_bufferInfo[frameIndex] = info;
             }
 
-            Transform3DComponent transform{};
+            Transform3D transform{};
 
         private:
 

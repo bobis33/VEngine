@@ -33,7 +33,7 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
         glm::mat4 inverseView{1.F};
         glm::vec4 ambientLightColor{DEFAULT_AMBIENT_LIGHT_COLOR};
         std::array<PointLightData, MAX_LIGHTS> pointLights;
-        uint16_t numLights;
+        uint8_t numLights;
     };
 
     struct FrameInfo

@@ -3,13 +3,6 @@
 
 #include "VEngine/Buffer.hpp"
 
-VkDeviceSize ven::Buffer::getAlignment(const VkDeviceSize instanceSize, const VkDeviceSize minOffsetAlignment) {
-    if (minOffsetAlignment > 0) {
-        return (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1);
-    }
-    return instanceSize;
-}
-
 ven::Buffer::Buffer(Device &device, const VkDeviceSize instanceSize, const uint32_t instanceCount, const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize minOffsetAlignment) : m_device{device}, m_instanceSize{instanceSize}, m_instanceCount{instanceCount}, m_alignmentSize(getAlignment(instanceSize, minOffsetAlignment)), m_usageFlags{usageFlags}, m_memoryPropertyFlags{memoryPropertyFlags}
 {
     m_bufferSize = m_alignmentSize * m_instanceCount;
@@ -25,7 +18,7 @@ ven::Buffer::~Buffer()
 
 VkResult ven::Buffer::map(const VkDeviceSize size, const VkDeviceSize offset)
 {
-    assert(m_buffer && m_memory && "Called map on m_buffer before create");
+    assert(m_buffer && m_memory && "Called map on buffer before create");
     return vkMapMemory(m_device.device(), m_memory, offset, size, 0, &m_mapped);
 }
 
@@ -39,12 +32,12 @@ void ven::Buffer::unmap()
 
 void ven::Buffer::writeToBuffer(const void *data, const VkDeviceSize size, const VkDeviceSize offset) const
 {
-    assert(m_mapped && "Cannot copy to unmapped m_buffer");
+    assert(m_mapped && "Cannot copy to unmapped buffer");
 
     if (size == VK_WHOLE_SIZE) {
         memcpy(m_mapped, data, m_bufferSize);
     } else {
-        char *memOffset = static_cast<char *>(m_mapped);
+        auto memOffset = static_cast<char *>(m_mapped);
         memOffset += offset;
         memcpy(memOffset, data, size);
     }

@@ -30,7 +30,7 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
             nullptr);
 
         const ObjectPushConstantData push{
-            .modelMatrix = object.transform.mat4(),
+            .modelMatrix = object.transform.transformMatrix(),
             .normalMatrix = object.transform.normalMatrix()
         };
         vkCmdPushConstants(frameInfo.commandBuffer, getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(ObjectPushConstantData), &push);

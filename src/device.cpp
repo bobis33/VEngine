@@ -58,13 +58,15 @@ void ven::Device::createInstance()
         throw std::runtime_error("validation layers requested, but not available!");
     }
 
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "LittleVulkanEngine App";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    constexpr VkApplicationInfo appInfo = {
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = nullptr,
+        .pApplicationName = "VEngine App",
+        .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+        .pEngineName = "VEngine",
+        .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+        .apiVersion = VK_API_VERSION_1_0
+    };
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -168,12 +170,14 @@ void ven::Device::createLogicalDevice()
 
 void ven::Device::createCommandPool()
 {
-    const QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
+    const auto [graphicsFamily, presentFamily, graphicsFamilyHasValue, presentFamilyHasValue] = findPhysicalQueueFamilies();
 
-    VkCommandPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    const VkCommandPoolCreateInfo poolInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        .queueFamilyIndex = graphicsFamily
+    };
 
     if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS) {
         throw std::runtime_error("failed to create command pool!");
@@ -302,12 +306,11 @@ bool ven::Device::checkDeviceExtensionSupport(const VkPhysicalDevice device) con
 ven::QueueFamilyIndices ven::Device::findQueueFamilies(const VkPhysicalDevice device) const
 {
     QueueFamilyIndices indices;
-
     uint32_t queueFamilyCount = 0;
+    uint32_t index = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-    uint32_t index = 0;
 
     for (const auto &[queueFlags, queueCount, timestampValidBits, minImageTransferGranularity] : queueFamilies) {
         if (queueCount > 0 && ((queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)) {
@@ -330,16 +333,16 @@ ven::QueueFamilyIndices ven::Device::findQueueFamilies(const VkPhysicalDevice de
 
 ven::SwapChainSupportDetails ven::Device::querySwapChainSupport(const VkPhysicalDevice device) const
 {
+    uint32_t formatCount = 0;
+    uint32_t presentModeCount = 0;
     SwapChainSupportDetails details;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
-    uint32_t formatCount = 0;
 
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
     if (formatCount != 0) {
         details.formats.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
     }
-    uint32_t presentModeCount = 0;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
@@ -393,10 +396,12 @@ void ven::Device::createBuffer(const VkDeviceSize size, const VkBufferUsageFlags
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(m_device, buffer, &memRequirements);
 
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+    const VkMemoryAllocateInfo allocInfo{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties)
+    };
 
     if (vkAllocateMemory(m_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate vertex m_buffer m_memory!");
@@ -455,19 +460,19 @@ void ven::Device::copyBuffer(const VkBuffer srcBuffer, const VkBuffer dstBuffer,
 void ven::Device::copyBufferToImage(const VkBuffer buffer, const VkImage image, const uint32_t width, const uint32_t height, const uint32_t layerCount) const
 {
     const VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-    VkBufferImageCopy region{};
-    region.bufferOffset = 0;
-    region.bufferRowLength = 0;
-    region.bufferImageHeight = 0;
-
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount = layerCount;
-
-    region.imageOffset = {.x=0, .y=0, .z=0};
-    region.imageExtent = {.width=width, .height=height, .depth=1};
+    const VkBufferImageCopy region{
+        .bufferOffset = 0,
+        .bufferRowLength = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = layerCount
+        },
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {width, height, 1}
+    };
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     endSingleTimeCommands(commandBuffer);
@@ -496,12 +501,11 @@ void ven::Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, const 
     }
 }
 
-void ven::Device::transitionImageLayout(const VkImage image, const VkFormat format, const VkImageLayout oldLayout, const VkImageLayout newLayout, const uint32_t mipLevels, const uint32_t layerCount)
-{
+void ven::Device::transitionImageLayout(const VkImage image, const VkFormat format, const VkImageLayout oldLayout, const VkImageLayout newLayout, const uint32_t mipLevels, const uint32_t layerCount) const {
   // uses an image memory barrier transition image layouts and transfer queue
   // family ownership when VK_SHARING_MODE_EXCLUSIVE is used. There is an
   // equivalent buffer memory barrier to do this for buffers
-  VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+  const VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
   VkImageMemoryBarrier barrier{};
   barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -526,8 +530,8 @@ void ven::Device::transitionImageLayout(const VkImage image, const VkFormat form
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
   }
 
-  VkPipelineStageFlags sourceStage;
-  VkPipelineStageFlags destinationStage;
+  VkPipelineStageFlags sourceStage = 0;
+  VkPipelineStageFlags destinationStage = 0;
 
   if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
     barrier.srcAccessMask = 0;

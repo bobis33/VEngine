@@ -142,7 +142,7 @@ namespace ven {
             ///
             /// @return VkResult of the buffer mapping call
             ///
-            static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
+            static VkDeviceSize getAlignment(const VkDeviceSize instanceSize, const VkDeviceSize minOffsetAlignment) { return (minOffsetAlignment > 0) ? (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1) : instanceSize; }
 
             Device& m_device;
             void* m_mapped = nullptr;

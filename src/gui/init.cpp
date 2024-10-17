@@ -2,20 +2,19 @@
 #include <imgui_impl_vulkan.h>
 
 #include "VEngine/Gui.hpp"
-#include "VEngine/Colors.hpp"
-
-static constexpr uint32_t DESCRIPTOR_COUNT = 1000;
+#include "VEngine/Utils/Colors.hpp"
 
 ImGuiIO *ven::Gui::m_io = nullptr;
+float ven::Gui::m_intensity = 1.0F;
+float ven::Gui::m_shininess = DEFAULT_SHININESS;
 
 void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
 {
     VkDescriptorPool pool = nullptr;
-
+    ImGui_ImplVulkan_InitInfo init_info{};
     ImGui::CreateContext();
     m_io = &ImGui::GetIO();
     m_io->IniFilename = "assets/imgui-config.txt";
-
     // ImGui::StyleColorsDark();
 
     std::array<VkDescriptorPoolSize, 11> pool_sizes = {{
@@ -43,16 +42,15 @@ void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device*
     if (vkCreateDescriptorPool(device->device(), &pool_info, nullptr, &pool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create ImGui descriptor pool");
     }
-    ImGui_ImplVulkan_InitInfo init_info = {
-            .Instance = instance,
-            .PhysicalDevice = device->getPhysicalDevice(),
-            .Device = device->device(),
-            .Queue = device->graphicsQueue(),
-            .DescriptorPool = pool,
-            .MinImageCount = 3,
-            .ImageCount = 3,
-            .MSAASamples = VK_SAMPLE_COUNT_1_BIT
-    };
+
+    init_info.Instance = instance;
+    init_info.PhysicalDevice = device->getPhysicalDevice();
+    init_info.Device = device->device();
+    init_info.Queue = device->graphicsQueue();
+    init_info.DescriptorPool = pool;
+    init_info.MinImageCount = 3;
+    init_info.ImageCount = 3;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_Init(&init_info, renderPass);
