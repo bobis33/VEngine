@@ -1,6 +1,5 @@
 #include <iostream>
 #include <limits>
-#include <stdexcept>
 
 #include "VEngine/SwapChain.hpp"
 

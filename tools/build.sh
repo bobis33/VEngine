@@ -10,23 +10,23 @@ function log() {
 
 function clean() {
     local BINARY="vengine"
-    local BUILD_DIR=("build/CMakeFiles" "build/shaders")
-    local DOC_DIRS=("documentation/.doxygen/html" "documentation/.doxygen/latex")
-
-    clean_directory() {
+    local DIRS=("build" "documentation/.doxygen/html" "documentation/.doxygen/latex")
+    local EXCLUDED_DIR="third-party"
+    function clean_directory() {
         local dir="$1"
         if [ -d "$dir" ]; then
-            rm -rf "$dir"/*
-            log "INFO" "$dir directory has been cleaned."
+            if [ "$dir" == *"$EXCLUDED_DIR"* ]; then
+                log "INFO" "Skipping directory $dir as it is excluded."
+            else
+                find "$dir" -mindepth 1 ! -path "$dir/$EXCLUDED_DIR/*" -delete
+                log "INFO" "$dir directory has been cleaned."
+            fi
         else
             log "WARNING" "$dir directory does not exist."
         fi
     }
 
-    for dir in "${BUILD_DIR[@]}"; do
-        clean_directory "$dir"
-    done
-    for dir in "${DOC_DIRS[@]}"; do
+    for dir in "${DIRS[@]}"; do
         clean_directory "$dir"
     done
 

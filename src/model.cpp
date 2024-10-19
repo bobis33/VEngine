@@ -1,16 +1,11 @@
-#include <cassert>
-#include <cstring>
-#include <unordered_map>
-
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Model.hpp"
+#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/HashCombine.hpp"
 
 template<>

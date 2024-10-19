@@ -12,7 +12,6 @@
 
 #include <assimp/scene.h>
 
-#include "VEngine/Device.hpp"
 #include "VEngine/Buffer.hpp"
 
 namespace ven {

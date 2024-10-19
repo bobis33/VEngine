@@ -6,13 +6,8 @@
 
 #pragma once
 
-#include <memory>
 #include <cassert>
 
-#include <vulkan/vulkan.h>
-
-#include "VEngine/Window.hpp"
-#include "VEngine/Device.hpp"
 #include "VEngine/SwapChain.hpp"
 
 namespace ven {

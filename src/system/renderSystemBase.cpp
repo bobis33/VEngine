@@ -1,6 +1,3 @@
-#include <cassert>
-#include <VEngine/Descriptors/DescriptorSetLayout.hpp>
-
 #include "VEngine/RenderSystem/ARenderSystemBase.hpp"
 
 void ven::ARenderSystemBase::createPipelineLayout(const VkDescriptorSetLayout globalSetLayout, const uint32_t pushConstantSize)

@@ -60,6 +60,7 @@ namespace ven {
             [[nodiscard]] VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
             [[nodiscard]] VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
             [[nodiscard]] VkPhysicalDeviceProperties getProperties() const { return m_properties; }
+            [[nodiscard]] VkInstance getInstance() const { return m_instance; }
 
             // Buffer Helper Functions
             void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory) const;
@@ -90,13 +91,12 @@ namespace ven {
             bool checkDeviceExtensionSupport(VkPhysicalDevice device) const;
             SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
 
-            VkInstance m_instance;
+            Window &m_window;
             VkDebugUtilsMessengerEXT m_debugMessenger;
             VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-            Window &m_window;
             VkCommandPool m_commandPool;
-
             VkDevice m_device;
+            VkInstance m_instance;
             VkSurfaceKHR m_surface;
             VkQueue m_graphicsQueue;
             VkQueue m_presentQueue;

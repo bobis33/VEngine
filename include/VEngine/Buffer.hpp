@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cassert>
+
 #include "VEngine/Device.hpp"
 
 namespace ven {

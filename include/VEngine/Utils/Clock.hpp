@@ -33,6 +33,8 @@ namespace ven {
             void update();
 
             [[nodiscard]] float getDeltaTime() const { return m_deltaTime.count(); }
+            [[nodiscard]] float getDeltaTimeMS() const { return m_deltaTime.count() * 1000.F; }
+            [[nodiscard]] float getFPS() const { return 1.F / m_deltaTime.count(); }
 
         private:
 

@@ -7,9 +7,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
-
-#include<vulkan/vulkan.h>
 
 #include "VEngine/Device.hpp"
 

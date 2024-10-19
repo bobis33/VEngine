@@ -6,10 +6,6 @@
 
 #pragma once
 
-#include <string>
-
-#include <vulkan/vulkan.h>
-
 #include "VEngine/Device.hpp"
 
 namespace ven {

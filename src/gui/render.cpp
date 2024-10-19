@@ -13,21 +13,21 @@ void ven::Gui::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Object>& objects, std::unordered_map<unsigned int, Light>& lights, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo)
+void ven::Gui::render(Renderer* renderer,  SceneManager& sceneManager, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo, const ClockData& clockData)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    renderFrameWindow();
+    renderFrameWindow(clockData);
 
     ImGui::Begin("Debug Window");
     rendererSection(renderer, ubo);
     cameraSection(camera);
-    objectsSection(objects);
-    lightsSection(lights);
-    inputsSection(m_io);
+    lightsSection(sceneManager);
+    objectsSection(sceneManager);
+    inputsSection(*m_io);
     devicePropertiesSection(deviceProperties);
 
     ImGui::End();
@@ -35,15 +35,12 @@ void ven::Gui::render(Renderer* renderer, std::unordered_map<unsigned int, Objec
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer->getCurrentCommandBuffer());
 }
 
-void ven::Gui::renderFrameWindow()
+void ven::Gui::renderFrameWindow(const ClockData& clockData)
 {
-    const float framerate = m_io->Framerate;
-    const float frametime = 1000.0F / framerate;
-
     ImGui::SetNextWindowPos(ImVec2(0.0F, 0.0F), ImGuiCond_Always, ImVec2(0.0F, 0.0F));
     ImGui::Begin("Application Info", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
-    ImGui::Text("FPS: %.1f", framerate);
-    ImGui::Text("Frame time: %.3fms", frametime);
+    ImGui::Text("FPS: %.1f", clockData.fps);
+    ImGui::Text("Frame time: %.3fms", clockData.deltaTimeMS);
     ImGui::End();
 }
 
@@ -155,32 +152,41 @@ void ven::Gui::cameraSection(Camera &camera)
     }
 }
 
-void ven::Gui::objectsSection(std::unordered_map<unsigned int, Object>& objects)
+void ven::Gui::objectsSection(SceneManager& sceneManager)
 {
     if (ImGui::CollapsingHeader("Objects")) {
         bool open = false;
-        for (auto& [id, object] : objects) {
+        for (Object::Map& objects = sceneManager.getObjects(); auto& [id, object] : objects) {
             ImGui::PushStyleColor(ImGuiCol_Text, { Colors::GRAY_4.r, Colors::GRAY_4.g, Colors::GRAY_4.b, 1.0F });
             open = ImGui::TreeNode(std::string(object.getName() + " [" + std::to_string(object.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
+                if (ImGui::Button(("Delete##" + object.getName()).c_str())) {
+                    m_objectsToRemove.push_back(id);
+                    sceneManager.setDestroyState(true);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(("Duplicate##" + object.getName()).c_str())) {
+                    sceneManager.duplicateObject(id);
+                }
+                ImGui::Text("Address: %p", static_cast<void*>(&object));
                 ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform.translation), 0.1F);
                 ImGui::DragFloat3(("Rotation##" + object.getName()).c_str(), glm::value_ptr(object.transform.rotation), 0.1F);
                 ImGui::DragFloat3(("Scale##" + object.getName()).c_str(), glm::value_ptr(object.transform.scale), 0.1F);
-                ImGui::Text("Address: %p", &object);
                 ImGui::TreePop();
             }
         }
     }
 }
 
-void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
+void ven::Gui::lightsSection(SceneManager& sceneManager)
 {
+
     if (ImGui::CollapsingHeader("Lights")) {
         bool open = false;
-
         float tempIntensity = m_intensity;
         float tempShininess = m_shininess;
+        Light::Map& lights = sceneManager.getLights();
 
         if (ImGui::BeginTable("LightTable", 2)) {
             ImGui::TableNextColumn();
@@ -215,6 +221,7 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                     snd.setShininess(m_shininess);
                 }
             }
+
             ImGui::EndTable();
         }
 
@@ -223,13 +230,21 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
             open = ImGui::TreeNode(std::string(light.getName() + " [" + std::to_string(light.getId()) + "]").c_str());
             ImGui::PopStyleColor(1);
             if (open) {
-                ImGui::Text("Address: %p", &light);
+                if (ImGui::Button(("Delete##" + light.getName()).c_str())) {
+                    m_lightsToRemove.push_back(id);
+                    sceneManager.setDestroyState(true);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(("Duplicate##" + light.getName()).c_str())) {
+                    sceneManager.duplicateLight(id);
+                }
+                ImGui::Text("Address: %p", static_cast<void*>(&light));
                 ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.translation), 0.1F);
                 ImGui::DragFloat3(("Rotation##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.rotation), 0.1F);
                 ImGui::DragFloat3(("Scale##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.scale), 0.1F);
                 if (ImGui::BeginTable("ColorTable", 2)) {
-                    ImGui::TableNextColumn(); ImGui::ColorEdit4(("Color##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.color));
-
+                    ImGui::TableNextColumn();
+                    ImGui::ColorEdit4(("Color##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.color));
                     ImGui::TableNextColumn();
                     static int item_current = 0;
                     if (ImGui::Combo("Color Presets",
@@ -243,20 +258,17 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
                                      std::size(Colors::COLOR_PRESETS_3))) {
                         light.color = {Colors::COLOR_PRESETS_3.at(static_cast<unsigned long>(item_current)).second, light.color.a};
                     }
+                    ImGui::EndTable();
 
-                    ImGui::TableNextColumn();
                     ImGui::SliderFloat(("Intensity##" + std::to_string(light.getId())).c_str(), &light.color.a, 0.0F, 5.F);
-                    ImGui::TableNextColumn();
+                    ImGui::SameLine();
                     if (ImGui::Button(("Reset##" + std::to_string(light.getId())).c_str())) { light.color.a = DEFAULT_LIGHT_INTENSITY; }
-                    ImGui::TableNextColumn();
                     float shininess = light.getShininess();
                     if (ImGui::SliderFloat("Shininess", &shininess, 0.0F, 512.F)) {
                         light.setShininess(shininess);
                     }
-                    ImGui::TableNextColumn();
+                    ImGui::SameLine();
                     if (ImGui::Button("Reset##shininess")) { light.setShininess(DEFAULT_SHININESS); }
-
-                    ImGui::EndTable();
                 }
                 ImGui::TreePop();
             }
@@ -264,19 +276,19 @@ void ven::Gui::lightsSection(std::unordered_map<unsigned int, Light> &lights)
     }
 }
 
-void ven::Gui::inputsSection(const ImGuiIO* io)
+void ven::Gui::inputsSection(const ImGuiIO& io)
 {
     if (ImGui::CollapsingHeader("Input")) {
-        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io->MousePos.x, io->MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
-        ImGui::Text("Mouse delta: (%g, %g)", io->MouseDelta.x, io->MouseDelta.y);
+        ImGui::IsMousePosValid() ? ImGui::Text("Mouse pos: (%g, %g)", io.MousePos.x, io.MousePos.y) : ImGui::Text("Mouse pos: <INVALID>");
+        ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
         ImGui::Text("Mouse down:");
-        for (int i = 0; i < static_cast<int>(std::size(io->MouseDown)); i++) {
+        for (int i = 0; i < static_cast<int>(std::size(io.MouseDown)); i++) {
             if (ImGui::IsMouseDown(i)) {
                 ImGui::SameLine();
-                ImGui::Text("b%d (%.02f secs)", i, io->MouseDownDuration[i]);
+                ImGui::Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]);
             }
         }
-        ImGui::Text("Mouse wheel: %.1f", io->MouseWheel);
+        ImGui::Text("Mouse wheel: %.1f", io.MouseWheel);
         ImGui::Text("Keys down:");
         for (auto key = static_cast<ImGuiKey>(0); key < ImGuiKey_NamedKey_END; key = static_cast<ImGuiKey>(key + 1)) {
             if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) { continue; }

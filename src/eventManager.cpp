@@ -3,12 +3,12 @@
 
 #include "VEngine/EventManager.hpp"
 
-bool ven::EventManager::isKeyJustPressed(GLFWwindow* window, const int key, std::unordered_map<int, bool>& keyStates)
+bool ven::EventManager::isKeyJustPressed(GLFWwindow* window, const long unsigned int key, std::array<bool, GLFW_KEY_LAST>& keyStates)
 {
-    const bool isPressed = glfwGetKey(window, key) == GLFW_PRESS;
-    const bool wasPressed = keyStates[key];
+    const bool isPressed = glfwGetKey(window, static_cast<int>(key)) == GLFW_PRESS;
+    const bool wasPressed = keyStates.at(key);
 
-    keyStates[key] = isPressed;
+    keyStates.at(key) = isPressed;
 
     return isPressed && !wasPressed;
 }
@@ -46,11 +46,11 @@ void ven::EventManager::moveCamera(GLFWwindow* window, Camera& camera, const flo
 
     processKeyActions(window, moveActions.begin(), moveActions.end());
 
-    if (length2(rotate) > EPSILON) {
-        camera.transform.rotation += camera.getLookSpeed() * dt * normalize(rotate);
+    if (const float lengthRotate = length2(rotate); lengthRotate > EPSILON) {
+        camera.transform.rotation += camera.getLookSpeed() * dt * rotate / std::sqrt(lengthRotate);
     }
-    if (length2(moveDir) > EPSILON) {
-        camera.transform.translation += camera.getMoveSpeed() * dt * normalize(moveDir);
+    if (const float lengthMove = length2(moveDir); lengthMove > EPSILON) {
+        camera.transform.translation += camera.getMoveSpeed() * dt * moveDir / std::sqrt(lengthMove);
     }
 
     camera.transform.rotation.x = glm::clamp(camera.transform.rotation.x, -1.5F, 1.5F);
@@ -64,7 +64,15 @@ void ven::EventManager::handleEvents(GLFWwindow *window, ENGINE_STATE *engineSta
         updateEngineState(engineState, EXIT);
     }
     if (isKeyJustPressed(window, DEFAULT_KEY_MAPPINGS.toggleGui, m_keyState)) {
-        gui.getState() == HIDDEN ? gui.setState(VISIBLE) : gui.setState(HIDDEN);
+        if (gui.getState() != HIDDEN) {
+            gui.setState(HIDDEN);
+        } else {
+            if (*engineState == EDITOR) {
+                gui.setState(SHOW_EDITOR);
+            } else {
+                gui.setState(SHOW_PLAYER);
+            }
+        }
     }
     moveCamera(window, camera, dt);
 }
