@@ -1,6 +1,4 @@
-#include <stdexcept>
 #include <fstream>
-#include <array>
 
 #include "VEngine/Model.hpp"
 #include "VEngine/Shaders.hpp"

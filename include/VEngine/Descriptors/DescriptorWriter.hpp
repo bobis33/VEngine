@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Descriptors/DescriptorSetLayout.hpp"
 

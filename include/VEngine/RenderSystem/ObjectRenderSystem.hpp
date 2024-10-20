@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "VEngine/FrameInfo.hpp"
 #include "VEngine/RenderSystem/ARenderSystemBase.hpp"
 
 namespace ven {

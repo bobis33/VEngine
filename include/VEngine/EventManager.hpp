@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include "VEngine/Engine.hpp"
+#include "VEngine/Utils/Utils.hpp"
+#include "VEngine/Gui.hpp"
 
 namespace ven {
 
@@ -27,7 +28,7 @@ namespace ven {
         uint16_t lookRight = GLFW_KEY_RIGHT;
         uint16_t lookUp = GLFW_KEY_UP;
         uint16_t lookDown = GLFW_KEY_DOWN;
-        uint16_t toggleGui = GLFW_KEY_F1;
+        uint16_t toggleGui = GLFW_KEY_0;
     };
 
     static constexpr float EPSILON = std::numeric_limits<float>::epsilon();
@@ -51,14 +52,15 @@ namespace ven {
             void handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, float dt) const;
 
         private:
+
             static void moveCamera(GLFWwindow* window, Camera& camera, float dt);
             static void updateEngineState(ENGINE_STATE *engineState, const ENGINE_STATE newState) { *engineState = newState; }
-            static bool isKeyJustPressed(GLFWwindow* window, int key, std::unordered_map<int, bool>& keyStates);
+            static bool isKeyJustPressed(GLFWwindow* window, long unsigned int key, std::array<bool, GLFW_KEY_LAST>& keyStates);
 
             template<typename Iterator>
             static void processKeyActions(GLFWwindow* window, Iterator begin, Iterator end);
 
-            mutable std::unordered_map<int, bool> m_keyState;
+            mutable std::array<bool, GLFW_KEY_LAST> m_keyState{};
 
     }; // class EventManager
 

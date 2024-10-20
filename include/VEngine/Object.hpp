@@ -6,11 +6,6 @@
 
 #pragma once
 
-#include <memory>
-#include <unordered_map>
-
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "VEngine/SwapChain.hpp"
 #include "VEngine/Texture.hpp"
 #include "VEngine/Model.hpp"
@@ -37,10 +32,13 @@ namespace ven {
             using Map = std::unordered_map<unsigned int, Object>;
 
             explicit Object(const unsigned int objId) : m_objId{objId} {}
+
+            ~Object() = default;
+
             Object(const Object &) = delete;
-            Object(Object &&) = default;
             Object &operator=(const Object &) = delete;
-            Object &operator=(Object &&) = delete;
+            Object(Object &&) = default;
+            Object &operator=(Object &&) = default;
 
             [[nodiscard]] unsigned int getId() const { return m_objId; }
             [[nodiscard]] std::string getName() const { return m_name; }

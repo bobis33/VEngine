@@ -2,7 +2,6 @@
 #include <ranges>
 
 #include "VEngine/SceneManager.hpp"
-#include "VEngine/FrameInfo.hpp"
 
 ven::SceneManager::SceneManager(Device& device)
 {
@@ -34,6 +33,17 @@ ven::Object& ven::SceneManager::createObject()
     return m_objects.at(objId);
 }
 
+ven::Object& ven::SceneManager::duplicateObject(const unsigned int objectId)
+{
+    const Object &cpyObj = m_objects.at(objectId);
+    Object &object = createObject();
+    object.setName(cpyObj.getName());
+    object.setModel(cpyObj.getModel());
+    object.transform = cpyObj.transform;
+    object.setDiffuseMap(cpyObj.getDiffuseMap());
+    return object;
+}
+
 ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 color)
 {
     assert(m_currentLightId < MAX_LIGHTS && "Max light count exceeded!");
@@ -45,18 +55,26 @@ ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 c
     return m_lights.at(lightId);
 }
 
+ven::Light& ven::SceneManager::duplicateLight(const unsigned int lightId)
+{
+    const Light &cpyLight = m_lights.at(lightId);
+    Light& light = createLight(cpyLight.transform.scale.x, cpyLight.color);
+    light.transform = cpyLight.transform;
+    return light;
+}
+
 void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIndex, const float frameTime)
 {
     uint8_t lightIndex = 0;
     const glm::mat4 rotateLight = rotate(glm::mat4(1.F), frameTime, {0.F, -1.F, 0.F});
 
-    for (auto& [id, object] : m_objects) {
+    for (Object& object : m_objects | std::views::values) {
         const ObjectBufferData data{
             .modelMatrix = object.transform.transformMatrix(),
             .normalMatrix = object.transform.normalMatrix()
         };
-        m_uboBuffers.at(frameIndex)->writeToIndex(&data, id);
-        object.setBufferInfo(static_cast<int>(frameIndex), m_uboBuffers.at(frameIndex)->descriptorInfoForIndex(id));
+        m_uboBuffers.at(frameIndex)->writeToIndex(&data, object.getId());
+        object.setBufferInfo(static_cast<int>(frameIndex), m_uboBuffers.at(frameIndex)->descriptorInfoForIndex(object.getId()));
     }
 
     for (Light &light : m_lights | std::views::values) {
@@ -68,4 +86,17 @@ void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIn
         lightIndex++;
     }
     ubo.numLights = lightIndex;
+}
+
+void ven::SceneManager::destroyEntity(std::vector<unsigned int> *objectsIds, std::vector<unsigned int> *lightsIds)
+{
+    for (const unsigned int objectId : *objectsIds) {
+        m_objects.erase(objectId);
+    }
+    for (const unsigned int lightId : *lightsIds) {
+        m_lights.erase(lightId);
+    }
+    objectsIds->clear();
+    lightsIds->clear();
+    m_destroyState = false;
 }

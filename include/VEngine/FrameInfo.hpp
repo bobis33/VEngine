@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
 
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/Camera.hpp"

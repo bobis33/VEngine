@@ -1,62 +1,26 @@
-#include <chrono>
-#include <cmath>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <VEngine/EventManager.hpp>
-
 #include "VEngine/Engine.hpp"
+#include "VEngine/EventManager.hpp"
+#include "VEngine/Descriptors/DescriptorWriter.hpp"
 #include "VEngine/RenderSystem/ObjectRenderSystem.hpp"
 #include "VEngine/RenderSystem/PointLightRenderSystem.hpp"
-#include "VEngine/Descriptors/DescriptorWriter.hpp"
-#include "VEngine/Gui.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Clock.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
-    createInstance();
-    createSurface();
-    Gui::init(m_window.getGLFWindow(), m_instance, &m_device, m_renderer.getSwapChainRenderPass());
+    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
 
-    framePools.resize(MAX_FRAMES_IN_FLIGHT);
+    m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
     const auto framePoolBuilder = DescriptorPool::Builder(m_device)
                                 .setMaxSets(1000)
                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
                                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
                                 .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
-    for (auto & framePool : framePools) {
+    for (auto & framePool : m_framePools) {
         framePool = framePoolBuilder.build();
     }
 
     loadObjects();
-}
-
-void ven::Engine::createInstance()
-{
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = nullptr;
-    VkInstanceCreateInfo createInfo{};
-    constexpr VkApplicationInfo appInfo{
-        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pNext = nullptr,
-        .pApplicationName = "VEngine App",
-        .applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0),
-        .pEngineName = "VEngine",
-        .engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0),
-        .apiVersion = VK_API_VERSION_1_0
-    };
-
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-
-    if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create Vulkan instance");
-    }
 }
 
 void ven::Engine::loadObjects()
@@ -103,19 +67,18 @@ void ven::Engine::loadObjects()
 void ven::Engine::mainLoop()
 {
     Clock clock;
-    GlobalUbo ubo{};
     Camera camera{};
     EventManager eventManager{};
+    GlobalUbo ubo{};
     VkCommandBuffer_T *commandBuffer = nullptr;
+    VkDescriptorBufferInfo bufferInfo{};
     float frameTime = 0.0F;
     unsigned long frameIndex = 0;
-    std::unique_ptr<DescriptorSetLayout> globalSetLayout =
-        DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
+    std::unique_ptr globalSetLayout(DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build());
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
     ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
     PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-    VkDescriptorBufferInfo bufferInfo{};
 
     for (auto& uboBuffer : uboBuffers)
     {
@@ -139,35 +102,35 @@ void ven::Engine::mainLoop()
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
-            framePools[frameIndex]->resetPool();
-            FrameInfo frameInfo{.frameIndex=frameIndex,
+            m_framePools[frameIndex]->resetPool();
+            FrameInfo frameInfo{
+                .frameIndex=frameIndex,
                 .frameTime=frameTime,
                 .commandBuffer=commandBuffer,
                 .camera=camera,
                 .globalDescriptorSet=globalDescriptorSets[frameIndex],
-                .frameDescriptorPool=*framePools[frameIndex],
+                .frameDescriptorPool=*m_framePools[frameIndex],
                 .objects=m_sceneManager.getObjects(),
                 .lights=m_sceneManager.getLights()
             };
-            ubo.projection = camera.getProjection();
-            ubo.view = camera.getView();
-            ubo.inverseView = camera.getInverseView();
+            ubo.projection=camera.getProjection();
+            ubo.view=camera.getView();
+            ubo.inverseView=camera.getInverseView();
             m_sceneManager.updateBuffer(ubo, frameIndex, frameTime);
             uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
             uboBuffers.at(frameIndex)->flush();
-
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
             objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
-            if (m_gui.getState() == VISIBLE) {
-                Gui::render(
+            if (m_gui.getState() != HIDDEN) {
+                m_gui.render(
                     &m_renderer,
-                    m_sceneManager.getObjects(),
-                    m_sceneManager.getLights(),
+                    m_sceneManager,
                     camera,
                     m_device.getPhysicalDevice(),
-                    ubo
+                    ubo,
+                    { .deltaTimeMS=clock.getDeltaTimeMS(), .fps=clock.getFPS() }
                     );
             }
 
@@ -175,7 +138,15 @@ void ven::Engine::mainLoop()
             m_renderer.endFrame();
             commandBuffer = nullptr;
         }
+        if (m_sceneManager.getDestroyState()) {
+            vkDeviceWaitIdle(m_device.device());
+            m_sceneManager.destroyEntity(m_gui.getObjectsToRemove(), m_gui.getLightsToRemove());
+        }
     }
-    Gui::cleanup();
     vkDeviceWaitIdle(m_device.device());
+}
+
+void ven::Engine::cleanup()
+{
+    Gui::cleanup();
 }

@@ -6,10 +6,7 @@
 
 #pragma once
 
-#include <memory>
-
 #include "VEngine/Descriptors/DescriptorSetLayout.hpp"
-#include "VEngine/Device.hpp"
 #include "VEngine/Shaders.hpp"
 #include "VEngine/FrameInfo.hpp"
 

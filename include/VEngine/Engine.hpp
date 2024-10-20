@@ -6,23 +6,14 @@
 
 #pragma once
 
-#include <vulkan/vulkan.h>
-
-#include "VEngine/Gui.hpp"
-#include "VEngine/Window.hpp"
-#include "VEngine/Device.hpp"
 #include "VEngine/Renderer.hpp"
 #include "VEngine/Descriptors/DescriptorPool.hpp"
 #include "VEngine/SceneManager.hpp"
+#include "VEngine/Gui.hpp"
+#include "VEngine/Utils/Utils.hpp"
 
 namespace ven {
 
-    enum ENGINE_STATE : uint8_t {
-        EDITOR = 0,
-        GAME = 1,
-        PAUSED = 2,
-        EXIT = 3
-    };
 
     ///
     /// @class Engine
@@ -41,6 +32,8 @@ namespace ven {
 
             void mainLoop();
 
+            static void cleanup();
+
         private:
 
             void loadObjects();
@@ -52,14 +45,8 @@ namespace ven {
             Renderer m_renderer{m_window, m_device};
             Gui m_gui;
             std::unique_ptr<DescriptorPool> m_globalPool;
-            std::vector<std::unique_ptr<DescriptorPool>> framePools;
+            std::vector<std::unique_ptr<DescriptorPool>> m_framePools;
             SceneManager m_sceneManager{m_device};
-
-            VkInstance m_instance{nullptr};
-            VkSurfaceKHR m_surface{nullptr};
-
-            void createInstance();
-            void createSurface() { if (glfwCreateWindowSurface(m_instance, m_window.getGLFWindow(), nullptr, &m_surface) != VK_SUCCESS) { throw std::runtime_error("Failed to create window surface"); } }
 
     }; // class Engine
 

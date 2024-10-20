@@ -2,11 +2,6 @@
 #include <imgui_impl_vulkan.h>
 
 #include "VEngine/Gui.hpp"
-#include "VEngine/Utils/Colors.hpp"
-
-ImGuiIO *ven::Gui::m_io = nullptr;
-float ven::Gui::m_intensity = 1.0F;
-float ven::Gui::m_shininess = DEFAULT_SHININESS;
 
 void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
 {
@@ -15,7 +10,6 @@ void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device*
     ImGui::CreateContext();
     m_io = &ImGui::GetIO();
     m_io->IniFilename = "assets/imgui-config.txt";
-    // ImGui::StyleColorsDark();
 
     std::array<VkDescriptorPoolSize, 11> pool_sizes = {{
             { .type=VK_DESCRIPTOR_TYPE_SAMPLER, .descriptorCount=DESCRIPTOR_COUNT },
