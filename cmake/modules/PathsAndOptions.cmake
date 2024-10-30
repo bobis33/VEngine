@@ -20,7 +20,9 @@ set(THIRDPARTY_LIBRARIES "")
 set(SHADER_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders)
 set(SHADER_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/shaders)
 
-set(WARNING_FLAGS
+## todo(bobis33): to fix, check wich warning can be used with which compilator and which version
+if (NOT WIN32)
+set(WARNING_FLAG
         -Wall
         -Wextra
         -Wdeprecated-copy
@@ -43,3 +45,8 @@ set(WARNING_FLAGS
         -Wswitch-default
         -Wundef
 )
+endif()
+
+if(WIN32)
+	set(WARNING_FLAG)
+endif()

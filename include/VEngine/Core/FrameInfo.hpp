@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <array>
 
 #include "VEngine/Gfx/Descriptors/Pool.hpp"
 #include "VEngine/Scene/Camera.hpp"

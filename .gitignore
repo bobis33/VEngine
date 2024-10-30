@@ -5,10 +5,16 @@ CMakeScripts
 Makefile
 cmake_install.cmake
 cmake-build-debug/*
+cmake-build-release/*
 build/*
+out/*
 
-# Intellij IDEA
+# IDE
 .idea/*
+.vs/*
 
 # Binary files
 vengine
+vengine.exe
+vengine.ilk
+vengine.pdb

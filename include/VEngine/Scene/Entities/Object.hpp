@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "VEngine/Gfx/Texture.hpp"
 #include "VEngine/Gfx/Model.hpp"
 #include "VEngine/Scene/Transform3D.hpp"

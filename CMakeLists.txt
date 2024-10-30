@@ -13,9 +13,14 @@ if (BUILD_DOC)
     include(MakeDoc)
     return()
 endif()
-include(ClangTidy)
-include(ClangFormat)
-clangformat_setup()
+
+## todo(bobis33): fix Windows platform should be able to run it
+if (UNIX)
+    include(ClangTidy)
+    include(ClangFormat)
+    clangformat_setup()
+endif()
+
 include(MakeShaders)
 
 add_subdirectory(third-party)

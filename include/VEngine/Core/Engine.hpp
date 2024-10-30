@@ -32,7 +32,7 @@ namespace ven {
 
             void mainLoop();
 
-            static void cleanup();
+            void cleanup();
 
         private:
 

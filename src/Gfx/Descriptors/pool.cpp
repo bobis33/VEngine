@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "VEngine/Gfx/Descriptors/Pool.hpp"
 
 ven::DescriptorPool::DescriptorPool(Device &device, const uint32_t maxSets, const VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize> &poolSizes) : m_device{device}

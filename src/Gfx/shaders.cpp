@@ -1,4 +1,5 @@
 #include <fstream>
+#include <array>
 
 #include "VEngine/Gfx/Model.hpp"
 #include "VEngine/Gfx/Shaders.hpp"

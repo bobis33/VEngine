@@ -37,6 +37,7 @@ target_include_directories(imgui PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
         ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
+        ${Vulkan_INCLUDE_DIRS}
 )
 
 list(APPEND THIRDPARTY_LIBS imgui)

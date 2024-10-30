@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <array>
 
 #include "VEngine/Gfx/SwapChain.hpp"
 

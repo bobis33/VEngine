@@ -9,7 +9,7 @@ int main()
     try {
         Engine engine{};
         engine.mainLoop();
-        Engine::cleanup();
+        engine.cleanup();
     } catch (const std::exception &e) {
         std::cerr << "std exception: " << e.what() << '\n';
         return EXIT_FAILURE;
