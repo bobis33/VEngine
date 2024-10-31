@@ -1,5 +1,5 @@
-name: Check compilation
-run-name: ${{ github.actor }} ${{ github.branch }} | Check compilation
+name: Build Linux
+run-name: ${{ github.actor }} ${{ github.branch }} | Build Linux
 on:
   push:
     branches:
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: ./tools/install-dependencies.sh build
 
-      - name: Check compilation
+      - name: Build
         run: ./tools/build.sh build
 
       - name: Check binary

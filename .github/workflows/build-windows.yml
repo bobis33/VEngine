@@ -1,0 +1,48 @@
+name: Build Windows
+run-name: ${{ github.actor }} ${{ github.branch }} | Build Windows
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          submodules: true
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.27.0'
+
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.1.1
+        with:
+          cache: 'false'
+          version: '1.3.296.0'
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Build
+        run: |
+          cmake -G "Visual Studio 17 2022" .
+          cmake --build . --config Release
+
+      - name: Check binary
+        run: |
+          if (-Not (Test-Path ".\Release\vengine.exe")) {
+            Write-Host "Error: Binary vengine.exe not found."
+            exit 1
+          } else {
+            Write-Host "Binary vengine.exe found."
+          }

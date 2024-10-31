@@ -20,33 +20,33 @@ set(THIRDPARTY_LIBRARIES "")
 set(SHADER_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders)
 set(SHADER_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/shaders)
 
-## todo(bobis33): to fix, check wich warning can be used with which compilator and which version
+## todo(bobis33): to fix, check which warning can be used with which compiler and which version
 if (NOT WIN32)
-set(WARNING_FLAG
-        -Wall
-        -Wextra
-        -Wdeprecated-copy
-        -Wmisleading-indentation
-        -Wnull-dereference
-        -Woverloaded-virtual
-        -Wpedantic
-        -Wshadow
-        -Wsign-conversion
-        -Wnon-virtual-dtor
-        -Wunused
-        -Wcast-align
-        -Wno-padded
-        -Wconversion
-        -Wformat
-        -Winit-self
-        -Wmissing-include-dirs
-        -Wold-style-cast
-        -Wredundant-decls
-        -Wswitch-default
-        -Wundef
+	set(WARNING_FLAG
+        	-Wall
+        	-Wextra
+        	-Wdeprecated-copy
+        	-Wmisleading-indentation
+        	-Wnull-dereference
+        	-Woverloaded-virtual
+        	-Wpedantic
+        	-Wshadow
+        	-Wsign-conversion
+        	-Wnon-virtual-dtor
+        	-Wunused
+        	-Wcast-align
+        	-Wno-padded
+        	-Wconversion
+        	-Wformat
+        	-Winit-self
+        	-Wmissing-include-dirs
+        	-Wold-style-cast
+        	-Wredundant-decls
+        	-Wswitch-default
+        	-Wundef
 )
 endif()
 
 if(WIN32)
-	set(WARNING_FLAG)
+	set(WARNING_FLAG -Wno-error)
 endif()

@@ -1,7 +1,8 @@
 ![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/icons/logo.png)
 
-[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/check-compilation.yml)
-[![VENGINE_CI](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
+[![Build Linux](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml)
+[![Build Windows](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml)
+[![Update Documentation](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
@@ -12,43 +13,111 @@
 
 Welcome to **VEngine**, a Vulkan-based graphics engine.
 
-This project is designed to provide a high-performance and flexible foundation for building 3D applications and games, 
-taking full advantage of the Vulkan API.
+I Build this project to learn more about Vulkan and graphics programming in general.
+The goal is to create an efficient engine that can be used for various projects, such as games, simulations, and visualizations.
 
 
 ## Features
 
 - **Vulkan Rendering Pipeline**: Leveraging Vulkan for high-performance graphics rendering
 - **Basic Camera System**: Control camera movement in the 3D space
-- **Input System**: Keyboard-based controls for movement and looking around
 - **Model Loading**: Import 3D models using [assimp](https://github.com/assimp/assimp)
-- **Real-time debugging**: Toggle debug windows using key bindings
+- **Real-time debugging**: Use ImGui for real-time debugging and tool development
+- **Cross-platform support** (Linux, Windows)
 - **Doxygen Documentation**: Automatically generated documentation hosted on [GitHub Pages](https://bobis33.github.io/VEngine/)
 
 
-### Planned Features:
+## Planned Features:
 
-- **Cross-platform support** (Linux, macOS, Windows)
-- Improve shadow
+- Ray Tracing
 - Physics Integration
-- Support for more input devices (e.g., mouse, game controller)
 - Audio Integration
+- Support for more input devices (e.g., mouse, game controller)
+- Support for more platforms (e.g., macOS, Android, iOS, PS5 ...)
 
 
-## Prerequisites
+## Build
+
+Before building the project, make sure you update the submodules:
+
+```bash
+$> git submodule update --init --recursive
+```
+
+### Prerequisites
 
 Make sure you have the following dependencies installed on your system:
 
 - [CMake 3.27](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
 - [Vulkan SDK](https://www.vulkan.org/)
-- [X11](https://www.x.org/wiki/)
+- [X11](https://www.x.org/wiki/) (Linux only)
+- [LLVM](https://llvm.org/)
 
-if you are using a Debian-based distribution, you can install the required packages using the following command:
+If you are using a Debian-based distribution, you can install the dependencies using the following command:
 
 ```bash
 $> ./tools/install-dependencies.sh build
 ```
+
+
+### Linux
+
+#### Build and Run
+
+```bash
+$> ./tools/build.sh build
+[...]
+```
+> This script also handle several other commands: `clean`, `format` and `doc`.
+
+```bash
+$> ./vengine
+[...]
+```
+
+
+### Windows
+
+
+#### Build and Run
+
+I build the project with [CLion](https://www.jetbrains.com/clion/), also works with [Visual Studio](https://visualstudio.microsoft.com/fr/).
+I'm using the Visual studio toolchain with [ninja](https://ninja-build.org/).
+
+You should create your own CMake profile depending on your configuration.
+Basic configuration should run the following commands:
+
+```bash
+$> cmake -G "Visual Studio 17 2022" .
+$> cmake --build . --config Release 
+```
+
+
+## Key Bindings
+
+The following keyboard controls are currently available for interacting with the engine:
+
+| Key     | Description        |
+|:--------|:-------------------|
+| `Z`     | Move forward       |
+| `S`     | Move backward      |
+| `Q`     | Move left          |
+| `D`     | Move right         |
+| `SHIFT` | Move down          |
+| `SPACE` | Move up            |
+| `↑`     | Look up            |
+| `↓`     | Look down          |
+| `←`     | Look left          |
+| `→`     | Look right         |
+| `à`     | Show debug windows |
+
+
+## Documentation
+
+The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
+You can access the latest version on the [GitHub Pages](https://bobis33.github.io/VEngine/).
+
 
 ## External Libraries
 
@@ -60,53 +129,6 @@ $> ./tools/install-dependencies.sh build
 - [**stb**](https://github.com/nothings/stb): A set of single-file public domain libraries for graphics, image loading, and more.
 
 These libraries are included directly into the project to simplify dependency management. Be sure to initialize and update the submodules when cloning the repository:
-
-```bash
-$> git submodule update --init --recursive
-```
-
-## Usage
-
-### Build
-
-```bash
-$> ./tools/build.sh build
-[...]
-```
-> This script also handle several other commands: `clean`, `format` and `doc`.
-
-
-### Run
-
-```bash
-$> ./vengine
-[...]
-```
-
-
-## Key Bindings
-
-The following keyboard controls are currently available for interacting with the engine:
-
-| Key           | Description                                                                 |
-|:--------------|:----------------------------------------------------------------------------|
-| `z`           | Move forward                                                                |
-| `S`           | Move backward                                                               |
-| `q`           | Move left                                                                   |
-| `D`           | Move right                                                                  |
-| `SHIFT`       | Move down                                                                   |
-| `SPACE`       | Move up                                                                     |
-| `arrow up`    | Look up                                                                     |
-| `arrow down`  | Look down                                                                   |
-| `arrow left`  | Look left                                                                   |
-| `arrow right` | Look right                                                                  |
-| `F1`          | Show debug windows                                                          |
-
-
-## Documentation
-
-The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
-You can access the latest version on the [GitHub Pages](https://bobis33.github.io/VEngine/).
 
 
 ## Commit Norms
