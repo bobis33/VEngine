@@ -3,8 +3,9 @@
 #include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
-#include "VEngine/Scene/Factories/Light.hpp"
-#include "VEngine/Scene/Factories/Object.hpp"
+#include "VEngine/Factories/Light.hpp"
+#include "VEngine/Factories/Object.hpp"
+#include "VEngine/Factories/Model.hpp"
 #include "VEngine/Utils/Clock.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
@@ -28,11 +29,11 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 void ven::Engine::loadObjects()
 {
     constexpr std::array lightColors{Colors::RED_4, Colors::GREEN_4, Colors::BLUE_4, Colors::YELLOW_4, Colors::CYAN_4, Colors::MAGENTA_4};
-    const std::unordered_map<std::string, std::shared_ptr<Model>> modelCache = Model::loadAllModels("assets/models/", m_device);
+    const std::unordered_map<std::string, std::shared_ptr<Model>> modelCache = ModelFactory::loadAll(m_device, "assets/models/");
     const std::shared_ptr<Texture> defaultTexture = m_sceneManager.getTextureDefault();
 
-    Logger::logExecutionTime("Creating quad", [&]() {
-        const auto quad = ObjectFactory::createObject(
+    Logger::logExecutionTime("Creating object quad", [&] {
+        m_sceneManager.addObject(ObjectFactory::create(
             defaultTexture,
             modelCache.at("assets/models/quad.obj"),
             "quad",
@@ -40,12 +41,11 @@ void ven::Engine::loadObjects()
             .translation = {0.F, .5F, 0.F},
             .scale = {3.F, 1.F, 3.F},
             .rotation = {0.F, 0.F, 0.F}
-        });
-        m_sceneManager.addObject(quad);
+        }));
     });
 
-    Logger::logExecutionTime("Creating smooth vase", [&](){
-        const auto smoothVase = ObjectFactory::createObject(
+    Logger::logExecutionTime("Creating object smooth vase", [&]{
+        m_sceneManager.addObject(ObjectFactory::create(
             defaultTexture,
             modelCache.at("assets/models/smooth_vase.obj"),
             "smooth vase",
@@ -53,11 +53,10 @@ void ven::Engine::loadObjects()
             .translation = {.5F, .5F, 0.F},
             .scale = {3.F, 1.5F, 3.F},
             .rotation = {0.F, 0.F, 0.F}
-        });
-        m_sceneManager.addObject(smoothVase);
+        }));
     });
-    Logger::logExecutionTime("Creating flat vase", [&](){
-        const auto flatVase = ObjectFactory::createObject(
+    Logger::logExecutionTime("Creating object flat vase", [&]{
+        m_sceneManager.addObject(ObjectFactory::create(
             defaultTexture,
             modelCache.at("assets/models/flat_vase.obj"),
             "flat vase",
@@ -65,24 +64,22 @@ void ven::Engine::loadObjects()
             .translation = {-.5F, .5F, 0.F},
             .scale = {3.F, 1.5F, 3.F},
             .rotation = {0.F, 0.F, 0.F}
-        });
-        m_sceneManager.addObject(flatVase);
+        }));
     });
-
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        Logger::logExecutionTime("Creating light n" + std::to_string(i), [&]() {
+        Logger::logExecutionTime("Creating light n" + std::to_string(i), [&] {
             const glm::mat4 rotateLight = rotate(
                 glm::mat4(1.F),
                 static_cast<float>(i) * glm::two_pi<float>() / 6.0F, // 6 = num of lights
                 {0.F, -1.F, 0.F}
 );
-            const auto pointLight = LightFactory::createLight({
-                .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
-                .scale = { 0.1F, 0.0F, 0.0F },
-                .rotation = { 0.F, 0.F, 0.F }},
-                lightColors.at(i));
-            m_sceneManager.addLight(std::move(pointLight));
+            m_sceneManager.addLight(LightFactory::create({
+                    .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
+                    .scale = { 0.1F, 0.0F, 0.0F },
+                    .rotation = { 0.F, 0.F, 0.F }},
+                lightColors.at(i)
+                ));
         });
     }
 }

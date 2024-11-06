@@ -42,6 +42,8 @@ namespace ven {
                 std::cout << getColorForDuration(duration) << formatLogMessage(LogLevel::INFO, message + " took " + std::to_string(duration) + " ms") << LOG_LEVEL_COLOR.at(3);
             }
 
+            static void logWarning(const std::string& message) { std::cout << LOG_LEVEL_COLOR.at(2) << formatLogMessage(LogLevel::WARNING, message) << LOG_LEVEL_COLOR.at(3); }
+
         private:
 
             static constexpr std::array<const char*, 2> LOG_LEVEL_STRING = {"INFO", "WARNING"};

@@ -28,8 +28,6 @@ namespace ven {
             Texture(const Texture &) = delete;
             Texture &operator=(const Texture &) = delete;
 
-            static std::unique_ptr<Texture> createTextureFromFile(Device &device, const std::string &filepath) { return std::make_unique<Texture>(device, filepath); }
-
             void updateDescriptor();
             void transitionLayout(VkCommandBuffer commandBuffer, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 

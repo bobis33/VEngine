@@ -5,8 +5,8 @@
 
 #include "VEngine/Core/Gui.hpp"
 #include "VEngine/Utils/Colors.hpp"
-#include "VEngine/Scene/Factories/Object.hpp"
-#include "VEngine/Scene/Factories/Light.hpp"
+#include "VEngine/Factories/Object.hpp"
+#include "VEngine/Factories/Light.hpp"
 
 void ven::Gui::cleanup()
 {
@@ -15,7 +15,7 @@ void ven::Gui::cleanup()
     ImGui::DestroyContext();
 }
 
-void ven::Gui::render(Renderer* renderer,  SceneManager& sceneManager, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo, const ClockData& clockData)
+void ven::Gui::render(Renderer* renderer, SceneManager& sceneManager, Camera& camera, const VkPhysicalDevice physicalDevice, GlobalUbo& ubo, const ClockData& clockData)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
@@ -170,7 +170,7 @@ void ven::Gui::objectsSection(SceneManager& sceneManager)
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(("Duplicate##" + object.getName()).c_str())) {
-                    ObjectFactory::duplicateObject(object);
+                    ObjectFactory::duplicate(object);
                 }
                 ImGui::Text("Address: %p", static_cast<void*>(&object));
                 ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform.translation), 0.1F);
@@ -239,7 +239,7 @@ void ven::Gui::lightsSection(SceneManager& sceneManager)
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(("Duplicate##" + light.getName()).c_str())) {
-                    LightFactory::duplicateLight(light);
+                    LightFactory::duplicate(light);
                 }
                 ImGui::Text("Address: %p", static_cast<void*>(&light));
                 ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.translation), 0.1F);

@@ -39,9 +39,7 @@ namespace ven {
                 static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
                 static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
-                bool operator==(const Vertex& other) const {
-                    return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
-                }
+                bool operator==(const Vertex& other) const { return position == other.position && color == other.color && normal == other.normal && uv == other.uv; }
             };
 
             struct Builder {
@@ -59,29 +57,9 @@ namespace ven {
             Model(const Model&) = delete;
             void operator=(const Model&) = delete;
 
-            static std::unique_ptr<Model> createModelFromFile(Device &device, const std::string &filename);
 
             void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;
-
-        static std::unordered_map<std::string, std::shared_ptr<Model>> loadAllModels(const std::string &directoryPath, Device &device) {
-            std::unordered_map<std::string, std::shared_ptr<Model>> modelCache;
-
-            for (const auto &entry : std::filesystem::directory_iterator(directoryPath)) {
-                if (entry.is_regular_file()) {
-                    Logger::logExecutionTime("Creating model " + entry.path().string(), [&]() {
-                        const std::string &filepath = entry.path().string();
-                        modelCache[filepath] = Model::createModelFromFile(device, filepath);
-                    });
-
-                    const std::string &filepath = entry.path().string();
-                    modelCache[filepath] = Model::createModelFromFile(device, filepath);
-                }
-            }
-
-            return modelCache;
-        }
-
 
         private:
 

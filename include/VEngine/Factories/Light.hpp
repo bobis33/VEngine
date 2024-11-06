@@ -12,8 +12,7 @@
 
 namespace ven {
 
-    static constexpr Transform3D DEFAULT_TRANSFORM = {.translation = {0.F, 0.F, 0.F}, .scale = {0.01F, 0.F, 0.F}, .rotation = {0.F, 0.F, 0.F}};
-
+    static constexpr Transform3D DEFAULT_TRANSFORM = {.translation = {0.F, 0.F, 0.F}, .scale = {0.1F, 0.F, 0.F}, .rotation = {0.F, 0.F, 0.F}};
 
     ///
     /// @class LightFactory
@@ -24,8 +23,8 @@ namespace ven {
 
         public:
 
-            static std::unique_ptr<Light> createLight(const Transform3D &transform = DEFAULT_TRANSFORM, glm::vec4 color = DEFAULT_LIGHT_COLOR);
-            static std::unique_ptr<Light> duplicateLight(const Light &cpyLight);
+            static std::unique_ptr<Light> create(const Transform3D &transform = DEFAULT_TRANSFORM, glm::vec4 color = DEFAULT_LIGHT_COLOR);
+            static std::unique_ptr<Light> duplicate(const Light &cpyLight) { return create(cpyLight.transform, cpyLight.color); }
 
         private:
 

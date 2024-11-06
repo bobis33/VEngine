@@ -2,6 +2,7 @@
 #include <ranges>
 
 #include "VEngine/Scene/Manager.hpp"
+#include "VEngine/Factories/Texture.hpp"
 
 ven::SceneManager::SceneManager(Device& device)
 {
@@ -20,7 +21,9 @@ ven::SceneManager::SceneManager(Device& device)
             alignment);
         uboBuffer->map();
     }
-    m_textureDefault = Texture::createTextureFromFile(device, "assets/textures/default.png");
+    Logger::logExecutionTime("Creating default texture", [&] {
+        m_textureDefault = TextureFactory::create(device, "assets/textures/default.png");
+    });
 }
 
 void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIndex, const float frameTime)

@@ -19,8 +19,8 @@ namespace ven {
 
         public:
 
-            static std::unique_ptr<Object> createObject(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Model>& model, const std::string &name, const Transform3D &transform);
-            static std::unique_ptr<Object> duplicateObject(const Object& objSrc);
+            static std::unique_ptr<Object> create(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Model>& model, const std::string &name, const Transform3D &transform);
+            static std::unique_ptr<Object> duplicate(const Object& objSrc) { return create(objSrc.getDiffuseMap(), objSrc.getModel(), objSrc.getName(), objSrc.transform); }
 
         private:
 

@@ -81,13 +81,6 @@ void ven::Model::bind(const VkCommandBuffer commandBuffer) const
     }
 }
 
-std::unique_ptr<ven::Model> ven::Model::createModelFromFile(Device &device, const std::string &filename)
-{
-    Builder builder{};
-    builder.loadModel(filename);
-    return std::make_unique<Model>(device, builder);
-}
-
 std::vector<VkVertexInputBindingDescription> ven::Model::Vertex::getBindingDescriptions()
 {
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
@@ -109,7 +102,8 @@ std::vector<VkVertexInputAttributeDescription> ven::Model::Vertex::getAttributeD
     return attributeDescriptions;
 }
 
-void ven::Model::Builder::loadModel(const std::string &filename) {
+void ven::Model::Builder::loadModel(const std::string &filename)
+{
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenNormals);
@@ -162,10 +156,6 @@ void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) 
             );
         } else {
             vertex.uv = glm::vec2(0.0F, 0.0F);
-        }
-
-        if (vertex.color == Colors::BLACK_3) {
-            vertex.color = Colors::WHITE_3;
         }
 
         if (!uniqueVertices.contains(vertex)) {
