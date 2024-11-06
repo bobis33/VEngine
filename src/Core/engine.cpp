@@ -3,16 +3,15 @@
 #include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
+#include "VEngine/Scene/Factories/Light.hpp"
+#include "VEngine/Scene/Factories/Object.hpp"
 #include "VEngine/Utils/Clock.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
-#include "VEngine/Scene/Factories/Object.hpp"
-#include "VEngine/Scene/Factories/Light.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
-
     m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
     const auto framePoolBuilder = DescriptorPool::Builder(m_device)
                                 .setMaxSets(1000)
@@ -28,56 +27,61 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
 
 void ven::Engine::loadObjects()
 {
-    constexpr std::array lightColors{Colors::RED_4,    Colors::GREEN_4, Colors::BLUE_4,
-                                     Colors::YELLOW_4, Colors::CYAN_4,  Colors::MAGENTA_4};
-
+    constexpr std::array lightColors{Colors::RED_4, Colors::GREEN_4, Colors::BLUE_4, Colors::YELLOW_4, Colors::CYAN_4, Colors::MAGENTA_4};
     const std::unordered_map<std::string, std::shared_ptr<Model>> modelCache = Model::loadAllModels("assets/models/", m_device);
-
+    const std::shared_ptr<Texture> defaultTexture = m_sceneManager.getTextureDefault();
 
     Logger::logExecutionTime("Creating quad", [&]() {
-        const auto quad = ObjectFactory::createObject(m_sceneManager.getTextureDefault());
-        quad->setName("quad");
-        auto it = modelCache.find("assets/models/quad.obj");
-        quad->setModel(it->second);
-        quad->transform.translation = {0.F, .5F, 0.F};
-        quad->transform.scale = {3.F, 1.F, 3.F};
+        const auto quad = ObjectFactory::createObject(
+            defaultTexture,
+            modelCache.at("assets/models/quad.obj"),
+            "quad",
+            {
+            .translation = {0.F, .5F, 0.F},
+            .scale = {3.F, 1.F, 3.F},
+            .rotation = {0.F, 0.F, 0.F}
+        });
         m_sceneManager.addObject(quad);
     });
 
     Logger::logExecutionTime("Creating smooth vase", [&](){
-        const auto smoothVase = ObjectFactory::createObject(m_sceneManager.getTextureDefault());
-        auto it = modelCache.find("assets/models/smooth_vase.obj");
-
-        smoothVase->setModel(it->second);
-
-        smoothVase->setName("smooth vase");
-        smoothVase->transform.translation = {.5F, .5F, 0.F};
-        smoothVase->transform.scale = {3.F, 1.5F, 3.F};
+        const auto smoothVase = ObjectFactory::createObject(
+            defaultTexture,
+            modelCache.at("assets/models/smooth_vase.obj"),
+            "smooth vase",
+            {
+            .translation = {.5F, .5F, 0.F},
+            .scale = {3.F, 1.5F, 3.F},
+            .rotation = {0.F, 0.F, 0.F}
+        });
         m_sceneManager.addObject(smoothVase);
-
     });
     Logger::logExecutionTime("Creating flat vase", [&](){
-        const auto flatVase = ObjectFactory::createObject(m_sceneManager.getTextureDefault());
-        flatVase->setName("flat vase");
-        auto it = modelCache.find("assets/models/flat_vase.obj");
-
-        flatVase->setModel(it->second);
-        flatVase->transform.translation = {-.5F, .5F, 0.F};
-        flatVase->transform.scale = {3.F, 1.5F, 3.F};
+        const auto flatVase = ObjectFactory::createObject(
+            defaultTexture,
+            modelCache.at("assets/models/flat_vase.obj"),
+            "flat vase",
+            {
+            .translation = {-.5F, .5F, 0.F},
+            .scale = {3.F, 1.5F, 3.F},
+            .rotation = {0.F, 0.F, 0.F}
+        });
         m_sceneManager.addObject(flatVase);
     });
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        const glm::mat4 rotateLight = rotate(
-            glm::mat4(1.F),
-            static_cast<float>(i) * glm::two_pi<float>() / static_cast<float>(lightColors.size()),
-            {0.F, -1.F, 0.F}
-        );
         Logger::logExecutionTime("Creating light n" + std::to_string(i), [&]() {
-            const auto pointLight = LightFactory::createLight();
-            pointLight->color = lightColors.at(i);
-            pointLight->transform.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
+            const glm::mat4 rotateLight = rotate(
+                glm::mat4(1.F),
+                static_cast<float>(i) * glm::two_pi<float>() / 6.0F, // 6 = num of lights
+                {0.F, -1.F, 0.F}
+);
+            const auto pointLight = LightFactory::createLight({
+                .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
+                .scale = { 0.1F, 0.0F, 0.0F },
+                .rotation = { 0.F, 0.F, 0.F }},
+                lightColors.at(i));
             m_sceneManager.addLight(std::move(pointLight));
         });
     }

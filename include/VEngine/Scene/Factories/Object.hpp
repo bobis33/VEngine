@@ -19,12 +19,12 @@ namespace ven {
 
         public:
 
-        static std::unique_ptr<Object> createObject(const std::shared_ptr<Texture>& textureDefault);
-        static std::unique_ptr<Object> duplicateObject(const Object& objSrc);
+            static std::unique_ptr<Object> createObject(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Model>& model, const std::string &name, const Transform3D &transform);
+            static std::unique_ptr<Object> duplicateObject(const Object& objSrc);
 
         private:
 
-        static unsigned int m_currentObjId;
+            static unsigned int m_currentObjId;
 
     }; // class ObjectFactory
 
