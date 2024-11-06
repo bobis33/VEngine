@@ -31,6 +31,7 @@ namespace ven {
             void stop();
             void resume();
             void update();
+            static std::chrono::high_resolution_clock::time_point now() { return std::chrono::high_resolution_clock::now(); }
 
             [[nodiscard]] float getDeltaTime() const { return m_deltaTime.count(); }
             [[nodiscard]] float getDeltaTimeMS() const { return m_deltaTime.count() * 1000.F; }

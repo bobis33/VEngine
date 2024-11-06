@@ -3,8 +3,9 @@
 #include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
-#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Clock.hpp"
+#include "VEngine/Utils/Colors.hpp"
+#include "VEngine/Utils/Logger.hpp"
 
 ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
     m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
@@ -19,7 +20,7 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
     for (auto & framePool : m_framePools) {
         framePool = framePoolBuilder.build();
     }
-
+    Logger::getInstance();
     loadObjects();
 }
 
@@ -33,34 +34,44 @@ void ven::Engine::loadObjects()
         Colors::CYAN_4,
         Colors::MAGENTA_4
     };
-    auto& quad = m_sceneManager.createObject();
-    quad.setName("quad");
-    quad.setModel(Model::createModelFromFile(m_device, "assets/models/quad.obj"));
-    quad.transform.translation = {0.F, .5F, 0.F};
-    quad.transform.scale = {3.F, 1.F, 3.F};
 
-    auto& flatVase = m_sceneManager.createObject();
-    flatVase.setName("flat vase");
-    flatVase.setModel(Model::createModelFromFile(m_device, "assets/models/flat_vase.obj"));
-    flatVase.transform.translation = {-.5F, .5F, 0.F};
-    flatVase.transform.scale = {3.F, 1.5F, 3.F};
+    Logger::logExecutionTime("Creating quad", [&]() {
+        auto& quad = m_sceneManager.createObject();
+        quad.setName("quad");
+        quad.setModel(Model::createModelFromFile(m_device, "assets/models/quad.obj"));
+        quad.transform.translation = {0.F, .5F, 0.F};
+        quad.transform.scale = {3.F, 1.F, 3.F};
+    });
 
-    auto& smoothVase = m_sceneManager.createObject();
-    smoothVase.setName("smooth vase");
-    smoothVase.setModel(Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj"));
-    smoothVase.transform.translation = {.5F, .5F, 0.F};
-    smoothVase.transform.scale = {3.F, 1.5F, 3.F};
+    Logger::logExecutionTime("Creating smooth vase", [&]() {
+        auto& smoothVase = m_sceneManager.createObject();
+        smoothVase.setName("smooth vase");
+        smoothVase.setModel(Model::createModelFromFile(m_device, "assets/models/smooth_vase.obj"));
+        smoothVase.transform.translation = {.5F, .5F, 0.F};
+        smoothVase.transform.scale = {3.F, 1.5F, 3.F};
+    });
+    Logger::logExecutionTime("Creating flat vase", [&]()
+    {
+        auto& flatVase = m_sceneManager.createObject();
+        flatVase.setName("flat vase");
+        flatVase.setModel(Model::createModelFromFile(m_device, "assets/models/flat_vase.obj"));
+        flatVase.transform.translation = {-.5F, .5F, 0.F};
+        flatVase.transform.scale = {3.F, 1.5F, 3.F};
+
+    });
 
     for (std::size_t i = 0; i < lightColors.size(); i++)
     {
-        glm::mat4 rotateLight = rotate(
+        const glm::mat4 rotateLight = rotate(
             glm::mat4(1.F),
             static_cast<float>(i) * glm::two_pi<float>() / static_cast<float>(lightColors.size()),
             {0.F, -1.F, 0.F}
         );
-        auto& pointLight = m_sceneManager.createLight();
-        pointLight.color = lightColors.at(i);
-        pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
+        Logger::logExecutionTime("Creating light n" + std::to_string(i), [&]() {
+            auto& pointLight = m_sceneManager.createLight();
+            pointLight.color = lightColors.at(i);
+            pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F));
+        });
     }
 }
 
