@@ -27,10 +27,8 @@ namespace ven {
             SceneManager(SceneManager &&) = delete;
             SceneManager &operator=(SceneManager &&) = delete;
 
-            Object& createObject();
-            Object& duplicateObject(unsigned int objectId);
-            Light& createLight(float radius = DEFAULT_LIGHT_RADIUS, glm::vec4 color = DEFAULT_LIGHT_COLOR);
-            Light& duplicateLight(unsigned int lightId);
+            void addObject(const std::unique_ptr<Object> &object) { m_objects.insert({object->getId(), std::move(*object)}); }
+            void addLight(const std::unique_ptr<Light> &light) { m_lights.insert({light->getId(), std::move(*light)}); }
 
             void destroyObject(const unsigned int objectId) { m_objects.erase(objectId); }
             void destroyLight(const unsigned int lightId) { m_lights.erase(lightId); }
@@ -38,11 +36,12 @@ namespace ven {
 
             void updateBuffer(GlobalUbo &ubo, unsigned long frameIndex, float frameTime);
 
-            VkDescriptorBufferInfo getBufferInfoForObject(const int frameIndex, const unsigned int objectId) const { return m_uboBuffers.at(static_cast<long unsigned int>(frameIndex))->descriptorInfoForIndex(objectId); }
+            [[nodiscard]] VkDescriptorBufferInfo getBufferInfoForObject(const int frameIndex, const unsigned int objectId) const { return m_uboBuffers.at(static_cast<long unsigned int>(frameIndex))->descriptorInfoForIndex(objectId); }
             Object::Map& getObjects() { return m_objects; }
             Light::Map& getLights() { return m_lights; }
             std::vector<std::unique_ptr<Buffer>> &getUboBuffers() { return m_uboBuffers; }
-            bool getDestroyState() const { return m_destroyState; }
+            std::shared_ptr<Texture> getTextureDefault() { return m_textureDefault; }
+            [[nodiscard]] bool getDestroyState() const { return m_destroyState; }
 
             void setDestroyState(const bool state) { m_destroyState = state; }
 

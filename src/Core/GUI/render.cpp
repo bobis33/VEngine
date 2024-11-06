@@ -5,6 +5,8 @@
 
 #include "VEngine/Core/Gui.hpp"
 #include "VEngine/Utils/Colors.hpp"
+#include "VEngine/Scene/Factories/Object.hpp"
+#include "VEngine/Scene/Factories/Light.hpp"
 
 void ven::Gui::cleanup()
 {
@@ -108,8 +110,8 @@ void ven::Gui::cameraSection(Camera &camera)
 {
     if (ImGui::CollapsingHeader("Camera")) {
         float fov = camera.getFov();
-        float near = camera.getNear();
-        float far = camera.getFar();
+        float tnear = camera.getNear();
+        float tfar = camera.getFar();
         if (ImGui::BeginTable("CameraTable", 2)) {
             ImGui::TableNextColumn();
             ImGui::DragFloat3("Position", glm::value_ptr(camera.transform.translation), 0.1F);
@@ -127,12 +129,12 @@ void ven::Gui::cameraSection(Camera &camera)
             if (ImGui::Button("Reset##fov")) { camera.setFov(DEFAULT_FOV); }
 
             ImGui::TableNextColumn();
-            if (ImGui::SliderFloat("Near", &near, 0.001F, 10.0F)) { camera.setNear(near); }
+            if (ImGui::SliderFloat("Near", &tnear, 0.001F, 10.0F)) { camera.setNear(tnear); }
             ImGui::TableNextColumn();
             if (ImGui::Button("Reset##near")) { camera.setNear(DEFAULT_NEAR); }
 
             ImGui::TableNextColumn();
-            if (ImGui::SliderFloat("Far", &far, 1.F, 1000.0F)) { camera.setFar(far); }
+            if (ImGui::SliderFloat("Far", &tfar, 1.F, 1000.0F)) { camera.setFar(tfar); }
             ImGui::TableNextColumn();
             if (ImGui::Button("Reset##far")) { camera.setFar(DEFAULT_FAR); }
 
@@ -168,7 +170,7 @@ void ven::Gui::objectsSection(SceneManager& sceneManager)
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(("Duplicate##" + object.getName()).c_str())) {
-                    sceneManager.duplicateObject(id);
+                    ObjectFactory::duplicateObject(object);
                 }
                 ImGui::Text("Address: %p", static_cast<void*>(&object));
                 ImGui::DragFloat3(("Position##" + object.getName()).c_str(), glm::value_ptr(object.transform.translation), 0.1F);
@@ -237,7 +239,7 @@ void ven::Gui::lightsSection(SceneManager& sceneManager)
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(("Duplicate##" + light.getName()).c_str())) {
-                    sceneManager.duplicateLight(id);
+                    LightFactory::duplicateLight(light);
                 }
                 ImGui::Text("Address: %p", static_cast<void*>(&light));
                 ImGui::DragFloat3(("Position##" + std::to_string(light.getId())).c_str(), glm::value_ptr(light.transform.translation), 0.1F);

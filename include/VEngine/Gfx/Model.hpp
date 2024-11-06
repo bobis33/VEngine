@@ -7,12 +7,17 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <unordered_map>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 
 #include <assimp/scene.h>
 
 #include "VEngine/Gfx/Buffer.hpp"
+#include "VEngine/Utils/Logger.hpp"
+
 
 namespace ven {
 
@@ -58,6 +63,25 @@ namespace ven {
 
             void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;
+
+        static std::unordered_map<std::string, std::shared_ptr<Model>> loadAllModels(const std::string &directoryPath, Device &device) {
+            std::unordered_map<std::string, std::shared_ptr<Model>> modelCache;
+
+            for (const auto &entry : std::filesystem::directory_iterator(directoryPath)) {
+                if (entry.is_regular_file()) {
+                    Logger::logExecutionTime("Creating model " + entry.path().string(), [&]() {
+                        const std::string &filepath = entry.path().string();
+                        modelCache[filepath] = Model::createModelFromFile(device, filepath);
+                    });
+
+                    const std::string &filepath = entry.path().string();
+                    modelCache[filepath] = Model::createModelFromFile(device, filepath);
+                }
+            }
+
+            return modelCache;
+        }
+
 
         private:
 

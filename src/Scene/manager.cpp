@@ -23,46 +23,6 @@ ven::SceneManager::SceneManager(Device& device)
     m_textureDefault = Texture::createTextureFromFile(device, "assets/textures/default.png");
 }
 
-ven::Object& ven::SceneManager::createObject()
-{
-    assert(m_currentObjId < MAX_OBJECTS && "Max object count exceeded!");
-    Object object(m_currentObjId++);
-    const unsigned int objId = object.getId();
-    object.setDiffuseMap(m_textureDefault);
-    m_objects.emplace(objId, std::move(object));
-    return m_objects.at(objId);
-}
-
-ven::Object& ven::SceneManager::duplicateObject(const unsigned int objectId)
-{
-    const Object &cpyObj = m_objects.at(objectId);
-    Object &object = createObject();
-    object.setName(cpyObj.getName());
-    object.setModel(cpyObj.getModel());
-    object.transform = cpyObj.transform;
-    object.setDiffuseMap(cpyObj.getDiffuseMap());
-    return object;
-}
-
-ven::Light& ven::SceneManager::createLight(const float radius, const glm::vec4 color)
-{
-    assert(m_currentLightId < MAX_LIGHTS && "Max light count exceeded!");
-    Light light(m_currentLightId++);
-    const unsigned int lightId = light.getId();
-    light.color = color;
-    light.transform.scale.x = radius;
-    m_lights.emplace(lightId, std::move(light));
-    return m_lights.at(lightId);
-}
-
-ven::Light& ven::SceneManager::duplicateLight(const unsigned int lightId)
-{
-    const Light &cpyLight = m_lights.at(lightId);
-    Light& light = createLight(cpyLight.transform.scale.x, cpyLight.color);
-    light.transform = cpyLight.transform;
-    return light;
-}
-
 void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIndex, const float frameTime)
 {
     uint8_t lightIndex = 0;
