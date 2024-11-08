@@ -7,12 +7,17 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+#include <unordered_map>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 
 #include <assimp/scene.h>
 
 #include "VEngine/Gfx/Buffer.hpp"
+#include "VEngine/Utils/Logger.hpp"
+
 
 namespace ven {
 
@@ -34,9 +39,7 @@ namespace ven {
                 static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
                 static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
-                bool operator==(const Vertex& other) const {
-                    return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
-                }
+                bool operator==(const Vertex& other) const { return position == other.position && color == other.color && normal == other.normal && uv == other.uv; }
             };
 
             struct Builder {
@@ -54,7 +57,6 @@ namespace ven {
             Model(const Model&) = delete;
             void operator=(const Model&) = delete;
 
-            static std::unique_ptr<Model> createModelFromFile(Device &device, const std::string &filename);
 
             void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;

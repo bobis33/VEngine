@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 #include "VEngine/Scene/Transform3D.hpp"
 
 namespace ven {

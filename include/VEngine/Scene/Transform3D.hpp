@@ -34,7 +34,7 @@ namespace ven {
             [[nodiscard]] glm::mat3 normalMatrix() const { return transpose(inverse(glm::mat3(transformMatrix()))); }
 
             glm::vec3 translation{};
-            glm::vec3 scale{1.F, 1.F, 1.F};
+            glm::vec3 scale{};
             glm::vec3 rotation{};
 
     }; // class Transform3D
