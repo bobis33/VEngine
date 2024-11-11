@@ -1,0 +1,50 @@
+name: Tests
+run-name: ${{ github.actor }} ${{ github.branch }} | Tests
+on:
+  push:
+    branches:
+      - "**"
+
+env:
+  EXECUTABLE: "vengine_tests"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          submodules: true
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Install dependencies
+        run: ./tools/install-dependencies.sh build
+
+      - name: Build
+        run: ./tools/build.sh tests
+
+      - name: Check binary
+        run: |
+          if [[ ! -x "./${EXECUTABLE}" ]]; then
+            echo "Error: Binary ${EXECUTABLE} not found."
+            exit 1
+          fi
+
+      - name: Run tests
+        run: ./${EXECUTABLE}
+
+      # - name: Collect coverage
+      #   run: |
+      #     lcov --capture --directory . --output-file coverage.info
+      #     genhtml coverage.info --output-directory out
+
+      # - name: Upload coverage report
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: coverage-report
+      #     path: out
