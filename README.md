@@ -67,13 +67,13 @@ $> ./tools/install-dependencies.sh build
 
 ```bash
 $> ./tools/build.sh build
-[...]
 ```
 > This script also handle several other commands: `clean`, `format` and `doc`.
 
+Then you can run the engine:
+
 ```bash
-$> ./vengine
-[...]
+$> ./vengine [options]
 ```
 
 
@@ -92,6 +92,31 @@ Basic configuration should run the following commands:
 $> cmake -G "Visual Studio 17 2022" .
 $> cmake --build . --config Release 
 ```
+
+Then you can run the engine:
+
+```bash
+$> .\vengine.exe
+```
+
+
+### Command Line Options
+
+The following command-line options are available:
+
+| Option               | Description                              |
+|:---------------------|:-----------------------------------------|
+| `--help`, `-h`       | Show help message and exit               |
+| `--version`, `-v`    | Show version information and exit        |
+| `--fullscreen`, `-f` | Enable fullscreen mode                   |
+| `--vsync`, `-V`      | Enable vertical sync                     |
+| `--width <value>`    | Set the width of the window (e.g., 800)  |
+| `--height <value>`   | Set the height of the window (e.g., 600) |
+| `--fov <value>`      | Set the field of view (1.0 to 300.0)     |
+| `--mspeed <value>`   | Set the move speed (0.1 to 100.0)        |
+| `--lspeed <value>`   | Set the look speed (0.1 to 100.0)        |
+| `--near <value>`     | Set the near plane (0.1 to 100.0)        |
+| `--far <value>`      | Set the far plane (0.1 to 100.0)         |
 
 
 ## Key Bindings

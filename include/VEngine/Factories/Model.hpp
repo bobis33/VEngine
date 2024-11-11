@@ -21,6 +21,14 @@ namespace ven {
 
         public:
 
+            ModelFactory() = delete;
+            ~ModelFactory() = default;
+
+            ModelFactory(const ModelFactory&) = delete;
+            ModelFactory& operator=(const ModelFactory&) = delete;
+            ModelFactory(ModelFactory&&) = delete;
+            ModelFactory& operator=(ModelFactory&&) = delete;
+
             static std::unique_ptr<Model> create(Device& device, const std::string& filepath);
             static std::unordered_map<std::string, std::shared_ptr<Model>> loadAll(Device& device, const std::string& folderPath);
 

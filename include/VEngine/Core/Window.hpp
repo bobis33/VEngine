@@ -14,9 +14,9 @@
 
 namespace ven {
 
+    static constexpr std::string_view DEFAULT_TITLE = "VEngine";
     static constexpr uint32_t DEFAULT_WIDTH = 1920;
     static constexpr uint32_t DEFAULT_HEIGHT = 1080;
-    static constexpr std::string_view DEFAULT_TITLE = "VEngine";
 
     ///
     /// @class Window
@@ -27,7 +27,7 @@ namespace ven {
 
         public:
 
-            explicit Window(const uint32_t width = DEFAULT_WIDTH, const uint32_t height = DEFAULT_HEIGHT, const std::string &title = DEFAULT_TITLE.data()) : m_window(createWindow(width, height, title)), m_width(width), m_height(height) {}
+            explicit Window(const uint32_t width = DEFAULT_WIDTH, const uint32_t height = DEFAULT_HEIGHT) : m_window(createWindow(width, height, DEFAULT_TITLE.data())), m_width(width), m_height(height) {}
             ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr;};
 
             Window(const Window&) = delete;
@@ -49,8 +49,8 @@ namespace ven {
             static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
             GLFWwindow* m_window{nullptr};
-            uint32_t m_width{DEFAULT_WIDTH};
-            uint32_t m_height{DEFAULT_HEIGHT};
+            uint32_t m_width{0};
+            uint32_t m_height{0};
 
             bool m_framebufferResized = false;
 

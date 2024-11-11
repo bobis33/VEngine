@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.27)
 
 project(vengine
-        VERSION 0.1.0
+        VERSION 0.0.1
         DESCRIPTION "3D graphics engine"
         LANGUAGES CXX
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
+configure_file(${CMAKE_SOURCE_DIR}/cmake/config/Version.hpp.in ${CMAKE_SOURCE_DIR}/include/VEngine/Generated/Version.hpp)
 
 include(PathsAndOptions)
 if (BUILD_DOC)
