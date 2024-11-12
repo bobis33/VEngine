@@ -17,6 +17,8 @@ include/VEngine/Generated/*
 
 # Binary files
 vengine
+vengine_tests
 vengine.exe
 vengine.ilk
 vengine.pdb
+vengine_tests.exe

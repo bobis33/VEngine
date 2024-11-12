@@ -50,3 +50,8 @@ target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS})
 target_include_directories(thirdparty SYSTEM INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
 
 set(THIRDPARTY_LIBRARIES thirdparty PARENT_SCOPE)
+
+#======================================= GoogleTest =======================================#
+if (BUILD_TESTS)
+    add_subdirectory(googletest)
+endif()

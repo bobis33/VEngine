@@ -1,6 +1,7 @@
 #======================================= Options ======================================#
 option(USE_CLANG_TIDY "Use Clang-tidy" OFF)
 option(BUILD_DOC "Build documentation only" OFF)
+option(BUILD_TESTS "Build tests" OFF)
 
 #======================================= Variables ======================================#
 set(CMAKE_CXX_STANDARD 20)
@@ -50,3 +51,5 @@ endif()
 if(WIN32)
 	set(WARNING_FLAG -Wno-error)
 endif()
+
+file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)

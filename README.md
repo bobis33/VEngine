@@ -2,7 +2,8 @@
 
 [![Build Linux](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml)
 [![Build Windows](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml)
-[![Update Documentation](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
+[![Tests](https://github.com/bobis33/VEngine/actions/workflows/tests.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/tests.yml)
+[![Build Documentation](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/update-documentation.yml)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bobis33/VEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
@@ -29,11 +30,11 @@ The goal is to create an efficient engine that can be used for various projects,
 
 ## Planned Features:
 
-- Ray Tracing
-- Physics Integration
-- Audio Integration
-- Support for more input devices (e.g., mouse, game controller)
-- Support for more platforms (e.g., macOS, Android, iOS, PS5 ...)
+- **Ray Tracing**
+- **Physics Integration**
+- **Audio Integration**
+- Support for more **input devices** (e.g., mouse, game controller)
+- Support for more **platforms** (e.g., macOS, Android, iOS, PS5 ...)
 
 
 ## Build
@@ -41,7 +42,7 @@ The goal is to create an efficient engine that can be used for various projects,
 Before building the project, make sure you update the submodules:
 
 ```bash
-$> git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 ### Prerequisites
@@ -57,7 +58,7 @@ Make sure you have the following dependencies installed on your system:
 If you are using a Debian-based distribution, you can install the dependencies using the following command:
 
 ```bash
-$> ./tools/install-dependencies.sh build
+./tools/install-dependencies.sh build
 ```
 
 
@@ -66,14 +67,14 @@ $> ./tools/install-dependencies.sh build
 #### Build and Run
 
 ```bash
-$> ./tools/build.sh build
+./tools/build.sh build
 ```
-> This script also handle several other commands: `clean`, `format` and `doc`.
+> This script also handle several other commands: `tests`, `clean`, `format` and `doc`.
 
 Then you can run the engine:
 
 ```bash
-$> ./vengine [options]
+./vengine [options]
 ```
 
 
@@ -88,15 +89,15 @@ I'm using the Visual studio toolchain with [ninja](https://ninja-build.org/).
 You should create your own CMake profile depending on your configuration.
 Basic configuration should run the following commands:
 
-```bash
-$> cmake -G "Visual Studio 17 2022" .
-$> cmake --build . --config Release 
+```powershell
+cmake -G "Visual Studio 17 2022" .
+cmake --build . --config Release 
 ```
 
 Then you can run the engine:
 
-```bash
-$> .\vengine.exe
+```powershell
+.\vengine.exe
 ```
 
 
@@ -152,6 +153,7 @@ You can access the latest version on the [GitHub Pages](https://bobis33.github.i
 - [**GLM**](https://github.com/g-truc/glm): A header-only C++ mathematics library for 3D transformations, vectors, and matrices, compatible with OpenGL and Vulkan.
 - [**ImGui**](https://github.com/ocornut/imgui): Immediate Mode Graphical User Interface for real-time debugging and tool development.
 - [**stb**](https://github.com/nothings/stb): A set of single-file public domain libraries for graphics, image loading, and more.
+- [**Google Test**](https://github.com/google/googletest): A testing framework for C++.
 
 These libraries are included directly into the project to simplify dependency management. Be sure to initialize and update the submodules when cloning the repository:
 

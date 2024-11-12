@@ -23,7 +23,7 @@ include(MakeShaders)
 
 add_subdirectory(third-party)
 
-file(GLOB_RECURSE SOURCES ${SRC_DIR}/*.cpp)
+include(MakeTests)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

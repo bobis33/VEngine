@@ -51,6 +51,9 @@ case $1 in
     doc)
         "${CMAKE_CMD[@]}" -DBUILD_DOC=ON && cmake --build build --target doxygen
         ;;
+    tests)
+        "${CMAKE_CMD[@]}" -DBUILD_TESTS=ON && cmake --build build --target vengine_tests
+        ;;
     *)
         log "ERROR" "Invalid command. Usage: $0 build | clean | format | doc"
         exit 1
