@@ -23,6 +23,14 @@ namespace ven {
 
         public:
 
+            LightFactory() = delete;
+            ~LightFactory() = default;
+
+            LightFactory(const LightFactory&) = delete;
+            LightFactory& operator=(const LightFactory&) = delete;
+            LightFactory(LightFactory&&) = delete;
+            LightFactory& operator=(LightFactory&&) = delete;
+
             static std::unique_ptr<Light> create(const Transform3D &transform = DEFAULT_TRANSFORM, glm::vec4 color = DEFAULT_LIGHT_COLOR);
             static std::unique_ptr<Light> duplicate(const Light &cpyLight) { return create(cpyLight.transform, cpyLight.color); }
 

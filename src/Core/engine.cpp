@@ -10,7 +10,7 @@
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
-ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::string &title) : m_state(EDITOR), m_window(width, height, title) {
+ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.window.width, config.window.height), m_camera(config.camera.fov, config.camera.near, config.camera.far, config.camera.move_speed, config.camera.look_speed) {
     m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
@@ -22,7 +22,6 @@ ven::Engine::Engine(const uint32_t width, const uint32_t height, const std::stri
     for (auto & framePool : m_framePools) {
         framePool = framePoolBuilder.build();
     }
-    Logger::getInstance();
     loadObjects();
 }
 
@@ -87,7 +86,6 @@ void ven::Engine::loadObjects()
 void ven::Engine::mainLoop()
 {
     Clock clock;
-    Camera camera{};
     EventManager eventManager{};
     GlobalUbo ubo{};
     VkCommandBuffer_T *commandBuffer = nullptr;
@@ -114,11 +112,11 @@ void ven::Engine::mainLoop()
     {
         clock.update();
         frameTime = clock.getDeltaTime();
-        eventManager.handleEvents(m_window.getGLFWindow(), &m_state, camera, m_gui, frameTime);
+        eventManager.handleEvents(m_window.getGLFWindow(), &m_state, m_camera, m_gui, frameTime);
         commandBuffer = m_renderer.beginFrame();
 
-        camera.setViewXYZ(camera.transform.translation, camera.transform.rotation);
-        camera.setPerspectiveProjection(m_renderer.getAspectRatio());
+        m_camera.setViewXYZ(m_camera.transform.translation, m_camera.transform.rotation);
+        m_camera.setPerspectiveProjection(m_renderer.getAspectRatio());
 
         if (commandBuffer != nullptr) {
             frameIndex = m_renderer.getFrameIndex();
@@ -127,15 +125,15 @@ void ven::Engine::mainLoop()
                 .frameIndex=frameIndex,
                 .frameTime=frameTime,
                 .commandBuffer=commandBuffer,
-                .camera=camera,
+                .camera=m_camera,
                 .globalDescriptorSet=globalDescriptorSets[frameIndex],
                 .frameDescriptorPool=*m_framePools[frameIndex],
                 .objects=m_sceneManager.getObjects(),
                 .lights=m_sceneManager.getLights()
             };
-            ubo.projection=camera.getProjection();
-            ubo.view=camera.getView();
-            ubo.inverseView=camera.getInverseView();
+            ubo.projection=m_camera.getProjection();
+            ubo.view=m_camera.getView();
+            ubo.inverseView=m_camera.getInverseView();
             m_sceneManager.updateBuffer(ubo, frameIndex, frameTime);
             uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
             uboBuffers.at(frameIndex)->flush();
@@ -147,7 +145,7 @@ void ven::Engine::mainLoop()
                 m_gui.render(
                     &m_renderer,
                     m_sceneManager,
-                    camera,
+                    m_camera,
                     m_device.getPhysicalDevice(),
                     ubo,
                     { .deltaTimeMS=clock.getDeltaTimeMS(), .fps=clock.getFPS() }
@@ -164,9 +162,4 @@ void ven::Engine::mainLoop()
         }
     }
     vkDeviceWaitIdle(m_device.device());
-}
-
-void ven::Engine::cleanup()
-{
-    Gui::cleanup();
 }

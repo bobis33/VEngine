@@ -29,7 +29,7 @@ namespace ven {
 
         public:
 
-            Camera() = default;
+            Camera(const float fov, const float near, const float far, const float moveSpeed, const float lookSpeed) : m_fov(fov), m_near(near), m_far(far), m_moveSpeed(moveSpeed), m_lookSpeed(lookSpeed) { }
             ~Camera() = default;
 
             Camera(const Camera&) = delete;
@@ -59,11 +59,11 @@ namespace ven {
 
         private:
 
-            float m_fov{DEFAULT_FOV};
-            float m_near{DEFAULT_NEAR};
-            float m_far{DEFAULT_FAR};
-            float m_moveSpeed{DEFAULT_MOVE_SPEED};
-            float m_lookSpeed{DEFAULT_LOOK_SPEED};
+            float m_fov;
+            float m_near;
+            float m_far;
+            float m_moveSpeed;
+            float m_lookSpeed;
             glm::mat4 m_projectionMatrix{1.F};
             glm::mat4 m_viewMatrix{1.F};
             glm::mat4 m_inverseViewMatrix{1.F};
