@@ -31,6 +31,8 @@ namespace ven {
 
             ObjectRenderSystem(const ObjectRenderSystem&) = delete;
             ObjectRenderSystem& operator=(const ObjectRenderSystem&) = delete;
+            ObjectRenderSystem(ObjectRenderSystem&&) = delete;
+            ObjectRenderSystem& operator=(ObjectRenderSystem&&) = delete;
 
             void render(const FrameInfo &frameInfo) const override;
 

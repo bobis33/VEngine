@@ -44,9 +44,7 @@ namespace ven {
             void setModel(const std::shared_ptr<Model> &model) { m_model = model; }
             void setDiffuseMap(const std::shared_ptr<Texture> &diffuseMap) { m_diffuseMap = diffuseMap; }
             void setName(const std::string &name) { m_name = name; }
-            void setBufferInfo(const int frameIndex, const VkDescriptorBufferInfo& info) {
-                m_bufferInfo[frameIndex] = info;
-            }
+            void setBufferInfo(const int frameIndex, const VkDescriptorBufferInfo& info) { m_bufferInfo[frameIndex] = info; }
 
             Transform3D transform{};
 

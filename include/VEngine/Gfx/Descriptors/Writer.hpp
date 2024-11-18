@@ -25,6 +25,8 @@ namespace ven {
 
             DescriptorWriter(const DescriptorWriter &) = delete;
             DescriptorWriter &operator=(const DescriptorWriter &) = delete;
+            DescriptorWriter(DescriptorWriter &&) = delete;
+            DescriptorWriter &operator=(DescriptorWriter &&) = delete;
 
             DescriptorWriter &writeBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
             DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);

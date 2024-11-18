@@ -30,6 +30,8 @@ namespace ven {
 
             Renderer(const Renderer &) = delete;
             Renderer& operator=(const Renderer &) = delete;
+            Renderer(Renderer &&) = delete;
+            Renderer& operator=(Renderer &&) = delete;
 
             [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
             [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }

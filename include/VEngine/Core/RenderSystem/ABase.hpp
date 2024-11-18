@@ -24,6 +24,11 @@ namespace ven {
             explicit ARenderSystemBase(Device& device) : m_device{device} {}
             virtual ~ARenderSystemBase() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
+            ARenderSystemBase(const ARenderSystemBase&) = delete;
+            ARenderSystemBase& operator=(const ARenderSystemBase&) = delete;
+            ARenderSystemBase(ARenderSystemBase&&) = delete;
+            ARenderSystemBase& operator=(ARenderSystemBase&&) = delete;
+
             virtual void render(const FrameInfo &frameInfo) const = 0;
 
         protected:

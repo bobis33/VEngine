@@ -26,6 +26,8 @@ namespace ven {
 
             Clock(const Clock&) = delete;
             Clock& operator=(const Clock&) = delete;
+            Clock(Clock&&) = delete;
+            Clock& operator=(Clock&&) = delete;
 
             void start() { m_startTime = std::chrono::high_resolution_clock::now(); }
             void stop();

@@ -9,7 +9,7 @@ int main(const int argc, char *argv[], char *envp[])
 {
     try {
         Logger::getInstance();
-        Engine(Parser(argc, argv, envp).getConfig()).mainLoop();
+        Engine(Parser(argc, argv, envp).getConfig()).run();
     } catch (const ParserException &e) {
         return EXIT_SUCCESS;
     } catch (const std::exception &e) {

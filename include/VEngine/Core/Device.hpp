@@ -47,6 +47,8 @@ namespace ven {
 
             Device(const Device&) = delete;
             Device& operator=(const Device&) = delete;
+            Device(Device&&) = delete;
+            Device& operator=(Device&&) = delete;
 
             [[nodiscard]] VkCommandPool getCommandPool() const { return m_commandPool; }
             [[nodiscard]] VkDevice device() const { return m_device; }
@@ -77,7 +79,7 @@ namespace ven {
 
             void createInstance();
             void setupDebugMessenger();
-            void createSurface() { m_window.createWindowSurface(m_instance, &m_surface); };
+            void createSurface() { m_window.createWindowSurface(m_instance, &m_surface); }
             void pickPhysicalDevice();
             void createLogicalDevice();
             void createCommandPool();

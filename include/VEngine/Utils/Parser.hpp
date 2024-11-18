@@ -153,10 +153,10 @@ namespace ven {
             bool m_state = true;
 
             void parseArgs(const std::vector<std::string_view>& argv);
-            void parseEnv(const std::unordered_map<std::string_view, std::string_view>& envp);
+            void parseEnv(const std::unordered_map<std::string, std::string>& envp);
 
             void handleLongOption(const std::string_view& arg, const std::vector<std::string_view>& argv, size_t& index);
-            void handleShortOptions(const std::string_view& arg, const std::vector<std::string_view>& argv, size_t& index);
+            void handleShortOptions(const std::string_view& arg);
 
             [[nodiscard]] static bool isValidOption(const std::string_view& option) { return FUNCTION_MAP_OPT_LONG.contains(option) || FUNCTION_MAP_OPT_SHORT.contains(option); }
 

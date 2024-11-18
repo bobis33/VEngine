@@ -27,6 +27,8 @@ namespace ven {
 
             Texture(const Texture &) = delete;
             Texture &operator=(const Texture &) = delete;
+            Texture(Texture &&) = delete;
+            Texture &operator=(Texture &&) = delete;
 
             void updateDescriptor();
             void transitionLayout(VkCommandBuffer commandBuffer, VkImageLayout oldLayout, VkImageLayout newLayout) const;

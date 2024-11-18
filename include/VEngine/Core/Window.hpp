@@ -27,11 +27,13 @@ namespace ven {
 
         public:
 
-            explicit Window(const uint32_t width = DEFAULT_WIDTH, const uint32_t height = DEFAULT_HEIGHT) : m_window(createWindow(width, height, DEFAULT_TITLE.data())), m_width(width), m_height(height) {}
-            ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr;};
+            explicit Window(const uint32_t width = DEFAULT_WIDTH, const uint32_t height = DEFAULT_HEIGHT) : m_window(createWindow(width, height, DEFAULT_TITLE.data())), m_width(width), m_height(height) { setWindowIcon("assets/icons/icon64x64.png"); }
+            ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr; }
 
             Window(const Window&) = delete;
             Window& operator=(const Window&) = delete;
+            Window(Window&&) = delete;
+            Window& operator=(Window&&) = delete;
 
             [[nodiscard]] GLFWwindow* createWindow(uint32_t width, uint32_t height, const std::string &title);
             void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) const;
@@ -43,6 +45,7 @@ namespace ven {
             void resetWindowResizedFlag() { m_framebufferResized = false; }
 
             void setFullscreen(bool fullscreen, uint32_t width, uint32_t height);
+            void setWindowIcon(const std::string& path);
 
         private:
 

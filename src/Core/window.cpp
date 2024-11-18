@@ -1,5 +1,8 @@
 #include <stdexcept>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "VEngine/Core/Window.hpp"
 
 GLFWwindow* ven::Window::createWindow(const uint32_t width, const uint32_t height, const std::string &title)
@@ -54,4 +57,21 @@ void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, con
     m_width = width;
     m_height = height;
     */
+}
+
+void ven::Window::setWindowIcon(const std::string &path)
+{
+    int width, height, channels;
+
+    if (unsigned char *pixels = stbi_load(path.c_str(), &width, &height, &channels, 4)) {
+        GLFWimage icon;
+        icon.width = width;
+        icon.height = height;
+        icon.pixels = pixels;
+
+        glfwSetWindowIcon(m_window, 1, &icon);
+        stbi_image_free(pixels);
+    } else {
+        throw std::runtime_error("Failed to load window icon with path: " + path);
+    }
 }

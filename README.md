@@ -1,4 +1,4 @@
-![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/icons/logo.png)
+![VENGINE_LOGO](https://raw.githubusercontent.com/bobis33/VEngine/main/assets/icons/icon.png)
 
 [![Build Linux](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-linux.yml)
 [![Build Windows](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml/badge.svg)](https://github.com/bobis33/VEngine/actions/workflows/build-windows.yml)
@@ -8,11 +8,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bobis33/VEngine/blob/main/LICENSE)
 
 
-# VEngine - Vulkan Graphics Engine
+# VEngine - Vulkan based Game Engine
 
 **WORK IN PROGRESS!**
 
-Welcome to **VEngine**, a Vulkan-based graphics engine.
+Welcome to **VEngine**, a Vulkan-based game engine.
 
 I Build this project to learn more about Vulkan and graphics programming in general.
 The goal is to create an efficient engine that can be used for various projects, such as games, simulations, and visualizations.
@@ -69,7 +69,7 @@ If you are using a Debian-based distribution, you can install the dependencies u
 ```bash
 ./tools/build.sh build
 ```
-> This script also handle several other commands: `tests`, `clean`, `format` and `doc`.
+> This script also handle several other commands: `tests`, `format` and `doc`.
 
 Then you can run the engine:
 
@@ -97,7 +97,7 @@ cmake --build . --config Release
 Then you can run the engine:
 
 ```powershell
-.\vengine.exe
+.\vengine.exe [options]
 ```
 
 
@@ -144,6 +144,22 @@ The following keyboard controls are currently available for interacting with the
 The documentation is generated using [Doxygen](https://www.doxygen.nl/index.html).
 You can access the latest version on the [GitHub Pages](https://bobis33.github.io/VEngine/).
 
+To generate the documentation locally, run the following command:
+
+```bash
+./tools/build.sh doc
+```
+
+The generated documentation will be available in the `docs` directory.
+
+You can also run the following command to host the documentation locally:
+
+```bash
+./tools/run-doc.sh [ node | php | python ]
+```
+
+Then you can access the documentation at [http://localhost:8080](http://localhost:8080).
+
 
 ## External Libraries
 
@@ -151,9 +167,9 @@ You can access the latest version on the [GitHub Pages](https://bobis33.github.i
 - [**Doxygen Awesome CSS**](https://github.com/jothepro/doxygen-awesome-css): A custom CSS theme for Doxygen documentation.
 - [**GLFW**](https://github.com/glfw/glfw): For creating windows, receiving input, and managing OpenGL and Vulkan contexts.
 - [**GLM**](https://github.com/g-truc/glm): A header-only C++ mathematics library for 3D transformations, vectors, and matrices, compatible with OpenGL and Vulkan.
+- [**Google Test**](https://github.com/google/googletest): A testing framework for C++.
 - [**ImGui**](https://github.com/ocornut/imgui): Immediate Mode Graphical User Interface for real-time debugging and tool development.
 - [**stb**](https://github.com/nothings/stb): A set of single-file public domain libraries for graphics, image loading, and more.
-- [**Google Test**](https://github.com/google/googletest): A testing framework for C++.
 
 These libraries are included directly into the project to simplify dependency management. Be sure to initialize and update the submodules when cloning the repository:
 

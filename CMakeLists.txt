@@ -23,7 +23,9 @@ include(MakeShaders)
 
 add_subdirectory(third-party)
 
-include(MakeTests)
+if (BUILD_TESTS)
+    include(MakeTests)
+endif ()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

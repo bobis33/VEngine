@@ -29,6 +29,8 @@ namespace ven {
 
             SwapChain(const SwapChain &) = delete;
             SwapChain& operator=(const SwapChain &) = delete;
+            SwapChain(SwapChain &&) = delete;
+            SwapChain& operator=(SwapChain &&) = delete;
 
             [[nodiscard]] VkFramebuffer getFrameBuffer(const unsigned long index) const { return m_swapChainFrameBuffers[index]; }
             [[nodiscard]] VkRenderPass getRenderPass() const { return m_renderPass; }

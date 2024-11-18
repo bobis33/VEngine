@@ -32,6 +32,8 @@ namespace ven {
 
             PointLightRenderSystem(const PointLightRenderSystem&) = delete;
             PointLightRenderSystem& operator=(const PointLightRenderSystem&) = delete;
+            PointLightRenderSystem(PointLightRenderSystem&&) = delete;
+            PointLightRenderSystem& operator=(PointLightRenderSystem&&) = delete;
 
             void render(const FrameInfo &frameInfo) const override;
 

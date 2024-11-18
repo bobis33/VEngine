@@ -1,4 +1,5 @@
-#define STB_IMAGE_IMPLEMENTATION
+#include <cstring>
+
 #include <stb_image.h>
 
 #include "VEngine/Gfx/Texture.hpp"

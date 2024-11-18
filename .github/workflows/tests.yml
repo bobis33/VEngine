@@ -6,7 +6,7 @@ on:
       - "**"
 
 env:
-  EXECUTABLE: "vengine_tests"
+  EXECUTABLE: "vengine-tests"
 
 jobs:
   build:

@@ -41,6 +41,8 @@ namespace ven {
 
             Gui(const Gui&) = delete;
             Gui& operator=(const Gui&) = delete;
+            Gui(Gui&&) = delete;
+            Gui& operator=(Gui&&) = delete;
 
             void init(GLFWwindow* window, VkInstance instance, const Device* device, VkRenderPass renderPass);
 

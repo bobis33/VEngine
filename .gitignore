@@ -1,9 +1,4 @@
 # CMake
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Makefile
-cmake_install.cmake
 cmake-build-debug/*
 cmake-build-release/*
 cmake-build-release-tests/*
@@ -17,8 +12,6 @@ include/VEngine/Generated/*
 
 # Binary files
 vengine
-vengine_tests
+vengine-tests
 vengine.exe
-vengine.ilk
-vengine.pdb
-vengine_tests.exe
+vengine-tests.exe

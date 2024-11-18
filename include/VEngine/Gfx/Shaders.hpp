@@ -46,6 +46,8 @@ namespace ven {
 
             Shaders(const Shaders&) = delete;
             Shaders& operator=(const Shaders&) = delete;
+            Shaders(Shaders&&) = delete;
+            Shaders& operator=(Shaders&&) = delete;
 
             static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
             void bind(const VkCommandBuffer commandBuffer) const { vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline); }

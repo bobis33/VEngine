@@ -48,6 +48,8 @@ namespace ven {
 
             EventManager(const EventManager&) = delete;
             EventManager& operator=(const EventManager&) = delete;
+            EventManager(EventManager&&) = delete;
+            EventManager& operator=(EventManager&&) = delete;
 
             void handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, float dt) const;
 

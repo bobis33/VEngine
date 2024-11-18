@@ -55,8 +55,9 @@ namespace ven {
             ~Model() = default;
 
             Model(const Model&) = delete;
-            void operator=(const Model&) = delete;
-
+            Model& operator=(const Model&) = delete;
+            Model(Model&&) = delete;
+            Model& operator=(Model&&) = delete;
 
             void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;

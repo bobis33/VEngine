@@ -49,6 +49,8 @@ namespace ven {
 
             DescriptorPool(const DescriptorPool &) = delete;
             DescriptorPool &operator=(const DescriptorPool &) = delete;
+            DescriptorPool(DescriptorPool &&) = delete;
+            DescriptorPool &operator=(DescriptorPool &&) = delete;
 
             bool allocateDescriptor(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet &descriptor) const;
             void freeDescriptors(const std::vector<VkDescriptorSet> &descriptors) const { vkFreeDescriptorSets(m_device.device(), m_descriptorPool, static_cast<uint32_t>(descriptors.size()), descriptors.data()); }

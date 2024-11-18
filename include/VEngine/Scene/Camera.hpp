@@ -34,6 +34,8 @@ namespace ven {
 
             Camera(const Camera&) = delete;
             Camera& operator=(const Camera&) = delete;
+            Camera(Camera&&) = default;
+            Camera& operator=(Camera&&) = default;
 
             void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
             void setPerspectiveProjection(float aspect);

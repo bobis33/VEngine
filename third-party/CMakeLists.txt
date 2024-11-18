@@ -22,6 +22,11 @@ list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
 #======================================= GLM =======================================#
 list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glm)
 
+#======================================= GoogleTest =======================================#
+if (BUILD_TESTS)
+    add_subdirectory(googletest)
+endif()
+
 #======================================= ImGui =======================================#
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 file(GLOB IMGUI_SRCS
@@ -50,8 +55,3 @@ target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS})
 target_include_directories(thirdparty SYSTEM INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
 
 set(THIRDPARTY_LIBRARIES thirdparty PARENT_SCOPE)
-
-#======================================= GoogleTest =======================================#
-if (BUILD_TESTS)
-    add_subdirectory(googletest)
-endif()

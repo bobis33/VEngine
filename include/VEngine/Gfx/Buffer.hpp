@@ -26,6 +26,8 @@ namespace ven {
 
             Buffer(const Buffer&) = delete;
             Buffer& operator=(const Buffer&) = delete;
+            Buffer(Buffer&&) = delete;
+            Buffer& operator=(Buffer&&) = delete;
 
             ///
             /// @brief Map a memory range of this buffer. If successful, mapped points to the specified buffer range.

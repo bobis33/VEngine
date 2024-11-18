@@ -43,6 +43,8 @@ namespace ven {
 
             DescriptorSetLayout(const DescriptorSetLayout &) = delete;
             DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
+            DescriptorSetLayout(DescriptorSetLayout &&) = delete;
+            DescriptorSetLayout &operator=(DescriptorSetLayout &&) = delete;
 
             VkDescriptorSetLayout getDescriptorSetLayout() const { return m_descriptorSetLayout; }
 
