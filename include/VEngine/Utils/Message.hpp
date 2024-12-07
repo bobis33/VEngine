@@ -11,8 +11,7 @@
 namespace ven {
 
     constexpr auto VERSION_MESSAGE = "VEngine Version " PROJECT_VERSION "\n"
-          "Built on " __DATE__
-          " at " __TIME__ "\n"
+          "Built on " __DATE__ " at " __TIME__ "\n"
           "Author: Elliot Masina (masina.elliot@hotmail.fr)\n"
           "License: MIT\n"
           "Repository: https://github.com/bobis33/VEngine\n"

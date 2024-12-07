@@ -15,3 +15,5 @@ vengine
 vengine-tests
 vengine.exe
 vengine-tests.exe
+vengine.pdb
+vengine-tests.pdb

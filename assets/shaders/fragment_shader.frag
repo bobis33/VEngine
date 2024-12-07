@@ -59,5 +59,10 @@ void main() {
   }
 
   vec3 color = texture(diffuseMap, fragUv).xyz;
+
+  // for transparency discard the pixel if the alpha is 0
+  if (texture(diffuseMap, fragUv).w == 0.0) {
+    discard;
+  }
   outColor = vec4(diffuseLight * color + specularLight, 1.0);
 }

@@ -2,10 +2,11 @@
 #include "VEngine/Core/EventManager.hpp"
 #include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
-#include "VEngine/Gfx/Descriptors/Writer.hpp"
 #include "VEngine/Factories/Light.hpp"
-#include "VEngine/Factories/Object.hpp"
 #include "VEngine/Factories/Model.hpp"
+#include "VEngine/Factories/Object.hpp"
+#include "VEngine/Factories/Texture.hpp"
+#include "VEngine/Gfx/Descriptors/Writer.hpp"
 #include "VEngine/Utils/Clock.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
@@ -33,7 +34,7 @@ void ven::Engine::loadObjects()
 
     Logger::logExecutionTime("Creating object quad", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
+            ven::TextureFactory::create(m_device, "assets/textures/fontAtlas.png"),
             modelCache.at("assets/models/quad.obj"),
             "quad",
             {
