@@ -34,35 +34,12 @@ void ven::Engine::loadObjects()
     Logger::logExecutionTime("Creating object quad", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
             defaultTexture,
-            modelCache.at("assets/models/quad.obj"),
-            "quad",
+            modelCache.at("assets/models/sponza.obj"),
+            "sponza",
             {
-            .translation = {0.F, .5F, 0.F},
-            .scale = {3.F, 1.F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-
-    Logger::logExecutionTime("Creating object smooth vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/smooth_vase.obj"),
-            "smooth vase",
-            {
-            .translation = {.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-    Logger::logExecutionTime("Creating object flat vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/flat_vase.obj"),
-            "flat vase",
-            {
-            .translation = {-.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
+            .translation = {0.F, 0.F, 0.F},
+            .scale = {0.01F, 0.01F, 0.01F},
+            .rotation = {0.F, 0.F, -3.14159265358979323846264338327950288419716939937510582F} // == -π, why ?
         }));
     });
     for (std::size_t i = 0; i < lightColors.size(); i++)
