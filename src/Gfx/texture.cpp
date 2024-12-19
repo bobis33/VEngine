@@ -180,7 +180,7 @@ void ven::Texture::createTextureImage(const std::string &filepath)
         m_mipLevels,
         m_layerCount);
 
-    // If we generate mip maps then the final image will alerady be READ_ONLY_OPTIMAL
+    // If we generate mip maps then the final image will already be READ_ONLY_OPTIMAL
     // mDevice.generateMipmaps(mTextureImage, mFormat, texWidth, texHeight, mMipLevels);
     m_textureLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 

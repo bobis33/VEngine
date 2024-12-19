@@ -28,41 +28,16 @@ ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.win
 void ven::Engine::loadObjects()
 {
     constexpr std::array lightColors{Colors::RED_4, Colors::GREEN_4, Colors::BLUE_4, Colors::YELLOW_4, Colors::CYAN_4, Colors::MAGENTA_4};
-    const std::unordered_map<std::string, std::shared_ptr<Model>> modelCache = ModelFactory::loadAll(m_device, "assets/models/");
-    const std::shared_ptr<Texture> defaultTexture = m_sceneManager.getTextureDefault();
 
-    Logger::logExecutionTime("Creating object quad", [&] {
+    Logger::logExecutionTime("Creating object sponza", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/quad.obj"),
-            "quad",
+            nullptr,
+            ModelFactory::get(m_device, "assets/models/sponza.obj"),
+            "sponza",
             {
-            .translation = {0.F, .5F, 0.F},
-            .scale = {3.F, 1.F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-
-    Logger::logExecutionTime("Creating object smooth vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/smooth_vase.obj"),
-            "smooth vase",
-            {
-            .translation = {.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-    Logger::logExecutionTime("Creating object flat vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/flat_vase.obj"),
-            "flat vase",
-            {
-            .translation = {-.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
+            .translation = {0.F, 0.F, 0.F},
+            .scale = {0.01F, 0.01F, 0.01F},
+            .rotation = {0.F, 0.F, -3.14159265358979323846264338327950288419716939937510582F} // == -π, why ?
         }));
     });
     for (std::size_t i = 0; i < lightColors.size(); i++)

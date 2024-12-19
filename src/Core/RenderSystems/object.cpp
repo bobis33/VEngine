@@ -12,12 +12,19 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
     for (Object& object : frameInfo.objects | std::views::values) {
         if (object.getModel() == nullptr) { continue; }
         auto bufferInfo = object.getBufferInfo(static_cast<int>(frameInfo.frameIndex));
-        auto imageInfo = object.getDiffuseMap()->getImageInfo();
-        VkDescriptorSet objectDescriptorSet = nullptr;
-        DescriptorWriter(*renderSystemLayout, frameInfo.frameDescriptorPool)
-            .writeBuffer(0, &bufferInfo)
-            .writeImage(1, &imageInfo)
-            .build(objectDescriptorSet);
+            VkDescriptorSet objectDescriptorSet = nullptr;
+        if (object.getDiffuseMap() != nullptr) {
+            auto imageInfo = object.getDiffuseMap()->getImageInfo();
+            DescriptorWriter(*renderSystemLayout, frameInfo.frameDescriptorPool)
+                .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
+                .build(objectDescriptorSet);
+        }
+        else {
+            DescriptorWriter(*renderSystemLayout, frameInfo.frameDescriptorPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(objectDescriptorSet);
+        }
 
         vkCmdBindDescriptorSets(
             frameInfo.commandBuffer,

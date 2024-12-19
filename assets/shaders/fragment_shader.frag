@@ -58,6 +58,6 @@ void main() {
     }
   }
 
-  vec3 color = texture(diffuseMap, fragUv).xyz;
+  vec3 color = texture(diffuseMap, fragUv).rgb;
   outColor = vec4(diffuseLight * color + specularLight, 1.0);
 }
