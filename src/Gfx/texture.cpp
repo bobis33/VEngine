@@ -114,7 +114,7 @@ void ven::Texture::createTextureImage(const std::string &filepath)
     const auto imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
     if (pixels == nullptr) {
-        throw std::runtime_error("failed to load texture image!");
+        throw std::runtime_error("failed to load texture image! texture path: " + filepath);
     }
 
     // mMipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;

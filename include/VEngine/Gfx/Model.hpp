@@ -15,9 +15,8 @@
 
 #include <assimp/scene.h>
 
+#include "Texture.hpp"
 #include "VEngine/Gfx/Buffer.hpp"
-#include "VEngine/Utils/Logger.hpp"
-
 
 namespace ven {
 
@@ -29,6 +28,16 @@ namespace ven {
     class Model {
 
         public:
+
+            using TextureMap = std::unordered_map<std::string, std::shared_ptr<Texture>>;
+
+        struct Material {
+            std::vector<std::shared_ptr<Texture>> diffuseTextures;
+            std::vector<std::shared_ptr<Texture>> specularTextures;
+            std::vector<std::shared_ptr<Texture>> normalTextures;
+        };
+
+
 
             struct Vertex {
                 glm::vec3 position{};
@@ -42,13 +51,22 @@ namespace ven {
                 bool operator==(const Vertex& other) const { return position == other.position && color == other.color && normal == other.normal && uv == other.uv; }
             };
 
+        struct Mesh {
+            std::vector<Vertex> vertices;
+            std::vector<uint32_t> indices;
+            Material material;
+        };
+
             struct Builder {
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
+                TextureMap textures;
+                std::unordered_map<const aiMesh*, std::shared_ptr<Texture>> m_meshTextures;
+                std::vector<Mesh> meshes;
 
-                void loadModel(const std::string &filename);
-                void processNode(const aiNode* node, const aiScene* scene);
-                void processMesh(const aiMesh* mesh, const aiScene* scene);
+                void loadModel(Device& device, const std::string &filename);
+                void processNode(Device& device, const aiNode* node, const aiScene* scene);
+                void processMesh(Device& device, const aiMesh* mesh, const aiScene* scene);
             };
 
             Model(Device &device, const Builder &builder);
@@ -61,7 +79,11 @@ namespace ven {
 
             void bind(VkCommandBuffer commandBuffer) const;
             void draw(VkCommandBuffer commandBuffer) const;
+            void bindMesh(VkCommandBuffer commandBuffer, const Mesh& mesh) const;
+            void drawMesh(VkCommandBuffer commandBuffer, const Mesh& mesh) const;
 
+            TextureMap getTextures() const { return m_textures; }
+            std::vector<Mesh> getMeshes() const { return m_meshes; }
         private:
 
             void createVertexBuffer(const std::vector<Vertex>& vertices);
@@ -74,7 +96,8 @@ namespace ven {
             bool m_hasIndexBuffer{false};
             std::unique_ptr<Buffer> m_indexBuffer;
             uint32_t m_indexCount;
-
+            TextureMap m_textures;
+            std::vector<Mesh> m_meshes;
     }; // class Model
 
 } // namespace ven

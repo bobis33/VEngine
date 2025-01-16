@@ -3,6 +3,7 @@
 
 #include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Factories/Texture.hpp"
+#include "VEngine/Utils/Logger.hpp"
 
 ven::SceneManager::SceneManager(Device& device)
 {

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
@@ -17,7 +19,7 @@ struct std::hash<ven::Model::Vertex> {
     }
 };
 
-ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0)
+ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0), m_textures(builder.textures), m_meshes(builder.meshes)
 {
     createVertexBuffer(builder.vertices);
     createIndexBuffer(builder.indices);
@@ -70,6 +72,14 @@ void ven::Model::draw(const VkCommandBuffer commandBuffer) const
     }
 }
 
+void ven::Model::drawMesh(VkCommandBuffer commandBuffer, const Mesh& mesh) const {
+    if (m_hasIndexBuffer) {
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.indices.size()), 1, 0, 0, 0);
+    } else {
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(mesh.vertices.size()), 1, 0, 0);
+    }
+}
+
 void ven::Model::bind(const VkCommandBuffer commandBuffer) const
 {
     const std::array buffers{m_vertexBuffer->getBuffer()};
@@ -80,6 +90,18 @@ void ven::Model::bind(const VkCommandBuffer commandBuffer) const
         vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
+
+void ven::Model::bindMesh(const VkCommandBuffer commandBuffer, const Mesh& mesh) const
+{
+    const std::array buffers{m_vertexBuffer->getBuffer()};
+    constexpr std::array<VkDeviceSize, 1> offsets{0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers.data(), offsets.data());
+
+    if (m_hasIndexBuffer) {
+        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+    }
+}
+
 
 std::vector<VkVertexInputBindingDescription> ven::Model::Vertex::getBindingDescriptions()
 {
@@ -102,7 +124,7 @@ std::vector<VkVertexInputAttributeDescription> ven::Model::Vertex::getAttributeD
     return attributeDescriptions;
 }
 
-void ven::Model::Builder::loadModel(const std::string &filename)
+void ven::Model::Builder::loadModel(Device& device, const std::string &filename)
 {
     Assimp::Importer importer;
 
@@ -115,26 +137,27 @@ void ven::Model::Builder::loadModel(const std::string &filename)
     vertices.clear();
     indices.clear();
 
-    processNode(scene->mRootNode, scene);
+    processNode(device, scene->mRootNode, scene);
 }
 
-void ven::Model::Builder::processNode(const aiNode* node, const aiScene* scene) {
+void ven::Model::Builder::processNode(Device& device, const aiNode* node, const aiScene* scene) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        processMesh(mesh, scene);
+        processMesh(device, mesh, scene);
     }
 
+
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        processNode(node->mChildren[i], scene);
+        processNode(device, node->mChildren[i], scene);
     }
 }
 
-void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) {
+void ven::Model::Builder::processMesh(Device& device, const aiMesh* mesh, const aiScene* scene) {
     std::unordered_map<Vertex, uint32_t> uniqueVertices;
 
+    // Traitement des sommets et indices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex{};
-
         vertex.position = glm::vec3(
             mesh->mVertices[i].x,
             mesh->mVertices[i].y,
@@ -165,5 +188,44 @@ void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) 
 
         indices.push_back(uniqueVertices[vertex]);
     }
+
+    // Gestion des matériaux (textures)
+    Material meshMaterial{};
+    if (mesh->mMaterialIndex >= 0) {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+        aiString texturePath;
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+            const std::string fullPath = std::filesystem::absolute("assets/" + std::string(texturePath.C_Str())).string();
+
+            if (!textures.contains(fullPath)) {
+                std::cout << "Loading texture: " << fullPath << std::endl;
+                textures[fullPath] = std::make_shared<Texture>(device, fullPath);
+            }
+
+            meshMaterial.diffuseTextures.push_back(textures[fullPath]);
+        }
+    }
+
+    Mesh meshData{
+        .vertices = vertices,
+        .indices = indices,
+        .material = meshMaterial
+    };
+
+    meshes.push_back(meshData);
+
+    /**
+    for (const auto& mesh: meshes) {
+        if (!mesh.material.diffuseTextures.empty()) {
+            auto imageInfo = mesh.material.diffuseTextures[0]->getImageInfo();
+            DescriptorWriter(*renderSystemLayout, frameDescriptorPool)
+                .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
+                .build(mesh.descriptorSet);
+        }
+    }
+    **/
 }
+
 

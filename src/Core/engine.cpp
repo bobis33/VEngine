@@ -1,6 +1,5 @@
 #include "VEngine/Core/Engine.hpp"
 #include "VEngine/Core/EventManager.hpp"
-#include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
 #include "VEngine/Factories/Light.hpp"
@@ -32,7 +31,7 @@ void ven::Engine::loadObjects()
     Logger::logExecutionTime("Creating object sponza", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
             nullptr,
-            ModelFactory::get(m_device, "assets/models/sponza.obj"),
+            ModelFactory::get(m_device, "assets/models/sponzaObj/sponza.obj"),
             "sponza",
             {
             .translation = {0.F, 0.F, 0.F},
@@ -67,11 +66,9 @@ void ven::Engine::run()
     VkDescriptorBufferInfo bufferInfo{};
     float frameTime = 0.0F;
     unsigned long frameIndex = 0;
-    const std::unique_ptr globalSetLayout(DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build());
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
-    const ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-    const PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    const PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), m_globalSetLayout->getDescriptorSetLayout());
 
     for (auto& uboBuffer : uboBuffers)
     {
@@ -80,7 +77,7 @@ void ven::Engine::run()
     }
     for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
         bufferInfo = uboBuffers[i]->descriptorInfo();
-        DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
+        DescriptorWriter(*m_globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
 
     while (m_state != EXIT)
@@ -113,7 +110,7 @@ void ven::Engine::run()
             uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
             uboBuffers.at(frameIndex)->flush();
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
-            objectRenderSystem.render(frameInfo);
+            m_objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
             if (m_gui.getState() != HIDDEN) {
