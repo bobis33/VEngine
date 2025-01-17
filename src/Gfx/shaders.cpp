@@ -166,6 +166,6 @@ void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
-    configInfo.bindingDescriptions = Model::Vertex::getBindingDescriptions();
-    configInfo.attributeDescriptions = Model::Vertex::getAttributeDescriptions();
+    configInfo.bindingDescriptions = Vertex::getBindingDescriptions();
+    configInfo.attributeDescriptions = Vertex::getAttributeDescriptions();
 }

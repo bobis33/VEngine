@@ -11,14 +11,14 @@
 #include <unordered_map>
 #include <filesystem>
 
-#include <glm/glm.hpp>
-
 #include <assimp/scene.h>
 
-#include "Texture.hpp"
 #include "VEngine/Gfx/Buffer.hpp"
+#include "VEngine/Gfx/Mesh.hpp"
 
 namespace ven {
+
+    static constexpr std::string_view MODEL_PATH = "assets/";
 
     ///
     /// @class Model
@@ -31,42 +31,16 @@ namespace ven {
 
             using TextureMap = std::unordered_map<std::string, std::shared_ptr<Texture>>;
 
-        struct Material {
-            std::vector<std::shared_ptr<Texture>> diffuseTextures;
-            std::vector<std::shared_ptr<Texture>> specularTextures;
-            std::vector<std::shared_ptr<Texture>> normalTextures;
-        };
-
-
-
-            struct Vertex {
-                glm::vec3 position{};
-                glm::vec3 color{};
-                glm::vec3 normal{};
-                glm::vec2 uv{};
-
-                static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-                static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-
-                bool operator==(const Vertex& other) const { return position == other.position && color == other.color && normal == other.normal && uv == other.uv; }
-            };
-
-        struct Mesh {
-            std::vector<Vertex> vertices;
-            std::vector<uint32_t> indices;
-            Material material;
-        };
-
             struct Builder {
                 std::vector<Vertex> vertices;
                 std::vector<uint32_t> indices;
                 TextureMap textures;
-                std::unordered_map<const aiMesh*, std::shared_ptr<Texture>> m_meshTextures;
                 std::vector<Mesh> meshes;
 
                 void loadModel(Device& device, const std::string &filename);
                 void processNode(Device& device, const aiNode* node, const aiScene* scene);
-                void processMesh(Device& device, const aiMesh* mesh, const aiScene* scene);
+                void processMesh(const aiMesh* mesh);
+                void processMaterial(Device &device, const aiMesh *mesh, const aiScene *scene);
             };
 
             Model(Device &device, const Builder &builder);
@@ -84,6 +58,7 @@ namespace ven {
 
             TextureMap getTextures() const { return m_textures; }
             std::vector<Mesh> getMeshes() const { return m_meshes; }
+
         private:
 
             void createVertexBuffer(const std::vector<Vertex>& vertices);

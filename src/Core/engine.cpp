@@ -59,6 +59,7 @@ void ven::Engine::loadObjects()
 
 void ven::Engine::run()
 {
+    int a = 0;
     Clock clock;
     const EventManager eventManager{};
     GlobalUbo ubo{};
