@@ -4,7 +4,7 @@
 
 #include "VEngine/Gfx/Texture.hpp"
 
-ven::Texture::Texture(Device &device, const std::string &textureFilepath) : m_device{device}
+ven::Texture::Texture(const Device &device, const std::string &textureFilepath) : m_device{device}
 {
     createTextureImage(textureFilepath);
     createTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
@@ -12,7 +12,7 @@ ven::Texture::Texture(Device &device, const std::string &textureFilepath) : m_de
     updateDescriptor();
 }
 
-ven::Texture::Texture(Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount)
+ven::Texture::Texture(const Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount)
   : m_device{device}, m_format(format), m_extent(extent)
 {
     VkImageAspectFlags aspectMask = 0;

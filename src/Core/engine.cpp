@@ -46,7 +46,7 @@ void ven::Engine::loadObjects()
                 glm::mat4(1.F),
                 static_cast<float>(i) * glm::two_pi<float>() / 6.0F, // 6 = num of lights
                 {0.F, -1.F, 0.F}
-);
+            );
             m_sceneManager.addLight(LightFactory::create({
                     .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
                     .scale = { 0.1F, 0.0F, 0.0F },
@@ -59,7 +59,6 @@ void ven::Engine::loadObjects()
 
 void ven::Engine::run()
 {
-    int a = 0;
     Clock clock;
     const EventManager eventManager{};
     GlobalUbo ubo{};
@@ -96,9 +95,7 @@ void ven::Engine::run()
             m_framePools[frameIndex]->resetPool();
             FrameInfo frameInfo{
                 .frameIndex=frameIndex,
-                .frameTime=frameTime,
                 .commandBuffer=commandBuffer,
-                .camera=m_camera,
                 .globalDescriptorSet=globalDescriptorSets[frameIndex],
                 .frameDescriptorPool=*m_framePools[frameIndex],
                 .objects=m_sceneManager.getObjects(),
@@ -127,6 +124,7 @@ void ven::Engine::run()
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
+            m_window.resetWindowResizedFlag();
             commandBuffer = nullptr;
         }
         if (m_sceneManager.getDestroyState()) {

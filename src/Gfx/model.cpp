@@ -20,7 +20,7 @@ struct std::hash<ven::Vertex> {
     }
 };
 
-ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0), m_textures(builder.textures), m_meshes(builder.meshes)
+ven::Model::Model(const Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0), m_textures(builder.textures), m_meshes(builder.meshes)
 {
     createVertexBuffer(builder.vertices);
     createIndexBuffer(builder.indices);
@@ -102,7 +102,7 @@ void ven::Model::bindMesh(const VkCommandBuffer commandBuffer, const Mesh& mesh)
     }
 }
 
-void ven::Model::Builder::loadModel(Device& device, const std::string &filename)
+void ven::Model::Builder::loadModel(const Device& device, const std::string &filename)
 {
     Assimp::Importer importer;
 
@@ -118,7 +118,7 @@ void ven::Model::Builder::loadModel(Device& device, const std::string &filename)
     processNode(device, scene->mRootNode, scene);
 }
 
-void ven::Model::Builder::processNode(Device& device, const aiNode* node, const aiScene* scene) {
+void ven::Model::Builder::processNode(const Device& device, const aiNode* node, const aiScene* scene) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         processMesh(mesh);
@@ -130,7 +130,7 @@ void ven::Model::Builder::processNode(Device& device, const aiNode* node, const 
     }
 }
 
-void loadMaterialTextures(ven::Device& device, const aiMaterial* material, const aiTextureType type, aiString &texturePath, std::unordered_map<std::string, std::shared_ptr<ven::Texture>>& textures, std::vector<std::shared_ptr<ven::Texture>>& meshTextures) {
+void loadMaterialTextures(const ven::Device& device, const aiMaterial* material, const aiTextureType type, aiString &texturePath, std::unordered_map<std::string, std::shared_ptr<ven::Texture>>& textures, std::vector<std::shared_ptr<ven::Texture>>& meshTextures) {
 
     if (material->GetTexture(type, 0, &texturePath) == AI_SUCCESS) {
         const std::string fullPath = std::filesystem::absolute(ven::MODEL_PATH.data() + std::string(texturePath.C_Str())).string();
@@ -143,7 +143,7 @@ void loadMaterialTextures(ven::Device& device, const aiMaterial* material, const
     }
 }
 
-void ven::Model::Builder::processMaterial(Device &device, const aiMesh *mesh, const aiScene *scene)
+void ven::Model::Builder::processMaterial(const Device &device, const aiMesh *mesh, const aiScene *scene)
 {
     Material meshMaterial{};
 

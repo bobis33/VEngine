@@ -5,7 +5,7 @@
 #include "VEngine/Factories/Texture.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
-ven::SceneManager::SceneManager(Device& device)
+ven::SceneManager::SceneManager(const Device& device)
 {
     // including nonCoherentAtomSize allows us to flush a specific index at once
     unsigned long alignment = std::lcm(
@@ -23,7 +23,7 @@ ven::SceneManager::SceneManager(Device& device)
         uboBuffer->map();
     }
     Logger::logExecutionTime("Creating default texture", [&] {
-        m_textureDefault = TextureFactory::create(device, "assets/textures/default.png");
+        m_textureDefault = TextureFactory::create(device, "assets/textures/owned/default.png");
     });
 }
 
@@ -52,15 +52,15 @@ void ven::SceneManager::updateBuffer(GlobalUbo &ubo, const unsigned long frameIn
     ubo.numLights = lightIndex;
 }
 
-void ven::SceneManager::destroyEntity(std::vector<unsigned int> *objectsIds, std::vector<unsigned int> *lightsIds)
+void ven::SceneManager::destroyEntity(std::vector<unsigned int>& objectsIds, std::vector<unsigned int>& lightsIds)
 {
-    for (const unsigned int objectId : *objectsIds) {
+    for (const unsigned int objectId : objectsIds) {
         m_objects.erase(objectId);
     }
-    for (const unsigned int lightId : *lightsIds) {
+    for (const unsigned int lightId : lightsIds) {
         m_lights.erase(lightId);
     }
-    objectsIds->clear();
-    lightsIds->clear();
+    objectsIds.clear();
+    lightsIds.clear();
     m_destroyState = false;
 }

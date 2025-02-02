@@ -20,8 +20,6 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
                 .writeImage(1, &imageInfo)
                 .build(objectDescriptorSet);
         } else if (!object.getModel()->getTextures().empty()) {
-            Logger::logExecutionTime("Drawing ", [&] {
-
             for (const auto& mesh : object.getModel()->getMeshes()) {
                 if (!mesh.material.diffuseTextures.empty()) {
                     auto imageInfo = mesh.material.diffuseTextures[0]->getImageInfo();
@@ -48,7 +46,6 @@ void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
                     object.getModel()->drawMesh(frameInfo.commandBuffer, mesh);
                 }
             }
-            });
             return;
     } else {
             DescriptorWriter(*renderSystemLayout, frameInfo.frameDescriptorPool)

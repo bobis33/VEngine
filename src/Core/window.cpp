@@ -24,7 +24,7 @@ GLFWwindow* ven::Window::createWindow(const uint32_t width, const uint32_t heigh
     return window;
 }
 
-void ven::Window::createWindowSurface(const VkInstance instance, VkSurfaceKHR *surface) const
+void ven::Window::createWindowSurface(const VkInstance& instance, VkSurfaceKHR *surface) const
 {
     if (glfwCreateWindowSurface(instance, m_window, nullptr, surface) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create window surface");
@@ -39,7 +39,7 @@ void ven::Window::framebufferResizeCallback(GLFWwindow *window, const int width,
     app->m_height = static_cast<uint32_t>(height);
 }
 
-void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, const uint32_t height)
+void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, const uint32_t height) const
 {
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);

@@ -26,19 +26,19 @@ namespace ven {
 
                 public:
 
-                    explicit Builder(Device &device) : m_device{device} {}
+                    explicit Builder(const Device &device) : m_device{device} {}
 
                     Builder &addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags, uint32_t count = 1);
                     std::unique_ptr<DescriptorSetLayout> build() const { return std::make_unique<DescriptorSetLayout>(m_device, m_bindings); }
 
                 private:
 
-                    Device &m_device;
+                    const Device &m_device;
                     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> m_bindings;
 
             }; // class Builder
 
-            DescriptorSetLayout(Device &device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
+            DescriptorSetLayout(const Device &device, const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& bindings);
             ~DescriptorSetLayout() { vkDestroyDescriptorSetLayout(m_device.device(), m_descriptorSetLayout, nullptr); }
 
             DescriptorSetLayout(const DescriptorSetLayout &) = delete;
@@ -50,7 +50,7 @@ namespace ven {
 
         private:
 
-            Device &m_device;
+            const Device &m_device;
             VkDescriptorSetLayout m_descriptorSetLayout;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> m_bindings;
 

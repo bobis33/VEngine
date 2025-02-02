@@ -25,7 +25,7 @@ namespace ven {
 
         public:
 
-            Renderer(Window &window, Device &device) : m_window{window}, m_device{device} { recreateSwapChain(); createCommandBuffers(); }
+            Renderer(const Window &window, const Device &device) : m_window{window}, m_device{device} { recreateSwapChain(); createCommandBuffers(); }
             ~Renderer() { freeCommandBuffers(); }
 
             Renderer(const Renderer &) = delete;
@@ -36,8 +36,8 @@ namespace ven {
             [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
             [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }
             [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
-            [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command m_buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
-
+            [[nodiscard]] const VkCommandBuffer& getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command m_buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
+            [[nodiscard]] const Window& getWindow() const { return m_window; }
             [[nodiscard]] unsigned long getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
             [[nodiscard]] std::array<float, 4> getClearColor() const { return {
                 m_clearValues[0].color.float32[0],
@@ -46,7 +46,6 @@ namespace ven {
                 m_clearValues[0].color.float32[3]
             };}
 
-            [[nodiscard]] Window& getWindow() const { return m_window; }
 
             void setClearValue(const VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, const VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
             VkCommandBuffer beginFrame();
@@ -60,8 +59,8 @@ namespace ven {
             void freeCommandBuffers();
             void recreateSwapChain();
 
-            Window &m_window;
-            Device &m_device;
+            const Window &m_window;
+            const Device &m_device;
             std::unique_ptr<SwapChain> m_swapChain;
             std::vector<VkCommandBuffer> m_commandBuffers;
             std::array<VkClearValue, 2> m_clearValues{DEFAULT_CLEAR_COLOR, 1.0F, 0.F};

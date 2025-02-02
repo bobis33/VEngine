@@ -20,7 +20,7 @@ namespace ven {
 
         public:
 
-            explicit SceneManager(Device &device);
+            explicit SceneManager(const Device &device);
 
             SceneManager(const SceneManager &) = delete;
             SceneManager &operator=(const SceneManager &) = delete;
@@ -32,15 +32,15 @@ namespace ven {
 
             void destroyObject(const unsigned int objectId) { m_objects.erase(objectId); }
             void destroyLight(const unsigned int lightId) { m_lights.erase(lightId); }
-            void destroyEntity(std::vector<unsigned int> *objectsIds, std::vector<unsigned int> *lightsIds);
+            void destroyEntity(std::vector<unsigned int>& objectsIds, std::vector<unsigned int>& lightsIds);
 
             void updateBuffer(GlobalUbo &ubo, unsigned long frameIndex, float frameTime);
 
             [[nodiscard]] VkDescriptorBufferInfo getBufferInfoForObject(const int frameIndex, const unsigned int objectId) const { return m_uboBuffers.at(static_cast<long unsigned int>(frameIndex))->descriptorInfoForIndex(objectId); }
-            Object::Map& getObjects() { return m_objects; }
-            Light::Map& getLights() { return m_lights; }
-            std::vector<std::unique_ptr<Buffer>> &getUboBuffers() { return m_uboBuffers; }
-            std::shared_ptr<Texture> getTextureDefault() { return m_textureDefault; }
+            [[nodiscard]] Object::Map& getObjects() { return m_objects; }
+            [[nodiscard]] Light::Map& getLights() { return m_lights; }
+            [[nodiscard]] const std::vector<std::unique_ptr<Buffer>> &getUboBuffers() const { return m_uboBuffers; }
+            [[nodiscard]] const std::shared_ptr<Texture>& getTextureDefault() const { return m_textureDefault; }
             [[nodiscard]] bool getDestroyState() const { return m_destroyState; }
 
             void setDestroyState(const bool state) { m_destroyState = state; }

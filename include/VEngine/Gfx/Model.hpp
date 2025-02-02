@@ -37,13 +37,13 @@ namespace ven {
                 TextureMap textures;
                 std::vector<Mesh> meshes;
 
-                void loadModel(Device& device, const std::string &filename);
-                void processNode(Device& device, const aiNode* node, const aiScene* scene);
+                void loadModel(const Device& device, const std::string &filename);
+                void processNode(const Device& device, const aiNode* node, const aiScene* scene);
                 void processMesh(const aiMesh* mesh);
-                void processMaterial(Device &device, const aiMesh *mesh, const aiScene *scene);
+                void processMaterial(const Device &device, const aiMesh *mesh, const aiScene *scene);
             };
 
-            Model(Device &device, const Builder &builder);
+            Model(const Device &device, const Builder &builder);
             ~Model() = default;
 
             Model(const Model&) = delete;
@@ -56,15 +56,15 @@ namespace ven {
             void bindMesh(VkCommandBuffer commandBuffer, const Mesh& mesh) const;
             void drawMesh(VkCommandBuffer commandBuffer, const Mesh& mesh) const;
 
-            TextureMap getTextures() const { return m_textures; }
-            std::vector<Mesh> getMeshes() const { return m_meshes; }
+            const TextureMap& getTextures() const { return m_textures; }
+            const std::vector<Mesh>& getMeshes() const { return m_meshes; }
 
         private:
 
             void createVertexBuffer(const std::vector<Vertex>& vertices);
             void createIndexBuffer(const std::vector<uint32_t>& indices);
 
-            Device& m_device;
+            const Device& m_device;
             std::unique_ptr<Buffer> m_vertexBuffer;
             uint32_t m_vertexCount;
 
