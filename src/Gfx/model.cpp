@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -6,9 +7,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include "VEngine/Gfx/Mesh.hpp"
 #include "VEngine/Gfx/Model.hpp"
-#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/HashCombine.hpp"
 
 template<>

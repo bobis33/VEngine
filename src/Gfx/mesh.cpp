@@ -1,5 +1,3 @@
-#include <vulkan/vulkan_core.h>
-
 #include "VEngine/Gfx/Mesh.hpp"
 
 std::vector<VkVertexInputBindingDescription> ven::Vertex::getBindingDescriptions()

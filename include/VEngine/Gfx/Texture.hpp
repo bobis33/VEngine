@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "VEngine/Core/Device.hpp"
 
 namespace ven {

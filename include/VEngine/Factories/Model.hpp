@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "VEngine/Gfx/Model.hpp"
 
 namespace ven {

@@ -8,9 +8,9 @@
 
 #include <imgui.h>
 
-#include "VEngine/Core/FrameInfo.hpp"
-#include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Gfx/Renderer.hpp"
+#include "VEngine/Scene/Camera.hpp"
+#include "VEngine/Scene/Manager.hpp"
 
 namespace ven {
 
@@ -44,7 +44,7 @@ namespace ven {
             Gui(Gui&&) = delete;
             Gui& operator=(Gui&&) = delete;
 
-            void init(GLFWwindow* window, VkInstance instance, const Device* device, VkRenderPass renderPass);
+            void init(GLFWwindow* window, VkInstance instance, const Device* device);
 
             void render(Renderer *renderer, SceneManager& sceneManager, Camera& camera, VkPhysicalDevice physicalDevice, GlobalUbo& ubo, const ClockData& clockData);
             static void cleanup();

@@ -2,7 +2,6 @@
 
 #include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
-#include "VEngine/Utils/Logger.hpp"
 
 void ven::ObjectRenderSystem::render(const FrameInfo &frameInfo) const
 {

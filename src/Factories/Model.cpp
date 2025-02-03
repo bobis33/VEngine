@@ -1,5 +1,6 @@
-#include "VEngine/Factories/Model.hpp"
+#include <filesystem>
 
+#include "VEngine/Factories/Model.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
 std::unique_ptr<ven::Model> ven::ModelFactory::get(const Device& device, const std::string& filepath)

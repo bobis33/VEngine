@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 
 #include "VEngine/Gfx/Texture.hpp"

@@ -5,12 +5,11 @@
 #include "VEngine/Factories/Light.hpp"
 #include "VEngine/Factories/Object.hpp"
 #include "VEngine/Factories/Model.hpp"
-#include "VEngine/Utils/Clock.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
 ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.window.width, config.window.height), m_camera(config.camera.fov, config.camera.near, config.camera.far, config.camera.move_speed, config.camera.look_speed) {
-    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
+    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device);
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
     const auto framePoolBuilder = DescriptorPool::Builder(m_device)
@@ -31,11 +30,11 @@ void ven::Engine::loadObjects()
     Logger::logExecutionTime("Creating object sponza", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
             nullptr,
-            ModelFactory::get(m_device, "assets/models/sponzaObj/sponza.obj"),
+            ModelFactory::get(m_device, "assets/models/sponza/sponza.obj"),
             "sponza",
             {
             .translation = {0.F, 0.F, 0.F},
-            .scale = {0.01F, 0.01F, 0.01F},
+            .scale = {1.0F, 1.0F, 1.0F},
             .rotation = {0.F, 0.F, -3.14159265358979323846264338327950288419716939937510582F} // == -π, why ?
         }));
     });

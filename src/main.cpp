@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "VEngine/Core/Engine.hpp"
 #include "VEngine/Utils/Parser.hpp"
 #include "VEngine/Utils/Logger.hpp"

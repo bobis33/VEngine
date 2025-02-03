@@ -1,8 +1,8 @@
 #include <numeric>
 #include <ranges>
 
-#include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Factories/Texture.hpp"
+#include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
 ven::SceneManager::SceneManager(const Device& device)

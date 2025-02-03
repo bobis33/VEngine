@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "VEngine/Scene/Entities/Light.hpp"
 
 namespace ven {

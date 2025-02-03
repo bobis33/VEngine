@@ -6,10 +6,7 @@
 
 #pragma once
 
-#include <memory>
-#include <vector>
 #include <unordered_map>
-#include <filesystem>
 
 #include <assimp/scene.h>
 
@@ -18,7 +15,7 @@
 
 namespace ven {
 
-    static constexpr std::string_view MODEL_PATH = "assets/";
+    static constexpr std::string_view MODEL_PATH = "assets/models/sponza/";
 
     ///
     /// @class Model

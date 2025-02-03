@@ -196,10 +196,10 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ## Acknowledgements
 
-Special thanks to [Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine) for inspiration and resources related to Vulkan development. His [YouTube channel](https://www.youtube.com/c/BrendanGalea) is a great resource for learning Vulkan and graphics programming.
+[Sascha Willems](https://github.com/SaschaWillems/Vulkan) - [Blog](https://www.saschawillems.de/)
 
-Also, thanks to [Sascha Willems](https://github.com/SaschaWillems/Vulkan/tree/master) for his excellent Vulkan examples and tutorials.
+[Brendan Galea](https://github.com/blurrypiano/littleVulkanEngine) - [YouTube channel](https://www.youtube.com/c/BrendanGalea)
 
-Without forgetting [Beaumanvienna](https://github.com/beaumanvienna/vulkan) for his Vulkan tutorial series on YouTube, and his precious help.
+[Beaumanvienna](https://github.com/beaumanvienna/vulkan) - [YouTube channel](https://www.youtube.com/@beaumanvienna6844)
 
-
+[Maria beketova](https://github.com/svatostop/anthrax-ai) - [YouTube channel](https://www.youtube.com/@sudolovemebaby)

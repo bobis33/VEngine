@@ -8,10 +8,6 @@
 
 #include "VEngine/Core/Gui.hpp"
 #include "VEngine/Core/RenderSystem/Object.hpp"
-#include "VEngine/Gfx/Renderer.hpp"
-#include "VEngine/Gfx/Descriptors/Pool.hpp"
-#include "VEngine/Gfx/Descriptors/SetLayout.hpp"
-#include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Utils/Utils.hpp"
 #include "VEngine/Utils/Config.hpp"
 

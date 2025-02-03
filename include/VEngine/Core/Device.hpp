@@ -7,7 +7,6 @@
 #pragma once
 
 #include <vector>
-#include <stdexcept>
 
 #include "VEngine/Core/Window.hpp"
 
