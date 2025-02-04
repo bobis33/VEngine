@@ -7,9 +7,7 @@
 #pragma once
 
 #include "VEngine/Core/Gui.hpp"
-#include "VEngine/Gfx/Renderer.hpp"
-#include "VEngine/Gfx/Descriptors/Pool.hpp"
-#include "VEngine/Scene/Manager.hpp"
+#include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Utils/Utils.hpp"
 #include "VEngine/Utils/Config.hpp"
 
@@ -49,6 +47,8 @@ namespace ven {
             std::unique_ptr<DescriptorPool> m_globalPool;
             std::vector<std::unique_ptr<DescriptorPool>> m_framePools;
 
+            std::unique_ptr<DescriptorSetLayout> m_globalSetLayout{DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT).addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT).build()};
+            ObjectRenderSystem m_objectRenderSystem{m_device, m_renderer.getSwapChainRenderPass(), m_globalSetLayout->getDescriptorSetLayout()};
     }; // class Engine
 
 } // namespace ven

@@ -6,10 +6,7 @@
 
 #pragma once
 
-#include <array>
-
 #include "VEngine/Gfx/Descriptors/Pool.hpp"
-#include "VEngine/Scene/Camera.hpp"
 #include "VEngine/Scene/Entities/Object.hpp"
 #include "VEngine/Scene/Entities/Light.hpp"
 
@@ -44,9 +41,7 @@ static constexpr glm::vec4 DEFAULT_AMBIENT_LIGHT_COLOR = {glm::vec3(1.F), DEFAUL
     struct FrameInfo
     {
         unsigned long frameIndex;
-        float frameTime;
         VkCommandBuffer commandBuffer;
-        Camera &camera;
         VkDescriptorSet globalDescriptorSet;
         DescriptorPool &frameDescriptorPool;
         Object::Map &objects;

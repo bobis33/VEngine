@@ -21,8 +21,8 @@ namespace ven {
 
         public:
 
-            Texture(Device &device, const std::string &textureFilepath);
-            Texture(Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount);
+            Texture(const Device &device, const std::string &textureFilepath);
+            Texture(const Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount);
             ~Texture();
 
             Texture(const Texture &) = delete;
@@ -33,14 +33,14 @@ namespace ven {
             void updateDescriptor();
             void transitionLayout(VkCommandBuffer commandBuffer, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 
-            [[nodiscard]] VkImageView imageView() const { return m_textureImageView; }
-            [[nodiscard]] VkSampler sampler() const { return m_textureSampler; }
-            [[nodiscard]] VkImage getImage() const { return m_textureImage; }
-            [[nodiscard]] VkImageView getImageView() const { return m_textureImageView; }
-            [[nodiscard]] VkDescriptorImageInfo getImageInfo() const { return m_descriptor; }
-            [[nodiscard]] VkImageLayout getImageLayout() const { return m_textureLayout; }
-            [[nodiscard]] VkExtent3D getExtent() const { return m_extent; }
-            [[nodiscard]] VkFormat getFormat() const { return m_format; }
+            [[nodiscard]] const VkImageView& imageView() const { return m_textureImageView; }
+            [[nodiscard]] const VkSampler& sampler() const { return m_textureSampler; }
+            [[nodiscard]] const VkImage& getImage() const { return m_textureImage; }
+            [[nodiscard]] const VkImageView& getImageView() const { return m_textureImageView; }
+            [[nodiscard]] const VkDescriptorImageInfo& getImageInfo() const { return m_descriptor; }
+            [[nodiscard]] const VkImageLayout& getImageLayout() const { return m_textureLayout; }
+            [[nodiscard]] const VkExtent3D& getExtent() const { return m_extent; }
+            [[nodiscard]] const VkFormat& getFormat() const { return m_format; }
 
         private:
 
@@ -48,8 +48,8 @@ namespace ven {
             void createTextureImageView(VkImageViewType viewType);
             void createTextureSampler();
 
+            const Device &m_device;
             VkDescriptorImageInfo m_descriptor{};
-            Device &m_device;
             VkImage m_textureImage = nullptr;
             VkDeviceMemory m_textureImageMemory = nullptr;
             VkImageView m_textureImageView = nullptr;

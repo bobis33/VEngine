@@ -27,7 +27,7 @@ namespace ven {
 
                 public:
 
-                    explicit Builder(Device &device) : m_device{device} {}
+                    explicit Builder(const Device &device) : m_device{device} {}
 
                     [[nodiscard]] std::unique_ptr<DescriptorPool> build() const { return std::make_unique<DescriptorPool>(m_device, m_maxSets, m_poolFlags, m_poolSizes); }
 
@@ -37,14 +37,14 @@ namespace ven {
 
                 private:
 
-                    Device &m_device;
+                    const Device &m_device;
                     std::vector<VkDescriptorPoolSize> m_poolSizes;
                     uint32_t m_maxSets{DEFAULT_MAX_SETS};
                     VkDescriptorPoolCreateFlags m_poolFlags{0};
 
             }; // class Builder
 
-            DescriptorPool(Device &device, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize> &poolSizes);
+            DescriptorPool(const Device &device, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize> &poolSizes);
             ~DescriptorPool() { vkDestroyDescriptorPool(m_device.device(), m_descriptorPool, nullptr); }
 
             DescriptorPool(const DescriptorPool &) = delete;
@@ -60,7 +60,7 @@ namespace ven {
 
         private:
 
-            Device &m_device;
+            const Device &m_device;
             VkDescriptorPool m_descriptorPool;
             friend class DescriptorWriter;
 

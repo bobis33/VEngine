@@ -1,3 +1,6 @@
+#include <iostream>
+#include <filesystem>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
@@ -5,19 +8,18 @@
 #include <glm/gtx/hash.hpp>
 
 #include "VEngine/Gfx/Model.hpp"
-#include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/HashCombine.hpp"
 
 template<>
-struct std::hash<ven::Model::Vertex> {
-    size_t operator()(ven::Model::Vertex const &vertex) const noexcept {
+struct std::hash<ven::Vertex> {
+    size_t operator()(ven::Vertex const &vertex) const noexcept {
         size_t seed = 0;
         ven::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
         return seed;
     }
 };
 
-ven::Model::Model(Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0)
+ven::Model::Model(const Device &device, const Builder &builder) : m_device{device}, m_vertexCount(0), m_indexCount(0), m_textures(builder.textures), m_meshes(builder.meshes)
 {
     createVertexBuffer(builder.vertices);
     createIndexBuffer(builder.indices);
@@ -28,7 +30,6 @@ void ven::Model::createVertexBuffer(const std::vector<Vertex> &vertices)
     m_vertexCount = static_cast<uint32_t>(vertices.size());
     assert(m_vertexCount >= 3 && "Vertex count must be at least 3");
     constexpr unsigned long vertexSize = sizeof(vertices[0]);
-    const VkDeviceSize bufferSize = vertexSize * m_vertexCount;
 
     Buffer stagingBuffer{m_device, vertexSize, m_vertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
@@ -37,7 +38,7 @@ void ven::Model::createVertexBuffer(const std::vector<Vertex> &vertices)
 
     m_vertexBuffer = std::make_unique<Buffer>(m_device, vertexSize, m_vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    m_device.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
+    m_device.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), vertexSize * m_vertexCount);
 }
 
 void ven::Model::createIndexBuffer(const std::vector<uint32_t> &indices)
@@ -58,7 +59,7 @@ void ven::Model::createIndexBuffer(const std::vector<uint32_t> &indices)
 
     m_indexBuffer = std::make_unique<Buffer>(m_device, indexSize, m_indexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), sizeof(indices[0]) * m_indexCount);
+    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), indexSize * m_indexCount);
 }
 
 void ven::Model::draw(const VkCommandBuffer commandBuffer) const
@@ -67,6 +68,14 @@ void ven::Model::draw(const VkCommandBuffer commandBuffer) const
         vkCmdDrawIndexed(commandBuffer, m_indexCount, 1, 0, 0, 0);
     } else {
         vkCmdDraw(commandBuffer, m_vertexCount, 1, 0, 0);
+    }
+}
+
+void ven::Model::drawMesh(const VkCommandBuffer commandBuffer, const Mesh& mesh) const {
+    if (m_hasIndexBuffer) {
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.indices.size()), 1, 0, 0, 0);
+    } else {
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(mesh.vertices.size()), 1, 0, 0);
     }
 }
 
@@ -81,28 +90,18 @@ void ven::Model::bind(const VkCommandBuffer commandBuffer) const
     }
 }
 
-std::vector<VkVertexInputBindingDescription> ven::Model::Vertex::getBindingDescriptions()
+void ven::Model::bindMesh(const VkCommandBuffer commandBuffer, const Mesh& mesh) const
 {
-    std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
-    bindingDescriptions[0].binding = 0;
-    bindingDescriptions[0].stride = sizeof(Vertex);
-    bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-    return bindingDescriptions;
+    const std::array buffers{m_vertexBuffer->getBuffer()};
+    constexpr std::array<VkDeviceSize, 1> offsets{0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers.data(), offsets.data());
+
+    if (m_hasIndexBuffer) {
+        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+    }
 }
 
-std::vector<VkVertexInputAttributeDescription> ven::Model::Vertex::getAttributeDescriptions()
-{
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-
-    attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});
-    attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)});
-    attributeDescriptions.push_back({2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)});
-    attributeDescriptions.push_back({3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)});
-
-    return attributeDescriptions;
-}
-
-void ven::Model::Builder::loadModel(const std::string &filename)
+void ven::Model::Builder::loadModel(const Device& device, const std::string &filename)
 {
     Assimp::Importer importer;
 
@@ -115,26 +114,89 @@ void ven::Model::Builder::loadModel(const std::string &filename)
     vertices.clear();
     indices.clear();
 
-    processNode(scene->mRootNode, scene);
+    processNode(device, scene->mRootNode, scene);
 }
 
-void ven::Model::Builder::processNode(const aiNode* node, const aiScene* scene) {
+void ven::Model::Builder::processNode(const Device& device, const aiNode* node, const aiScene* scene) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        processMesh(mesh, scene);
+        processMesh(mesh);
+        processMaterial(device, mesh, scene);
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        processNode(node->mChildren[i], scene);
+        processNode(device, node->mChildren[i], scene);
     }
 }
 
-void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) {
+void loadMaterialTextures(const ven::Device& device, const aiMaterial* material, const aiTextureType type, aiString &texturePath, std::unordered_map<std::string, std::shared_ptr<ven::Texture>>& textures, std::vector<std::shared_ptr<ven::Texture>>& meshTextures) {
+
+    if (material->GetTexture(type, 0, &texturePath) == aiReturn_SUCCESS) {
+        const std::string fullPath = std::filesystem::absolute(ven::MODEL_PATH.data() + std::string(texturePath.C_Str())).string();
+
+        if (!textures.contains(fullPath)) {
+            std::cout << "Loading texture: " << fullPath << '\n';
+            textures[fullPath] = std::make_shared<ven::Texture>(device, fullPath);
+        }
+        meshTextures.push_back(textures[fullPath]);
+    }
+}
+
+void ven::Model::Builder::processMaterial(const Device &device, const aiMesh *mesh, const aiScene *scene)
+{
+    Material meshMaterial{};
+
+    if (mesh->mMaterialIndex >= 0) {
+        const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        aiString texturePath;
+
+        loadMaterialTextures(device, material, aiTextureType_DIFFUSE, texturePath, textures, meshMaterial.diffuseTextures);
+        loadMaterialTextures(device, material, aiTextureType_SPECULAR, texturePath, textures, meshMaterial.specularTextures);
+        // loadMaterialTextures(device, material, aiTextureType_AMBIENT, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_EMISSIVE, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_HEIGHT, texturePath, textures, meshMaterial);
+        loadMaterialTextures(device, material, aiTextureType_NORMALS, texturePath, textures, meshMaterial.normalTextures);
+        // loadMaterialTextures(device, material, aiTextureType_SHININESS, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_OPACITY, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_DISPLACEMENT, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_LIGHTMAP, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_REFLECTION, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_BASE_COLOR, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_NORMAL_CAMERA, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_EMISSION_COLOR, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_METALNESS, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_DIFFUSE_ROUGHNESS, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_AMBIENT_OCCLUSION, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_UNKNOWN, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_SHEEN, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_CLEARCOAT, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_TRANSMISSION, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_MAYA_BASE, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_MAYA_SPECULAR, texturePath, textures, meshMaterial);
+        // loadMaterialTextures(device, material, aiTextureType_MAYA_SPECULAR_COLOR, texturePath, textures, meshMaterial);
+    }
+
+    meshes.push_back({ .vertices = vertices, .indices = indices, .material = meshMaterial });
+
+    /**
+for (const auto& mesh: meshes) {
+    if (!mesh.material.diffuseTextures.empty()) {
+        auto imageInfo = mesh.material.diffuseTextures[0]->getImageInfo();
+        DescriptorWriter(*renderSystemLayout, frameDescriptorPool)
+            .writeBuffer(0, &bufferInfo)
+            .writeImage(1, &imageInfo)
+            .build(mesh.descriptorSet);
+    }
+}
+**/
+}
+
+void ven::Model::Builder::processMesh(const aiMesh* mesh)
+{
     std::unordered_map<Vertex, uint32_t> uniqueVertices;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex{};
-
         vertex.position = glm::vec3(
             mesh->mVertices[i].x,
             mesh->mVertices[i].y,
@@ -166,4 +228,5 @@ void ven::Model::Builder::processMesh(const aiMesh* mesh, const aiScene* scene) 
         indices.push_back(uniqueVertices[vertex]);
     }
 }
+
 

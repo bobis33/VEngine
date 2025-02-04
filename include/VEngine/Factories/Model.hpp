@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "VEngine/Gfx/Model.hpp"
 
 namespace ven {
@@ -29,8 +27,8 @@ namespace ven {
             ModelFactory(ModelFactory&&) = delete;
             ModelFactory& operator=(ModelFactory&&) = delete;
 
-            static std::unique_ptr<Model> create(Device& device, const std::string& filepath);
-            static std::unordered_map<std::string, std::shared_ptr<Model>> loadAll(Device& device, const std::string& folderPath);
+            static std::unique_ptr<Model> get(const Device& device, const std::string& filepath);
+            static std::unordered_map<std::string, std::shared_ptr<Model>> getAll(const Device& device, const std::string& folderPath);
 
     }; // class ModelFactory
 

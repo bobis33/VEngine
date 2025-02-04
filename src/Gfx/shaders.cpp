@@ -1,5 +1,4 @@
 #include <fstream>
-#include <array>
 
 #include "VEngine/Gfx/Model.hpp"
 #include "VEngine/Gfx/Shaders.hpp"
@@ -116,7 +115,7 @@ void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
     configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
     configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
     configInfo.rasterizationInfo.lineWidth = 1.0F;
-    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE; // to enable later (VK_CULL_MODE_BACK_BIT) back-face culling
+    configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
     configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
     configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0F;
@@ -132,11 +131,11 @@ void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
     configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;
 
     configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
-    configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+    configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     configInfo.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
@@ -166,6 +165,6 @@ void ven::Shaders::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
-    configInfo.bindingDescriptions = Model::Vertex::getBindingDescriptions();
-    configInfo.attributeDescriptions = Model::Vertex::getAttributeDescriptions();
+    configInfo.bindingDescriptions = Vertex::getBindingDescriptions();
+    configInfo.attributeDescriptions = Vertex::getAttributeDescriptions();
 }

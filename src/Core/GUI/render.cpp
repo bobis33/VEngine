@@ -4,9 +4,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "VEngine/Core/Gui.hpp"
-#include "VEngine/Utils/Colors.hpp"
-#include "VEngine/Factories/Object.hpp"
 #include "VEngine/Factories/Light.hpp"
+#include "VEngine/Factories/Object.hpp"
+#include "VEngine/Utils/Colors.hpp"
 
 void ven::Gui::cleanup()
 {

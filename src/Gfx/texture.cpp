@@ -4,7 +4,7 @@
 
 #include "VEngine/Gfx/Texture.hpp"
 
-ven::Texture::Texture(Device &device, const std::string &textureFilepath) : m_device{device}
+ven::Texture::Texture(const Device &device, const std::string &textureFilepath) : m_device{device}
 {
     createTextureImage(textureFilepath);
     createTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
@@ -12,7 +12,7 @@ ven::Texture::Texture(Device &device, const std::string &textureFilepath) : m_de
     updateDescriptor();
 }
 
-ven::Texture::Texture(Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount)
+ven::Texture::Texture(const Device &device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount)
   : m_device{device}, m_format(format), m_extent(extent)
 {
     VkImageAspectFlags aspectMask = 0;
@@ -114,7 +114,7 @@ void ven::Texture::createTextureImage(const std::string &filepath)
     const auto imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
     if (pixels == nullptr) {
-        throw std::runtime_error("failed to load texture image!");
+        throw std::runtime_error("failed to load texture image! texture path: " + filepath);
     }
 
     // mMipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
@@ -180,7 +180,7 @@ void ven::Texture::createTextureImage(const std::string &filepath)
         m_mipLevels,
         m_layerCount);
 
-    // If we generate mip maps then the final image will alerady be READ_ONLY_OPTIMAL
+    // If we generate mip maps then the final image will already be READ_ONLY_OPTIMAL
     // mDevice.generateMipmaps(mTextureImage, mFormat, texWidth, texHeight, mMipLevels);
     m_textureLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 

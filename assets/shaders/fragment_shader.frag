@@ -30,8 +30,18 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
+  vec4 texColor = texture(diffuseMap, fragUv); // Couleur et alpha de la texture
+  vec3 color = texColor.rgb;
+  float alpha = texColor.a; // Canal alpha
+
+  // Si le pixel est transparent, on garde la transparence sans éclairage
+  if (alpha < 0.01) {
+    outColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent
+    return;
+  }
+
   vec3 specularLight = vec3(0.0);
-  vec3 surfaceNormal = normalize(gl_FrontFacing ? fragNormalWorld : -fragNormalWorld);
+  vec3 surfaceNormal = normalize(fragNormalWorld);
   vec3 diffuseLight = ubo.ambientLightColor.rgb * ubo.ambientLightColor.a;
 
   vec3 cameraPosWorld = ubo.invView[3].xyz;
@@ -58,6 +68,8 @@ void main() {
     }
   }
 
-  vec3 color = texture(diffuseMap, fragUv).xyz;
-  outColor = vec4(diffuseLight * color + specularLight, 1.0);
+  // Combine diffuse, specular, and texture color
+  vec3 finalColor = diffuseLight * color + specularLight;
+  outColor = vec4(finalColor, alpha); // Conserver la transparence d'origine
 }
+

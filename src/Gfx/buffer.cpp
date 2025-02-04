@@ -2,7 +2,7 @@
 
 #include "VEngine/Gfx/Buffer.hpp"
 
-ven::Buffer::Buffer(Device &device, const VkDeviceSize instanceSize, const uint32_t instanceCount, const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize minOffsetAlignment) : m_device{device}, m_instanceSize{instanceSize}, m_instanceCount{instanceCount}, m_alignmentSize(getAlignment(instanceSize, minOffsetAlignment)), m_usageFlags{usageFlags}, m_memoryPropertyFlags{memoryPropertyFlags}
+ven::Buffer::Buffer(const Device &device, const VkDeviceSize instanceSize, const uint32_t instanceCount, const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize minOffsetAlignment) : m_device{device}, m_instanceSize{instanceSize}, m_instanceCount{instanceCount}, m_alignmentSize(getAlignment(instanceSize, minOffsetAlignment)), m_usageFlags{usageFlags}, m_memoryPropertyFlags{memoryPropertyFlags}
 {
     m_bufferSize = m_alignmentSize * m_instanceCount;
     device.createBuffer(m_bufferSize, m_usageFlags, m_memoryPropertyFlags, m_buffer, m_memory);

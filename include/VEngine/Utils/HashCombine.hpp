@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <functional>
-
 namespace ven {
 
     template<typename T, typename... Rest>

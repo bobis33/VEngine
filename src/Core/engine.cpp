@@ -1,17 +1,15 @@
 #include "VEngine/Core/Engine.hpp"
 #include "VEngine/Core/EventManager.hpp"
-#include "VEngine/Core/RenderSystem/Object.hpp"
 #include "VEngine/Core/RenderSystem/PointLight.hpp"
 #include "VEngine/Gfx/Descriptors/Writer.hpp"
 #include "VEngine/Factories/Light.hpp"
 #include "VEngine/Factories/Object.hpp"
 #include "VEngine/Factories/Model.hpp"
-#include "VEngine/Utils/Clock.hpp"
 #include "VEngine/Utils/Colors.hpp"
 #include "VEngine/Utils/Logger.hpp"
 
 ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.window.width, config.window.height), m_camera(config.camera.fov, config.camera.near, config.camera.far, config.camera.move_speed, config.camera.look_speed) {
-    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device, m_renderer.getSwapChainRenderPass());
+    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device);
     m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
     m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
     const auto framePoolBuilder = DescriptorPool::Builder(m_device)
@@ -28,41 +26,16 @@ ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.win
 void ven::Engine::loadObjects()
 {
     constexpr std::array lightColors{Colors::RED_4, Colors::GREEN_4, Colors::BLUE_4, Colors::YELLOW_4, Colors::CYAN_4, Colors::MAGENTA_4};
-    const std::unordered_map<std::string, std::shared_ptr<Model>> modelCache = ModelFactory::loadAll(m_device, "assets/models/");
-    const std::shared_ptr<Texture> defaultTexture = m_sceneManager.getTextureDefault();
 
-    Logger::logExecutionTime("Creating object quad", [&] {
+    Logger::logExecutionTime("Creating object sponza", [&] {
         m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/quad.obj"),
-            "quad",
+            nullptr,
+            ModelFactory::get(m_device, "assets/models/sponza/sponza.obj"),
+            "sponza",
             {
-            .translation = {0.F, .5F, 0.F},
-            .scale = {3.F, 1.F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-
-    Logger::logExecutionTime("Creating object smooth vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/smooth_vase.obj"),
-            "smooth vase",
-            {
-            .translation = {.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
-        }));
-    });
-    Logger::logExecutionTime("Creating object flat vase", [&]{
-        m_sceneManager.addObject(ObjectFactory::create(
-            defaultTexture,
-            modelCache.at("assets/models/flat_vase.obj"),
-            "flat vase",
-            {
-            .translation = {-.5F, .5F, 0.F},
-            .scale = {3.F, 1.5F, 3.F},
-            .rotation = {0.F, 0.F, 0.F}
+            .translation = {0.F, 0.F, 0.F},
+            .scale = {1.0F, 1.0F, 1.0F},
+            .rotation = {0.F, 0.F, -3.14159265358979323846264338327950288419716939937510582F} // == -π, why ?
         }));
     });
     for (std::size_t i = 0; i < lightColors.size(); i++)
@@ -72,7 +45,7 @@ void ven::Engine::loadObjects()
                 glm::mat4(1.F),
                 static_cast<float>(i) * glm::two_pi<float>() / 6.0F, // 6 = num of lights
                 {0.F, -1.F, 0.F}
-);
+            );
             m_sceneManager.addLight(LightFactory::create({
                     .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
                     .scale = { 0.1F, 0.0F, 0.0F },
@@ -92,11 +65,9 @@ void ven::Engine::run()
     VkDescriptorBufferInfo bufferInfo{};
     float frameTime = 0.0F;
     unsigned long frameIndex = 0;
-    const std::unique_ptr globalSetLayout(DescriptorSetLayout::Builder(m_device).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build());
     std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
-    const ObjectRenderSystem objectRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-    const PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    const PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), m_globalSetLayout->getDescriptorSetLayout());
 
     for (auto& uboBuffer : uboBuffers)
     {
@@ -105,7 +76,7 @@ void ven::Engine::run()
     }
     for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
         bufferInfo = uboBuffers[i]->descriptorInfo();
-        DescriptorWriter(*globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
+        DescriptorWriter(*m_globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
     }
 
     while (m_state != EXIT)
@@ -123,9 +94,7 @@ void ven::Engine::run()
             m_framePools[frameIndex]->resetPool();
             FrameInfo frameInfo{
                 .frameIndex=frameIndex,
-                .frameTime=frameTime,
                 .commandBuffer=commandBuffer,
-                .camera=m_camera,
                 .globalDescriptorSet=globalDescriptorSets[frameIndex],
                 .frameDescriptorPool=*m_framePools[frameIndex],
                 .objects=m_sceneManager.getObjects(),
@@ -138,7 +107,7 @@ void ven::Engine::run()
             uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
             uboBuffers.at(frameIndex)->flush();
             m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
-            objectRenderSystem.render(frameInfo);
+            m_objectRenderSystem.render(frameInfo);
             pointLightRenderSystem.render(frameInfo);
 
             if (m_gui.getState() != HIDDEN) {
@@ -154,6 +123,7 @@ void ven::Engine::run()
 
             m_renderer.endSwapChainRenderPass(commandBuffer);
             m_renderer.endFrame();
+            m_window.resetWindowResizedFlag();
             commandBuffer = nullptr;
         }
         if (m_sceneManager.getDestroyState()) {

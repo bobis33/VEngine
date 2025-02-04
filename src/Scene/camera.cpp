@@ -1,6 +1,3 @@
-#include <cassert>
-#include <cmath>
-
 #include "VEngine/Scene/Camera.hpp"
 
 void ven::Camera::setOrthographicProjection(const float left, const float right, const float top, const float bottom, const float near, const float far)

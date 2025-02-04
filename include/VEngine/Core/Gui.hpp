@@ -8,9 +8,9 @@
 
 #include <imgui.h>
 
-#include "VEngine/Core/FrameInfo.hpp"
-#include "VEngine/Scene/Manager.hpp"
 #include "VEngine/Gfx/Renderer.hpp"
+#include "VEngine/Scene/Camera.hpp"
+#include "VEngine/Scene/Manager.hpp"
 
 namespace ven {
 
@@ -44,15 +44,15 @@ namespace ven {
             Gui(Gui&&) = delete;
             Gui& operator=(Gui&&) = delete;
 
-            void init(GLFWwindow* window, VkInstance instance, const Device* device, VkRenderPass renderPass);
+            void init(GLFWwindow* window, VkInstance instance, const Device* device);
 
             void render(Renderer *renderer, SceneManager& sceneManager, Camera& camera, VkPhysicalDevice physicalDevice, GlobalUbo& ubo, const ClockData& clockData);
             static void cleanup();
 
             void setState(const GUI_STATE state) { m_state = state; }
             [[nodiscard]] GUI_STATE getState() const { return m_state; }
-            [[nodiscard]] std::vector<unsigned int> *getObjectsToRemove() { return &m_objectsToRemove; }
-            [[nodiscard]] std::vector<unsigned int> *getLightsToRemove() { return &m_lightsToRemove; }
+            [[nodiscard]] std::vector<unsigned int> &getObjectsToRemove() { return m_objectsToRemove; }
+            [[nodiscard]] std::vector<unsigned int> &getLightsToRemove() { return m_lightsToRemove; }
 
         private:
 
@@ -68,7 +68,7 @@ namespace ven {
             struct funcs { static bool IsLegacyNativeDupe(const ImGuiKey key) { return key >= 0 && key < 512 && ImGui::GetIO().KeyMap[key] != -1; } }; // Hide Native<>ImGuiKey duplicates when both exist
 
             ImGuiIO* m_io{nullptr};
-            GUI_STATE m_state{HIDDEN};
+            GUI_STATE m_state{SHOW_EDITOR};
             float m_intensity{1.0F};
             float m_shininess{DEFAULT_SHININESS};
 

@@ -6,9 +6,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
-#include "VEngine/Gfx/Texture.hpp"
 #include "VEngine/Gfx/Model.hpp"
 #include "VEngine/Scene/Transform3D.hpp"
 
@@ -37,7 +34,7 @@ namespace ven {
             Object &operator=(Object &&) = default;
 
             [[nodiscard]] unsigned int getId() const { return m_objId; }
-            [[nodiscard]] std::string getName() const { return m_name; }
+            [[nodiscard]] const std::string& getName() const { return m_name; }
             [[nodiscard]] std::shared_ptr<Model> getModel() const { return m_model; }
             [[nodiscard]] std::shared_ptr<Texture> getDiffuseMap() const { return m_diffuseMap; }
             [[nodiscard]] VkDescriptorBufferInfo getBufferInfo(const int frameIndex) const { return m_bufferInfo.at(frameIndex); }
