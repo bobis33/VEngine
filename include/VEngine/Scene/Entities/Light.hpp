@@ -6,9 +6,6 @@
 
 #pragma once
 
-#include <string>
-#include <unordered_map>
-
 #include "VEngine/Scene/Transform3D.hpp"
 
 namespace ven {
@@ -41,7 +38,7 @@ namespace ven {
             Light& operator=(Light&&) = default;
 
             [[nodiscard]] unsigned int getId() const { return m_lightId; }
-            [[nodiscard]] std::string getName() const { return m_name; }
+            [[nodiscard]] const std::string& getName() const { return m_name; }
             [[nodiscard]] float getShininess() const { return m_shininess; }
 
             void setName(const std::string &name) { m_name = name; }

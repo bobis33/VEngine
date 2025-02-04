@@ -29,11 +29,11 @@ void DestroyDebugUtilsMessengerEXT(const VkInstance instance, const VkDebugUtils
     }
 }
 
-ven::Device::Device(Window &window) : m_window{window}
+ven::Device::Device(const Window& window) : m_window{window}
 {
     createInstance();
     setupDebugMessenger();
-    createSurface();
+    m_window.createWindowSurface(m_instance, &m_surface);
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
@@ -43,11 +43,9 @@ ven::Device::~Device()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
     vkDestroyDevice(m_device, nullptr);
-
     if (enableValidationLayers) {
         DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
     }
-
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     vkDestroyInstance(m_instance, nullptr);
 }
@@ -254,13 +252,10 @@ std::vector<const char *> ven::Device::getRequiredExtensions() const
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions = nullptr;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
+    std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
     if (enableValidationLayers) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-
     return extensions;
 }
 

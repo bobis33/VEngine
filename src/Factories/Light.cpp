@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "VEngine/Factories/Light.hpp"
 
 unsigned int ven::LightFactory::m_currentLightId = 0;

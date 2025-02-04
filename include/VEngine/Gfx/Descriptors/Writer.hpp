@@ -30,6 +30,7 @@ namespace ven {
 
             DescriptorWriter &writeBuffer(uint32_t binding, const VkDescriptorBufferInfo *bufferInfo);
             DescriptorWriter &writeImage(uint32_t binding, const VkDescriptorImageInfo *imageInfo);
+            DescriptorWriter &writeImages(uint32_t binding, const std::vector<VkDescriptorImageInfo> &imageInfos);
 
             bool build(VkDescriptorSet &set);
             void overwrite(const VkDescriptorSet &set);

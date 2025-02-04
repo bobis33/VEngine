@@ -2,7 +2,7 @@
 
 void ven::Clock::update()
 {
-    auto newTime = std::chrono::high_resolution_clock::now();
+    const auto newTime = std::chrono::high_resolution_clock::now();
     m_deltaTime = newTime - m_startTime;
     m_startTime = newTime;
 }

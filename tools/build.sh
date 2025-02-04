@@ -4,7 +4,7 @@ CMAKE_CMD=(cmake -S . -Bbuild -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release)
 
 case $1 in
     build)
-        "${CMAKE_CMD[@]}" && cmake --build build
+        "${CMAKE_CMD[@]}" && cmake --build build --parallel 4
         ;;
     format)
         "${CMAKE_CMD[@]}" -DUSE_CLANG_TIDY=ON && cmake --build build --target clangformat

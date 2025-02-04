@@ -3,7 +3,7 @@
 
 #include "VEngine/Core/Gui.hpp"
 
-void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device* device, const VkRenderPass renderPass)
+void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device* device)
 {
     VkDescriptorPool pool = nullptr;
     ImGui_ImplVulkan_InitInfo init_info{};
@@ -47,7 +47,7 @@ void ven::Gui::init(GLFWwindow* window, const VkInstance instance, const Device*
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
-    ImGui_ImplVulkan_Init(&init_info, renderPass);
+    ImGui_ImplVulkan_Init(&init_info);
     initStyle();
 }
 

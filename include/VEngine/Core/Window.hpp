@@ -10,7 +10,6 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
 
 namespace ven {
 
@@ -36,7 +35,7 @@ namespace ven {
             Window& operator=(Window&&) = delete;
 
             [[nodiscard]] GLFWwindow* createWindow(uint32_t width, uint32_t height, const std::string &title);
-            void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) const;
+            void createWindowSurface(const VkInstance& instance, VkSurfaceKHR* surface) const;
 
             [[nodiscard]] GLFWwindow* getGLFWindow() const { return m_window; }
 
@@ -44,7 +43,7 @@ namespace ven {
             [[nodiscard]] bool wasWindowResized() const { return m_framebufferResized; }
             void resetWindowResizedFlag() { m_framebufferResized = false; }
 
-            void setFullscreen(bool fullscreen, uint32_t width, uint32_t height);
+            void setFullscreen(bool fullscreen, uint32_t width, uint32_t height) const;
             void setWindowIcon(const std::string& path);
 
         private:

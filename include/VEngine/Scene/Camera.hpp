@@ -10,8 +10,8 @@
 
 namespace ven {
 
-    static constexpr glm::vec3 DEFAULT_POSITION{0.F, 0.F, -2.5F};
-    static constexpr glm::vec3 DEFAULT_ROTATION{0.F, 0.F, 0.F};
+    static constexpr glm::vec3 DEFAULT_POSITION{-10.F, -1.F, -0.3F};
+    static constexpr glm::vec3 DEFAULT_ROTATION{0.F, 1.57F, 0.F};
 
     static constexpr float DEFAULT_FOV = glm::radians(50.0F);
     static constexpr float DEFAULT_NEAR = 0.1F;

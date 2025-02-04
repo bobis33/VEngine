@@ -21,7 +21,7 @@ namespace ven {
 
         public:
 
-            explicit ARenderSystemBase(Device& device) : m_device{device} {}
+            explicit ARenderSystemBase(const Device& device) : m_device{device} {}
             virtual ~ARenderSystemBase() { vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr); }
 
             ARenderSystemBase(const ARenderSystemBase&) = delete;
@@ -36,18 +36,17 @@ namespace ven {
             void createPipelineLayout(VkDescriptorSetLayout globalSetLayout, uint32_t pushConstantSize);
             void createPipeline(VkRenderPass renderPass, const std::string &shadersVertPath, const std::string &shadersFragPath, bool isLight);
 
-            [[nodiscard]] Device& getDevice() const { return m_device; }
-            [[nodiscard]] VkPipelineLayout getPipelineLayout() const { return m_pipelineLayout; }
+            [[nodiscard]] const Device& getDevice() const { return m_device; }
+            [[nodiscard]] const VkPipelineLayout& getPipelineLayout() const { return m_pipelineLayout; }
             [[nodiscard]] const std::unique_ptr<Shaders>& getShaders() const { return m_shaders; }
 
             std::unique_ptr<DescriptorSetLayout> renderSystemLayout;
 
         private:
 
-            Device &m_device;
+            const Device &m_device;
             VkPipelineLayout m_pipelineLayout{nullptr};
             std::unique_ptr<Shaders> m_shaders;
-
 
     }; // class ARenderSystemBase
 

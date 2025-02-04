@@ -41,7 +41,7 @@ namespace ven {
 
         public:
 
-            Shaders(Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo) : m_device{device} { createGraphicsPipeline(vertFilepath, fragFilepath, configInfo); };
+            Shaders(const Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo) : m_device{device} { createGraphicsPipeline(vertFilepath, fragFilepath, configInfo); };
             ~Shaders();
 
             Shaders(const Shaders&) = delete;
@@ -58,7 +58,7 @@ namespace ven {
             void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
             void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) const;
 
-            Device& m_device;
+            const Device& m_device;
             VkPipeline m_graphicsPipeline{nullptr};
             VkShaderModule m_vertShaderModule{nullptr};
             VkShaderModule m_fragShaderModule{nullptr};

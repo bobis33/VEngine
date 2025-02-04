@@ -75,7 +75,6 @@ void ven::Renderer::endFrame()
         throw std::runtime_error("Failed to record command buffer");
     }
     if (const VkResult result = m_swapChain->submitCommandBuffers(&commandBuffer, &m_currentImageIndex); result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
-        m_window.resetWindowResizedFlag();
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS) {

@@ -21,7 +21,7 @@ namespace ven {
 
         public:
 
-            Buffer(Device& device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
+            Buffer(const Device& device, VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
             ~Buffer();
 
             Buffer(const Buffer&) = delete;
@@ -148,7 +148,7 @@ namespace ven {
             ///
             static VkDeviceSize getAlignment(const VkDeviceSize instanceSize, const VkDeviceSize minOffsetAlignment) { return (minOffsetAlignment > 0) ? (instanceSize + minOffsetAlignment - 1) & ~(minOffsetAlignment - 1) : instanceSize; }
 
-            Device& m_device;
+            const Device& m_device;
             void* m_mapped = nullptr;
             VkBuffer m_buffer = VK_NULL_HANDLE;
             VkDeviceMemory m_memory = VK_NULL_HANDLE;

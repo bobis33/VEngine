@@ -40,6 +40,24 @@ ven::DescriptorWriter &ven::DescriptorWriter::writeImage(const uint32_t binding,
     return *this;
 }
 
+ven::DescriptorWriter &ven::DescriptorWriter::writeImages(const uint32_t binding, const std::vector<VkDescriptorImageInfo> &imageInfos) {
+    assert(m_setLayout.m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
+
+    const VkDescriptorSetLayoutBinding &bindingDescription = m_setLayout.m_bindings.at(binding);
+
+    assert(bindingDescription.descriptorCount == imageInfos.size() && "Binding multiple descriptor info, but binding expects single");
+
+    VkWriteDescriptorSet write{};
+    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.descriptorType = bindingDescription.descriptorType;
+    write.dstBinding = binding;
+    write.pImageInfo = imageInfos.data();
+    write.descriptorCount = static_cast<uint32_t>(imageInfos.size());
+
+    m_writes.push_back(write);
+    return *this;
+}
+
 bool ven::DescriptorWriter::build(VkDescriptorSet &set)
 {
     if (!m_pool.allocateDescriptor(m_setLayout.getDescriptorSetLayout(), set)) {

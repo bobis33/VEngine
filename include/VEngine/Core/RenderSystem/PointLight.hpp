@@ -25,7 +25,7 @@ namespace ven {
 
         public:
 
-            explicit PointLightRenderSystem(Device& device, const VkRenderPass renderPass, const VkDescriptorSetLayout globalSetLayout) : ARenderSystemBase(device) {
+            explicit PointLightRenderSystem(const Device& device, const VkRenderPass renderPass, const VkDescriptorSetLayout globalSetLayout) : ARenderSystemBase(device) {
                 createPipelineLayout(globalSetLayout, sizeof(LightPushConstantData));
                 createPipeline(renderPass, std::string(SHADERS_BIN_PATH) + "vertex_point_light.spv", std::string(SHADERS_BIN_PATH) + "fragment_point_light.spv", true);
             }
