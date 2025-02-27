@@ -1,6 +1,8 @@
 file(MAKE_DIRECTORY ${SHADER_BIN_DIR})
 
-file(GLOB SHADERS ${SHADER_SRC_DIR}/*.vert ${SHADER_SRC_DIR}/*.frag)
+file(GLOB SHADERS ${SHADER_SRC_DIR}/*.vert ${SHADER_SRC_DIR}/*.frag ${SHADER_SRC_DIR}/*.comp)
+
+add_compile_definitions(SHADER_PATH="${SHADER_BIN_DIR}/")
 
 foreach(SHADER ${SHADERS})
     get_filename_component(FILE_NAME ${SHADER} NAME_WE)

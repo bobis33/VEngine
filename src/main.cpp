@@ -1,21 +1,10 @@
 #include "VEngine/Core/Engine.hpp"
-#include "VEngine/Utils/Parser.hpp"
-#include "VEngine/Utils/Logger.hpp"
 
-using namespace ven;
-
-int main(const int argc, char *argv[], char *envp[])
-{
+int main() {
     try {
-        Logger::getInstance();
-        Engine(Parser(argc, argv, envp).getConfig()).run();
-    } catch (const ParserException &e) {
-        return EXIT_SUCCESS;
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << '\n';
-        return EXIT_FAILURE;
-    } catch (...) {
-        std::cerr << "Unknown error\n";
+        ven::Engine().run();
+    } catch (const std::exception& e) {
+        utl::printError(e.what());
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

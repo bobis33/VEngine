@@ -6,31 +6,11 @@
 
 #pragma once
 
-#include "VEngine/Core/Device.hpp"
+#include <vulkan/vulkan_core.h>
 
 namespace ven {
 
     static constexpr std::string_view SHADERS_BIN_PATH = "build/shaders/";
-
-    struct PipelineConfigInfo {
-        PipelineConfigInfo() = default;
-        PipelineConfigInfo(const PipelineConfigInfo&) = delete;
-        PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
-
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
-        VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
-        VkPipelineMultisampleStateCreateInfo multisampleInfo{};
-        VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-        VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
-        VkPipelineDepthStencilStateCreateInfo depthStencilInfo{};
-        std::vector<VkDynamicState> dynamicStateEnables;
-        VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
-        VkPipelineLayout pipelineLayout = nullptr;
-        VkRenderPass renderPass = nullptr;
-        uint32_t subpass = 0;
-    };
 
     ///
     /// @class Shaders
@@ -41,27 +21,31 @@ namespace ven {
 
         public:
 
-            Shaders(const Device &device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo) : m_device{device} { createGraphicsPipeline(vertFilepath, fragFilepath, configInfo); };
-            ~Shaders();
+            explicit Shaders(const VkDevice& device) : m_device{device} { }
+            ~Shaders() { vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr); vkDestroyPipeline(m_device, m_Pipeline, nullptr); }
 
             Shaders(const Shaders&) = delete;
             Shaders& operator=(const Shaders&) = delete;
             Shaders(Shaders&&) = delete;
             Shaders& operator=(Shaders&&) = delete;
 
-            static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
-            void bind(const VkCommandBuffer commandBuffer) const { vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline); }
+            void createPipeline(const VkSampleCountFlagBits& msaaSample, const VkDescriptorSetLayout& descriptorSetLayout, const VkRenderPass& renderPass);
+            //void createImguiPipeline(const VkRenderPass& renderPass);
+
+            [[nodiscard]] const VkPipelineLayout& getPipelineLayout() const { return m_pipelineLayout; }
+            //[[nodiscard]] const VkPipelineLayout& getImguiPipelineLayout() const { return m_imguiPipelineLayout; }
+            [[nodiscard]] const VkPipeline& getPipeline() const { return m_Pipeline; }
+            //[[nodiscard]] const VkPipeline& getImguiPipeline() const { return m_imguiPipeline; }
 
         private:
 
-            static std::vector<char> readFile(const std::string &filename);
-            void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
-            void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) const;
+            void createShaderModule(const std::vector<char>& code, VkShaderModule& shaderModule) const;
 
-            const Device& m_device;
-            VkPipeline m_graphicsPipeline{nullptr};
-            VkShaderModule m_vertShaderModule{nullptr};
-            VkShaderModule m_fragShaderModule{nullptr};
+            const VkDevice& m_device;
+            VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
+            //VkPipelineLayout m_imguiPipelineLayout = VK_NULL_HANDLE;
+            VkPipeline m_Pipeline = VK_NULL_HANDLE;
+            // VkPipeline m_imguiPipeline = VK_NULL_HANDLE;
 
     }; // class Shaders
 
