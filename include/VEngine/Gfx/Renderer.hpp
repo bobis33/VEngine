@@ -6,14 +6,19 @@
 
 #pragma once
 
-#include <cassert>
-
-#include "VEngine/Gfx/SwapChain.hpp"
+#include "VEngine/Gfx/Resources/Model.hpp"
+#include "VEngine/Gfx/Shaders.hpp"
+#include "VEngine/Gui/Gui.hpp"
 
 namespace ven {
 
-    static constexpr VkClearColorValue DEFAULT_CLEAR_COLOR = {{0.0F, 0.0F, 0.0F, 1.0F}};
-    static constexpr VkClearDepthStencilValue DEFAULT_CLEAR_DEPTH = {1.0F, 0};
+    static constexpr uint8_t OFFSET = 16;
+    struct UniformBufferObject {
+        alignas(OFFSET) glm::mat4 model;
+        alignas(OFFSET) glm::mat4 view;
+        alignas(OFFSET) glm::mat4 proj;
+        alignas(OFFSET) glm::vec3 ambientColor;
+    };
 
     ///
     /// @class Renderer
@@ -24,49 +29,40 @@ namespace ven {
 
         public:
 
-            Renderer(const Window &window, const Device &device) : m_window{window}, m_device{device} { recreateSwapChain(); createCommandBuffers(); }
-            ~Renderer() { freeCommandBuffers(); }
+            static constexpr VkDeviceSize UNIFORM_BUFFER_SIZE{sizeof(UniformBufferObject)};
+
+            explicit Renderer(const Device &device, Window& window, std::vector<Model>& models) : m_device(device), m_window(window),
+                                                                      m_swapChain(m_device, window.getExtent()), m_shadersModule(m_device.getVkDevice()),
+                                                                      m_gui(m_device, m_camera, window.getGLFWWindow(), m_swapChain.getRenderPass(), models, m_clearValues, m_ambientColor) {  }
+
+            ~Renderer();
 
             Renderer(const Renderer &) = delete;
             Renderer& operator=(const Renderer &) = delete;
             Renderer(Renderer &&) = delete;
             Renderer& operator=(Renderer &&) = delete;
 
-            [[nodiscard]] VkRenderPass getSwapChainRenderPass() const { return m_swapChain->getRenderPass(); }
-            [[nodiscard]] float getAspectRatio() const { return m_swapChain->extentAspectRatio(); }
-            [[nodiscard]] bool isFrameInProgress() const { return m_isFrameStarted; }
-            [[nodiscard]] const VkCommandBuffer& getCurrentCommandBuffer() const { assert(isFrameInProgress() && "cannot get command m_buffer when frame not in progress"); return m_commandBuffers[static_cast<unsigned long>(m_currentFrameIndex)]; }
-            [[nodiscard]] const Window& getWindow() const { return m_window; }
-            [[nodiscard]] unsigned long getFrameIndex() const { assert(isFrameInProgress() && "cannot get frame index when frame not in progress"); return m_currentFrameIndex; }
-            [[nodiscard]] std::array<float, 4> getClearColor() const { return {
-                m_clearValues[0].color.float32[0],
-                m_clearValues[0].color.float32[1],
-                m_clearValues[0].color.float32[2],
-                m_clearValues[0].color.float32[3]
-            };}
+            void createCommandBuffers(std::vector<VkCommandBuffer>& commandBuffers) const;
+            void recreateSwapChain();
+            void updateUniformBuffer(void* uniformBufferMapped, std::vector<Model>& models) const;
+            void recordCommandBuffer(uint32_t imageIndex, uint32_t indiceSize, const VkDescriptorSet* descriptorSet, const VkCommandBuffer& commandBuffer, const VkBuffer& indexBuffer, const VkBuffer& vertexBuffer);
 
-
-            void setClearValue(const VkClearColorValue clearColorValue = DEFAULT_CLEAR_COLOR, const VkClearDepthStencilValue clearDepthValue = DEFAULT_CLEAR_DEPTH) { m_clearValues[0].color = clearColorValue; m_clearValues[1].depthStencil = clearDepthValue; }
-            VkCommandBuffer beginFrame();
-            void endFrame();
-            void beginSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
-            void endSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
+            [[nodiscard]] const SwapChain& getSwapChain() const { return m_swapChain; }
+            [[nodiscard]] Camera& getCamera() { return m_camera; }
+            [[nodiscard]] Shaders& getShadersModule() { return m_shadersModule; }
 
         private:
 
-            void createCommandBuffers();
-            void freeCommandBuffers();
-            void recreateSwapChain();
-
-            const Window &m_window;
-            const Device &m_device;
-            std::unique_ptr<SwapChain> m_swapChain;
-            std::vector<VkCommandBuffer> m_commandBuffers;
-            std::array<VkClearValue, 2> m_clearValues{DEFAULT_CLEAR_COLOR, 1.0F, 0.F};
-
-            uint32_t m_currentImageIndex{0};
-            unsigned long m_currentFrameIndex{0};
-            bool m_isFrameStarted{false};
+            std::array<VkClearValue, 2> m_clearValues{
+                VkClearValue{ .color = {0.0F, 0.0F, 0.0F, 1.0F}},
+                VkClearValue{.depthStencil = {1.0F, 0}}};
+            glm::vec3 m_ambientColor{1.0F, 1.0F, 1.0F};
+            const Device& m_device;
+            Window& m_window;
+            SwapChain m_swapChain;
+            Shaders m_shadersModule;
+            Camera m_camera;
+            Gui m_gui;
 
     }; // class Renderer
 

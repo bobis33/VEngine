@@ -6,16 +6,10 @@
 
 #pragma once
 
-#include <string>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+struct GLFWwindow;
 
 namespace ven {
-
-    static constexpr std::string_view DEFAULT_TITLE = "VEngine";
-    static constexpr uint32_t DEFAULT_WIDTH = 1920;
-    static constexpr uint32_t DEFAULT_HEIGHT = 1080;
 
     ///
     /// @class Window
@@ -26,35 +20,39 @@ namespace ven {
 
         public:
 
-            explicit Window(const uint32_t width = DEFAULT_WIDTH, const uint32_t height = DEFAULT_HEIGHT) : m_window(createWindow(width, height, DEFAULT_TITLE.data())), m_width(width), m_height(height) { setWindowIcon("assets/icons/icon64x64.png"); }
-            ~Window() { glfwDestroyWindow(m_window); glfwTerminate(); m_window = nullptr; }
+            static constexpr uint16_t DEFAULT_WIDTH = 1920;
+            static constexpr uint16_t DEFAULT_HEIGHT = 1080;
+
+            explicit Window(const uint16_t width = DEFAULT_WIDTH, const uint16_t height = DEFAULT_HEIGHT) : m_window(createWindow(width, height, "VEngine")) { setWindowIcon("assets/icons/icon64x64.png"); }
+            ~Window();
 
             Window(const Window&) = delete;
             Window& operator=(const Window&) = delete;
             Window(Window&&) = delete;
             Window& operator=(Window&&) = delete;
 
-            [[nodiscard]] GLFWwindow* createWindow(uint32_t width, uint32_t height, const std::string &title);
             void createWindowSurface(const VkInstance& instance, VkSurfaceKHR* surface) const;
+            static void setFullscreen(bool fullscreen, uint16_t width, uint16_t height);
+            [[nodiscard]] bool wasWindowResized() const { return m_frameBufferResized; }
+            void resetWindowResizedFlag() { m_frameBufferResized = false; }
+            [[nodiscard]] bool shouldClose() const;
+            [[nodiscard]] bool isKeyPressed(int key) const;
+            static void pollEvents();
+            static void waitEvents();
 
-            [[nodiscard]] GLFWwindow* getGLFWindow() const { return m_window; }
-
-            [[nodiscard]] VkExtent2D getExtent() const { return {m_width, m_height}; }
-            [[nodiscard]] bool wasWindowResized() const { return m_framebufferResized; }
-            void resetWindowResizedFlag() { m_framebufferResized = false; }
-
-            void setFullscreen(bool fullscreen, uint32_t width, uint32_t height) const;
-            void setWindowIcon(const std::string& path);
+            [[nodiscard]] VkExtent2D getExtent() const;
+            [[nodiscard]] GLFWwindow* getGLFWWindow() const { return m_window; }
+            void getFrameBufferSize(int& width, int& height) const;
+            [[nodiscard]] static const char **getRequiredInstanceExtensions(uint32_t *count);
 
         private:
 
-            static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+            [[nodiscard]] GLFWwindow* createWindow(uint16_t width, uint16_t height, const std::string& title);
+            void setWindowIcon(const std::string& path) const;
+            static void frameBufferResizeCallback(GLFWwindow* window, int width, int height);
 
-            GLFWwindow* m_window{nullptr};
-            uint32_t m_width{0};
-            uint32_t m_height{0};
-
-            bool m_framebufferResized = false;
+            GLFWwindow* m_window = nullptr;
+            bool m_frameBufferResized = false;
 
     }; // class Window
 

@@ -1,46 +1,46 @@
-#include <stdexcept>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
+#include "Utils/Image.hpp"
+#include "Utils/ErrorHandling.hpp"
 #include "VEngine/Core/Window.hpp"
 
-GLFWwindow* ven::Window::createWindow(const uint32_t width, const uint32_t height, const std::string &title)
-{
-    if (glfwInit() == GLFW_FALSE) {
-        throw std::runtime_error("Failed to initialize GLFW");
-    }
+ven::Window::~Window() {
+    glfwTerminate();
+}
 
+GLFWwindow* ven::Window::createWindow(const uint16_t width, const uint16_t height, const std::string& title) {
+    if (glfwInit() == GLFW_FALSE) {
+        throw utl::THROW_ERROR("Failed to initialize GLFW");
+    }
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-    GLFWwindow *window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title.c_str(), nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (window == nullptr) {
         glfwTerminate();
-        throw std::runtime_error("Failed to create window");
+        throw utl::THROW_ERROR("Failed to create window");
     }
     glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(window, frameBufferResizeCallback);
     return window;
 }
 
-void ven::Window::createWindowSurface(const VkInstance& instance, VkSurfaceKHR *surface) const
-{
+void ven::Window::createWindowSurface(const VkInstance& instance, VkSurfaceKHR* surface) const {
     if (glfwCreateWindowSurface(instance, m_window, nullptr, surface) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create window surface");
+        throw utl::THROW_ERROR("Failed to create window surface");
     }
 }
 
-void ven::Window::framebufferResizeCallback(GLFWwindow *window, const int width, const int height)
-{
-    auto *app = static_cast<Window *>(glfwGetWindowUserPointer(window));
-    app->m_framebufferResized = true;
-    app->m_width = static_cast<uint32_t>(width);
-    app->m_height = static_cast<uint32_t>(height);
+void ven::Window::setWindowIcon(const std::string& path) const {
+    static const utl::Image image(path);
+    if (image.pixels == nullptr) {
+        throw utl::THROW_ERROR("Failed to load window icon");
+    }
+    static const GLFWimage appIcon{ .width = image.width, .height = image.height, .pixels = image.pixels };
+    glfwSetWindowIcon(m_window, 1, &appIcon);
 }
 
-void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, const uint32_t height) const
-{
+void ven::Window::setFullscreen(const bool fullscreen, const uint16_t width, const uint16_t height) {
     GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
 
@@ -59,19 +59,16 @@ void ven::Window::setFullscreen(const bool fullscreen, const uint32_t width, con
     */
 }
 
-void ven::Window::setWindowIcon(const std::string &path)
-{
-    int width, height, channels;
-
-    if (unsigned char *pixels = stbi_load(path.c_str(), &width, &height, &channels, 4)) {
-        GLFWimage icon;
-        icon.width = width;
-        icon.height = height;
-        icon.pixels = pixels;
-
-        glfwSetWindowIcon(m_window, 1, &icon);
-        stbi_image_free(pixels);
-    } else {
-        throw std::runtime_error("Failed to load window icon with path: " + path);
-    }
+void ven::Window::pollEvents() { glfwPollEvents(); }
+void ven::Window::waitEvents() { glfwWaitEvents(); }
+void ven::Window::getFrameBufferSize(int& width, int& height) const { glfwGetFramebufferSize(m_window, &width, &height); }
+bool ven::Window::shouldClose() const { return glfwWindowShouldClose(m_window) != 0; }
+bool ven::Window::isKeyPressed(const int key) const { return glfwGetKey(m_window, key) == GLFW_PRESS; }
+const char **ven::Window::getRequiredInstanceExtensions(uint32_t *count) { return glfwGetRequiredInstanceExtensions(count); }
+void ven::Window::frameBufferResizeCallback(GLFWwindow* window, int width, int height) { static_cast<Window *>(glfwGetWindowUserPointer(window))->m_frameBufferResized = true; }
+VkExtent2D ven::Window::getExtent() const {
+    int width = 0;
+    int height = 0;
+    glfwGetFramebufferSize(m_window, &width, &height);
+    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 }
