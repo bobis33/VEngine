@@ -1,135 +1,102 @@
+#include "Utils/Logger.hpp"
 #include "VEngine/Core/Engine.hpp"
-#include "VEngine/Core/EventManager.hpp"
-#include "VEngine/Core/RenderSystem/PointLight.hpp"
-#include "VEngine/Gfx/Descriptors/Writer.hpp"
-#include "VEngine/Factories/Light.hpp"
-#include "VEngine/Factories/Object.hpp"
-#include "VEngine/Factories/Model.hpp"
-#include "VEngine/Utils/Colors.hpp"
-#include "VEngine/Utils/Logger.hpp"
 
-ven::Engine::Engine(const Config& config) : m_state(EDITOR), m_window(config.window.width, config.window.height), m_camera(config.camera.fov, config.camera.near, config.camera.far, config.camera.move_speed, config.camera.look_speed) {
-    m_gui.init(m_window.getGLFWindow(), m_device.getInstance(), &m_device);
-    m_globalPool = DescriptorPool::Builder(m_device).setMaxSets(MAX_FRAMES_IN_FLIGHT).addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT).build();
-    m_framePools.resize(MAX_FRAMES_IN_FLIGHT);
-    const auto framePoolBuilder = DescriptorPool::Builder(m_device)
-                                .setMaxSets(1000)
-                                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
-                                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
-                                .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
-    for (auto & framePool : m_framePools) {
-        framePool = framePoolBuilder.build();
-    }
-    loadObjects();
+void ven::Engine::init() {
+    m_descriptorSetLayout.create(TextureManager::getTextureSize());
+    m_renderer.getShadersModule().createPipeline(m_device.getMsaaSamples(), m_descriptorSetLayout.getDescriptorSetLayout(), m_renderer.getSwapChain().getRenderPass());
+    createUniformBuffers();
+    m_descriptorSets.create(Renderer::UNIFORM_BUFFER_SIZE);
+    m_renderer.createCommandBuffers(m_commandBuffers);
 }
 
-void ven::Engine::loadObjects()
-{
-    constexpr std::array lightColors{Colors::RED_4, Colors::GREEN_4, Colors::BLUE_4, Colors::YELLOW_4, Colors::CYAN_4, Colors::MAGENTA_4};
-
-    Logger::logExecutionTime("Creating object sponza", [&] {
-        m_sceneManager.addObject(ObjectFactory::create(
-            nullptr,
-            ModelFactory::get(m_device, "assets/models/sponza/sponza.obj"),
-            "sponza",
-            {
-            .translation = {0.F, 0.F, 0.F},
-            .scale = {1.0F, 1.0F, 1.0F},
-            .rotation = {0.F, 0.F, -3.14159265358979323846264338327950288419716939937510582F} // == -π, why ?
-        }));
-    });
-    for (std::size_t i = 0; i < lightColors.size(); i++)
-    {
-        Logger::logExecutionTime("Creating light n" + std::to_string(i), [&] {
-            const glm::mat4 rotateLight = rotate(
-                glm::mat4(1.F),
-                static_cast<float>(i) * glm::two_pi<float>() / 6.0F, // 6 = num of lights
-                {0.F, -1.F, 0.F}
-            );
-            m_sceneManager.addLight(LightFactory::create({
-                    .translation = glm::vec3(rotateLight * glm::vec4(-1.F, -1.F, -1.F, 1.F)),
-                    .scale = { 0.1F, 0.0F, 0.0F },
-                    .rotation = { 0.F, 0.F, 0.F }},
-                lightColors.at(i)
-                ));
-        });
-    }
-}
-
-void ven::Engine::run()
-{
-    Clock clock;
-    const EventManager eventManager{};
-    GlobalUbo ubo{};
-    VkCommandBuffer_T *commandBuffer = nullptr;
-    VkDescriptorBufferInfo bufferInfo{};
-    float frameTime = 0.0F;
-    unsigned long frameIndex = 0;
-    std::vector<std::unique_ptr<Buffer>> uboBuffers(MAX_FRAMES_IN_FLIGHT);
-    std::vector<VkDescriptorSet> globalDescriptorSets(MAX_FRAMES_IN_FLIGHT);
-    const PointLightRenderSystem pointLightRenderSystem(m_device, m_renderer.getSwapChainRenderPass(), m_globalSetLayout->getDescriptorSetLayout());
-
-    for (auto& uboBuffer : uboBuffers)
-    {
-        uboBuffer = std::make_unique<Buffer>(m_device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-        uboBuffer->map();
-    }
-    for (std::size_t i = 0; i < globalDescriptorSets.size(); i++) {
-        bufferInfo = uboBuffers[i]->descriptorInfo();
-        DescriptorWriter(*m_globalSetLayout, *m_globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
-    }
-
-    while (m_state != EXIT)
-    {
-        clock.update();
-        frameTime = clock.getDeltaTime();
-        eventManager.handleEvents(m_window.getGLFWindow(), &m_state, m_camera, m_gui, frameTime);
-        commandBuffer = m_renderer.beginFrame();
-
-        m_camera.setViewXYZ(m_camera.transform.translation, m_camera.transform.rotation);
-        m_camera.setPerspectiveProjection(m_renderer.getAspectRatio());
-
-        if (commandBuffer != nullptr) {
-            frameIndex = m_renderer.getFrameIndex();
-            m_framePools[frameIndex]->resetPool();
-            FrameInfo frameInfo{
-                .frameIndex=frameIndex,
-                .commandBuffer=commandBuffer,
-                .globalDescriptorSet=globalDescriptorSets[frameIndex],
-                .frameDescriptorPool=*m_framePools[frameIndex],
-                .objects=m_sceneManager.getObjects(),
-                .lights=m_sceneManager.getLights()
-            };
-            ubo.projection=m_camera.getProjection();
-            ubo.view=m_camera.getView();
-            ubo.inverseView=m_camera.getInverseView();
-            m_sceneManager.updateBuffer(ubo, frameIndex, frameTime);
-            uboBuffers.at(frameIndex)->writeToBuffer(&ubo);
-            uboBuffers.at(frameIndex)->flush();
-            m_renderer.beginSwapChainRenderPass(frameInfo.commandBuffer);
-            m_objectRenderSystem.render(frameInfo);
-            pointLightRenderSystem.render(frameInfo);
-
-            if (m_gui.getState() != HIDDEN) {
-                m_gui.render(
-                    &m_renderer,
-                    m_sceneManager,
-                    m_camera,
-                    m_device.getPhysicalDevice(),
-                    ubo,
-                    { .deltaTimeMS=clock.getDeltaTimeMS(), .fps=clock.getFPS() }
-                    );
+void ven::Engine::loadAssets() {
+    std::vector<std::string> modelPaths = {"assets/models/sponza/sponza.obj", "assets/models/book.obj", "assets/models/viking_room.obj"};
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+    uint32_t vertexOffset = 0;
+    TextureManager::loadTextures(m_device, m_renderer.getSwapChain(), "assets/textures");
+    for (const auto& path : modelPaths) {
+        utl::Logger::logExecutionTime("Loading model: " + path, [&] { m_models.emplace_back(m_device, m_renderer.getSwapChain(), path); });
+        for (Model& model = m_models.back(); const auto& mesh : model.getMeshes()) {
+            for (const auto& vertex : mesh->getVertices()) {
+                vertices.push_back(vertex);
             }
-
-            m_renderer.endSwapChainRenderPass(commandBuffer);
-            m_renderer.endFrame();
-            m_window.resetWindowResizedFlag();
-            commandBuffer = nullptr;
-        }
-        if (m_sceneManager.getDestroyState()) {
-            vkDeviceWaitIdle(m_device.device());
-            m_sceneManager.destroyEntity(m_gui.getObjectsToRemove(), m_gui.getLightsToRemove());
+            for (const auto& index : mesh->getIndices()) {
+                indices.push_back(index + vertexOffset);
+            }
+            vertexOffset += static_cast<uint32_t>(mesh->getVertices().size());
         }
     }
-    vkDeviceWaitIdle(m_device.device());
+    utl::Logger::logInfo("Textures loaded: " + std::to_string(TextureManager::getTextureSize()));
+    m_indicesSize = static_cast<uint32_t>(indices.size());
+    Model::createBuffer(m_device, vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_vertexBuffer, m_vertexBufferMemory);
+    Model::createBuffer(m_device, indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_indexBuffer, m_indexBufferMemory);
+}
+
+void ven::Engine::run() {
+    while (!m_window.shouldClose()) {
+        m_eventManager.handleEvents(m_clock.getDeltaSeconds());
+        m_clock.restart();
+        drawFrame();
+    }
+    m_device.waitIdle();
+}
+
+void ven::Engine::createUniformBuffers() {
+    m_uniformBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    m_uniformBuffersMemory.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    m_uniformBuffersMapped.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (uint8_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+        m_device.createBuffer(Renderer::UNIFORM_BUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_uniformBuffers.at(i), m_uniformBuffersMemory.at(i));
+        vkMapMemory(m_device.getVkDevice(), m_uniformBuffersMemory.at(i), 0, Renderer::UNIFORM_BUFFER_SIZE, 0, &m_uniformBuffersMapped.at(i));
+    }
+}
+
+void ven::Engine::drawFrame() {
+    uint32_t imageIndex = 0;
+    if (vkWaitForFences(m_device.getVkDevice(), 1, &m_renderer.getSwapChain().getInFlightFences().at(m_currentFrame), VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
+        throw utl::THROW_ERROR("failed to wait for fence!");
+    }
+    VkResult result = m_renderer.getSwapChain().acquireNextImage(imageIndex, m_currentFrame);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        m_renderer.recreateSwapChain();
+        return;
+    } if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw utl::THROW_ERROR("failed to acquire swap chain image!");
+    }
+    m_renderer.updateUniformBuffer(m_uniformBuffersMapped.at(m_currentFrame), m_models);
+    vkResetFences(m_device.getVkDevice(), 1, &m_renderer.getSwapChain().getInFlightFences().at(m_currentFrame));
+    vkResetCommandBuffer(m_commandBuffers.at(m_currentFrame), /*VkCommandBufferResetFlagBits*/ 0);
+    m_renderer.recordCommandBuffer(imageIndex, m_indicesSize, &m_descriptorSets.getDescriptorSets().at(m_currentFrame), m_commandBuffers.at(m_currentFrame), m_indexBuffer, m_vertexBuffer);
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    const std::array waitSemaphores = {m_renderer.getSwapChain().getImageAvailableSemaphores().at(m_currentFrame)};
+    constexpr std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = waitSemaphores.size();
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = waitStages.data();
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_commandBuffers.at(m_currentFrame);
+    const std::array signalSemaphores = {m_renderer.getSwapChain().getRenderFinishedSemaphores().at(m_currentFrame)};
+    submitInfo.signalSemaphoreCount = signalSemaphores.size();
+    submitInfo.pSignalSemaphores = signalSemaphores.data();
+    if (vkQueueSubmit(m_device.getGraphicsQueue(), 1, &submitInfo, m_renderer.getSwapChain().getInFlightFences().at(m_currentFrame)) != VK_SUCCESS) {
+        throw utl::THROW_ERROR("failed to submit draw command buffer!");
+    }
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = signalSemaphores.size();
+    presentInfo.pWaitSemaphores = signalSemaphores.data();
+    const std::array swapChains = {m_renderer.getSwapChain().getSwapChain()};
+    presentInfo.swapchainCount = swapChains.size();
+    presentInfo.pSwapchains = swapChains.data();
+    presentInfo.pImageIndices = &imageIndex;
+    result = vkQueuePresentKHR(m_device.getPresentQueue(), &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window.wasWindowResized()) {
+        m_window.resetWindowResizedFlag();
+        m_renderer.recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw utl::THROW_ERROR("failed to present swap chain image!");
+    }
+    m_currentFrame = (m_currentFrame + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 }

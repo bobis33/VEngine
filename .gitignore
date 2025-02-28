@@ -1,9 +1,11 @@
 # CMake
 cmake-build-debug/*
 cmake-build-release/*
-cmake-build-release-tests/*
-build/*
+cmake-build-tests/*
+cmake-build-format/*
+cmake-build-doc/*
 out/*
+
 include/VEngine/Generated/*
 
 # IDE

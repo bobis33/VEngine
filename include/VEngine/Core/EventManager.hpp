@@ -6,16 +6,11 @@
 
 #pragma once
 
-#include "VEngine/Core/Gui.hpp"
-#include "VEngine/Utils/Utils.hpp"
+#include "VEngine/Core/Window.hpp"
+#include "VEngine/Scene/Camera.hpp"
 
 namespace ven {
 
-    struct KeyAction {
-        uint16_t key;
-        glm::vec3* dir;
-        glm::vec3 value;
-    };
 
     struct KeyMappings {
         uint16_t moveLeft = GLFW_KEY_A;
@@ -43,7 +38,7 @@ namespace ven {
 
         public:
 
-            EventManager() = default;
+            explicit EventManager(Camera& camera, const Window& window): m_camera(camera), m_window(window) { }
             ~EventManager() = default;
 
             EventManager(const EventManager&) = delete;
@@ -51,18 +46,16 @@ namespace ven {
             EventManager(EventManager&&) = delete;
             EventManager& operator=(EventManager&&) = delete;
 
-            void handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, float dt) const;
+            void handleEvents(float dt) const;
 
         private:
 
-            static void moveCamera(GLFWwindow* window, Camera& camera, float dt);
-            static void updateEngineState(ENGINE_STATE *engineState, const ENGINE_STATE newState) { *engineState = newState; }
-            static bool isKeyJustPressed(GLFWwindow* window, long unsigned int key, std::array<bool, GLFW_KEY_LAST>& keyStates);
-
             template<typename Iterator>
             static void processKeyActions(GLFWwindow* window, Iterator begin, Iterator end);
+            static bool isKeyJustPressed(GLFWwindow* window, long unsigned int key, std::array<bool, GLFW_KEY_LAST>& keyStates);
 
-            mutable std::array<bool, GLFW_KEY_LAST> m_keyState{};
+            Camera &m_camera;
+            const Window& m_window;
 
     }; // class EventManager
 
