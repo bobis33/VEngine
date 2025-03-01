@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
 
     steps:
@@ -26,7 +26,7 @@ jobs:
         run: ./tools/install-dependencies.sh build
 
       - name: Build
-        run: ./tools/build.sh build
+        run: ./tools/build.sh release
 
       - name: Check binary
         run: |

@@ -1,6 +1,8 @@
 #include <cstring>
 #include <memory>
 #include <optional>
+#include <unordered_map>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 

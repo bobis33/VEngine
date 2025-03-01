@@ -1,6 +1,8 @@
 #include <cstring>
 #include <memory>
 #include <optional>
+#include <vector>
+#include <unordered_map>
 
 #include <vulkan/vulkan.h>
 
@@ -18,7 +20,7 @@ void ven::Engine::init() {
 }
 
 void ven::Engine::loadAssets() {
-    const std::array<const std::string, 3> modelPaths = {"assets/models/sponza/sponza.obj", "assets/models/book.obj", "assets/models/viking_room.obj"};
+    const std::array<const std::string, 1> modelPaths = {"assets/models/sponza/sponza.obj"};
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     uint32_t vertexOffset = 0;

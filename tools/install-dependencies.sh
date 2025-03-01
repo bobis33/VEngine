@@ -20,7 +20,6 @@ sudo apt update -y
 case $1 in
     build)
         sudo apt install -y libxkbcommon-dev xorg-dev libwayland-dev
-        installVulkanSDK
         ;;
     doc)
         sudo apt install -y libgl1-mesa-dev qt6-base-dev texlive-latex-base texlive-latex-recommended texlive-latex-extra graphviz

@@ -11,11 +11,3 @@ include/VEngine/Generated/*
 # IDE
 .idea/*
 .vs/*
-
-# Binary files
-vengine
-vengine-tests
-vengine.exe
-vengine-tests.exe
-vengine.pdb
-vengine.ilk

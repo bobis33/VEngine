@@ -1,3 +1,4 @@
+#include <array>
 #include <string>
 
 #include <vulkan/vulkan.h>

@@ -1,5 +1,6 @@
 #include <array>
 #include <memory>
+#include <unordered_map>
 #include <optional>
 
 #include <glm/glm.hpp>
