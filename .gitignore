@@ -1,19 +1,7 @@
-# CMake
-cmake-build-debug/*
-cmake-build-release/*
-cmake-build-release-tests/*
-build/*
+cmake-build-*
 out/*
+
 include/VEngine/Generated/*
 
-# IDE
 .idea/*
 .vs/*
-
-# Binary files
-vengine
-vengine-tests
-vengine.exe
-vengine-tests.exe
-vengine.pdb
-vengine.ilk

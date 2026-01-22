@@ -17,6 +17,8 @@ Welcome to **VEngine**, a Vulkan-based game engine.
 I Build this project to learn more about Vulkan and graphics programming in general.
 The goal is to create an efficient engine that can be used for various projects, such as games, simulations, and visualizations.
 
+![VEngine_preview_sponza](assets/images/vengine.png)
+
 
 ## Features
 
@@ -49,17 +51,8 @@ git submodule update --init --recursive
 
 Make sure you have the following dependencies installed on your system:
 
-- [CMake 3.27](https://cmake.org/)
+- [CMake 3.30](https://cmake.org/)
 - [C++20](https://en.cppreference.com/w/cpp/20)
-- [Vulkan SDK](https://www.vulkan.org/)
-- [X11](https://www.x.org/wiki/) (Linux only)
-- [LLVM](https://llvm.org/)
-
-If you are using a Debian-based distribution, you can install the dependencies using the following command:
-
-```bash
-./tools/install-dependencies.sh build
-```
 
 
 ### Linux
@@ -67,15 +60,16 @@ If you are using a Debian-based distribution, you can install the dependencies u
 #### Build and Run
 
 ```bash
-./tools/build.sh build
+./tools/build.sh release
 ```
-> This script also handle several other commands: `tests`, `format` and `doc`.
+> This script also handle several other commands: `debug`, `tests`, `format` and `doc`.
 
 Then you can run the engine:
 
 ```bash
 ./vengine [options]
 ```
+> Binary is located in our build directory.
 
 
 ### Windows
@@ -99,6 +93,7 @@ Then you can run the engine:
 ```powershell
 .\vengine.exe [options]
 ```
+> Binary is located in our build directory.
 
 
 ### Command Line Options
@@ -163,6 +158,7 @@ Then you can access the documentation at [http://localhost:8080](http://localhos
 
 ## External Libraries
 
+- [**Vulkan SDK**](https://www.vulkan.org/): The official Vulkan SDK for developing with the Vulkan API.
 - [**Assimp**](https://github.com/assimp/assimp): Open Asset Import Library to load various 3D model formats into the engine.
 - [**Doxygen Awesome CSS**](https://github.com/jothepro/doxygen-awesome-css): A custom CSS theme for Doxygen documentation.
 - [**GLFW**](https://github.com/glfw/glfw): For creating windows, receiving input, and managing OpenGL and Vulkan contexts.

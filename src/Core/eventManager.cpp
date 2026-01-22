@@ -1,78 +1,48 @@
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/norm.hpp>
+#include <array>
+#include <string>
+
+#include <vulkan/vulkan.h>
+
+#include <glm/glm.hpp>
 
 #include "VEngine/Core/EventManager.hpp"
 
-bool ven::EventManager::isKeyJustPressed(GLFWwindow* window, const long unsigned int key, std::array<bool, GLFW_KEY_LAST>& keyStates)
-{
-    const bool isPressed = glfwGetKey(window, static_cast<int>(key)) == GLFW_PRESS;
-    const bool wasPressed = keyStates.at(key);
+constexpr float EPSILON = std::numeric_limits<float>::epsilon();
 
-    keyStates.at(key) = isPressed;
-
-    return isPressed && !wasPressed;
-}
-
-template<typename Iterator>
-void ven::EventManager::processKeyActions(GLFWwindow* window, Iterator begin, Iterator end)
-{
-    for (auto it = begin; it != end; ++it) {
-        if (glfwGetKey(window, it->key) == GLFW_PRESS) {
-            *it->dir += it->value;
-        }
-    }
-}
-
-void ven::EventManager::moveCamera(GLFWwindow* window, Camera& camera, const float dt)
-{
-    glm::vec3 rotate{0};
-    glm::vec3 moveDir{0.F};
-    static constexpr glm::vec3 upDir{0.F, -1.F, 0.F};
-    const float yaw = camera.transform.rotation.y;
-    const glm::vec3 forwardDir{std::sin(yaw), 0.F, std::cos(yaw)};
-    const glm::vec3 rightDir{forwardDir.z, 0.F, -forwardDir.x};
-    const std::array<KeyAction, 10> moveActions = {{
-        {.key=DEFAULT_KEY_MAPPINGS.lookLeft, .dir=&rotate, .value={0.F, -1.F, 0.F}},
-        {.key=DEFAULT_KEY_MAPPINGS.lookRight, .dir=&rotate, .value={0.F, 1.F, 0.F}},
-        {.key=DEFAULT_KEY_MAPPINGS.lookUp, .dir=&rotate, .value={1.F, 0.F, 0.F}},
-        {.key=DEFAULT_KEY_MAPPINGS.lookDown, .dir=&rotate, .value={-1.F, 0.F, 0.F}},
-        {.key=DEFAULT_KEY_MAPPINGS.moveForward, .dir=&moveDir, .value=forwardDir},
-        {.key=DEFAULT_KEY_MAPPINGS.moveBackward, .dir=&moveDir, .value=-forwardDir},
-        {.key=DEFAULT_KEY_MAPPINGS.moveRight, .dir=&moveDir, .value=rightDir},
-        {.key=DEFAULT_KEY_MAPPINGS.moveLeft, .dir=&moveDir, .value=-rightDir},
-        {.key=DEFAULT_KEY_MAPPINGS.moveUp, .dir=&moveDir, .value=upDir},
-        {.key=DEFAULT_KEY_MAPPINGS.moveDown, .dir=&moveDir, .value=-upDir}
+void ven::EventManager::handleEvents(const float dt) const {
+    glm::vec3 moveDir(0.0F);
+    float yawOffset = 0.0F;
+    float pitchOffset = 0.0F;
+    const std::array<std::pair<uint16_t, glm::vec3>, 6> moveMappings = {{
+        {m_keyMappings.moveForward, m_camera.getFront()},
+        {m_keyMappings.moveBackward, -m_camera.getFront()},
+        {m_keyMappings.moveLeft, -m_camera.getRight()},
+        {m_keyMappings.moveRight, m_camera.getRight()},
+        {m_keyMappings.moveUp, m_camera.getUp()},
+        {m_keyMappings.moveDown, -m_camera.getUp()}
     }};
+    const std::array<std::pair<uint16_t, float*>, 4> lookMappings = {{
+        {m_keyMappings.lookLeft, &yawOffset},
+        {m_keyMappings.lookRight, &yawOffset},
+        {m_keyMappings.lookUp, &pitchOffset},
+        {m_keyMappings.lookDown, &pitchOffset}
+    }};
+    Window::pollEvents();
 
-    processKeyActions(window, moveActions.begin(), moveActions.end());
-
-    if (const float lengthRotate = length2(rotate); lengthRotate > EPSILON) {
-        camera.transform.rotation += camera.getLookSpeed() * dt * rotate / std::sqrt(lengthRotate);
-    }
-    if (const float lengthMove = length2(moveDir); lengthMove > EPSILON) {
-        camera.transform.translation += camera.getMoveSpeed() * dt * moveDir / std::sqrt(lengthMove);
-    }
-
-    camera.transform.rotation.x = glm::clamp(camera.transform.rotation.x, -1.5F, 1.5F);
-    camera.transform.rotation.y = glm::mod(camera.transform.rotation.y, glm::two_pi<float>());
-}
-
-void ven::EventManager::handleEvents(GLFWwindow *window, ENGINE_STATE *engineState, Camera& camera, Gui& gui, const float dt) const
-{
-    glfwPollEvents();
-    if (glfwWindowShouldClose(window) == GLFW_TRUE) {
-        updateEngineState(engineState, EXIT);
-    }
-    if (isKeyJustPressed(window, DEFAULT_KEY_MAPPINGS.toggleGui, m_keyState)) {
-        if (gui.getState() != HIDDEN) {
-            gui.setState(HIDDEN);
-        } else {
-            if (*engineState == EDITOR) {
-                gui.setState(SHOW_EDITOR);
-            } else {
-                gui.setState(SHOW_PLAYER);
-            }
+    for (const auto& [key, direction] : moveMappings) {
+        if (m_window.isKeyPressed(key)) {
+            moveDir += direction;
         }
     }
-    moveCamera(window, camera, dt);
+    if (glm::length(moveDir) > EPSILON) {
+        m_camera.move(moveDir, dt);
+    }
+    for (const auto& [key, offset] : lookMappings) {
+        if (m_window.isKeyPressed(key)) {
+            *offset += key == m_keyMappings.lookLeft || key == m_keyMappings.lookDown ? -1.0F : 1.0F;
+        }
+    }
+    if (yawOffset != 0.0F || pitchOffset != 0.0F) {
+        m_camera.rotate(yawOffset, pitchOffset, dt);
+    }
 }

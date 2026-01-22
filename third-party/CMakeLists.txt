@@ -1,56 +1,25 @@
 add_library(thirdparty INTERFACE)
-
-set(THIRDPARTY_LIBS)
-set(THIRDPARTY_INCLUDE_DIRS)
-
 #======================================= Vulkan ======================================#
-find_package(Vulkan REQUIRED)
-set(THIRDPARTY_LIBS
-        ${THIRDPARTY_LIBS}
-        ${Vulkan_LIBRARIES}
-)
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${Vulkan_INCLUDE_DIRS}
-)
-
+list(APPEND THIRDPARTY_INCLUDE_DIRS Vulkan::Headers)
+list(APPEND THIRDPARTY_LIBS ${Vulkan_LIBS})
 #======================================= Assimp ======================================#
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(assimp)
-set(THIRDPARTY_LIBS
-        ${THIRDPARTY_LIBS}
-        assimp
-)
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include
-)
-
-#======================================== GLFW =======================================#
+list(APPEND THIRDPARTY_LIBS assimp)
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
+#======================================= GLFW =======================================#
 add_subdirectory(glfw)
-set(THIRDPARTY_LIBS
-        ${THIRDPARTY_LIBS}
-        glfw
-)
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
-)
-
-#======================================== GLM ========================================#
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/glm
-)
-
-#===================================== GoogleTest ====================================#
+list(APPEND THIRDPARTY_LIBS glfw)
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include)
+#======================================= GLM =======================================#
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glm)
+#======================================= GoogleTest =======================================#
 if (BUILD_TESTS)
     add_subdirectory(googletest)
 endif()
-
 #======================================= ImGui =======================================#
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 file(GLOB IMGUI_SRCS
@@ -66,25 +35,17 @@ target_include_directories(imgui PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
         ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include
-        ${Vulkan_INCLUDE_DIRS}
+        Vulkan::Headers
 )
+if (TARGET Vulkan::Headers)
+    target_link_libraries(imgui PRIVATE Vulkan::Vulkan)
+else()
+    target_include_directories(imgui PRIVATE ${Vulkan_HEADERS})
+    target_link_libraries(imgui PRIVATE ${Vulkan_LIBS})
+endif()
+list(APPEND THIRDPARTY_LIBS imgui)
+list(APPEND THIRDPARTY_INCLUDE_DIRS ${IMGUI_DIR} ${IMGUI_DIR}/backends)
 
-set(THIRDPARTY_LIBS
-        ${THIRDPARTY_LIBS}
-        imgui
-)
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${IMGUI_DIR}
-        ${IMGUI_DIR}/backends
-)
-
-#======================================== STB ========================================#
-set(THIRDPARTY_INCLUDE_DIRS
-        ${THIRDPARTY_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/stb
-)
-
-target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS})
+target_link_libraries(thirdparty INTERFACE ${THIRDPARTY_LIBS} Vulkan::Vulkan)
 target_include_directories(thirdparty SYSTEM INTERFACE ${THIRDPARTY_INCLUDE_DIRS})
 set(THIRDPARTY_LIBRARIES thirdparty PARENT_SCOPE)
