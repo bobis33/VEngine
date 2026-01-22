@@ -1,7 +1,11 @@
-#include <unistd.h>
+#ifdef __linux__
+    #include <unistd.h>
+#endif
 #include <fstream>
 
 #include "Utils/MemoryMonitor.hpp"
+
+#include <string>
 
 static constexpr double KB_TO_MB = 1024.0;
 
@@ -27,5 +31,7 @@ void ven::MemoryMonitor::updateProcessMemory() {
     if (!file.is_open()) return;
     long rss = 0;
     file >> rss;
+#ifdef __linux__
     process_memory_usage = rss * sysconf(_SC_PAGE_SIZE) / (KB_TO_MB * KB_TO_MB);
+#endif
 }

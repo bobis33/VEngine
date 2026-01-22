@@ -14,6 +14,8 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
+#include <array>
+
 namespace ven {
 
     struct QueueFamilyIndices {

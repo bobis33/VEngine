@@ -12,7 +12,7 @@ void ven::TextureManager::loadTextures(const Device& device, const SwapChain& sw
     auto& instance = getInstance();
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         const auto& path = entry.path();
-        const std::string& filename = path.string();
+        const std::string& filename = path.generic_string();
         if (const auto& extension = path.extension();
             instance.m_texturePaths.contains(filename) || extension != ".png" && extension != ".jpg") {
             continue;

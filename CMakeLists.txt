@@ -12,6 +12,7 @@ if (BUILD_DOC)
 endif()
 include(ClangTidy)
 include(ClangFormat)
+include(CopyAssets)
 clangformat_setup()
 if (BUILD_TESTS)
     include(MakeTests)
@@ -26,3 +27,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE thirdparty modules)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+
+copy_directory_to_target(
+        ${PROJECT_NAME}
+        "${CMAKE_SOURCE_DIR}/assets"
+        "assets"
+)

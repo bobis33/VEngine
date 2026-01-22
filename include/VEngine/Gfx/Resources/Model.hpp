@@ -10,6 +10,8 @@
 #include "VEngine/Gfx/Resources/Texture.hpp"
 #include "VEngine/Gfx/Resources/Transform.hpp"
 
+#include <unordered_map>
+
 namespace ven {
 
     ///
